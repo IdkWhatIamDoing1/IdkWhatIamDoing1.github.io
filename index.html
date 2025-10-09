@@ -5,31 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Webpage</title>
   <style>
-    /* Make the background black and center the content */
+    /* Black background, center content */
     body {
       background-color: black;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
-      color: white; /* optional, for text */
+      color: white;
       font-family: sans-serif;
     }
 
     /* Style for images */
     .clickable-image {
-      width: 200px; /* change size if you want */
+      width: 200px;          /* change size if needed */
       margin: 20px;
       cursor: pointer;
-      border: 2px solid white; /* optional, just makes it stand out */
+      border: 2px solid white; /* optional border */
       border-radius: 10px;
       transition: transform 0.2s;
     }
 
     .clickable-image:hover {
-      transform: scale(1.05); /* small zoom effect on hover */
+      transform: scale(1.05); /* hover effect */
     }
   </style>
 </head>
@@ -37,11 +37,13 @@
 
   <h1>Welcome to My Website</h1>
 
-  <!-- Clickable image -->
-  <img src="image1.jpg" class="clickable-image" onclick="window.location.href='about.html'" alt="About Page">
+  <!-- First image -->
+  <img src="images/image1.jpg" class="clickable-image" 
+       onclick="window.location.href='about.html'" alt="About Page">
 
-  <!-- Add another image if you want -->
-  <!-- <img src="image2.jpg" class="clickable-image" onclick="window.location.href='projects.html'" alt="Projects Page"> -->
+  <!-- Second image -->
+  <img src="images/image2.jpg" class="clickable-image" 
+       onclick="window.location.href='projects.html'" alt="Projects Page">
 
 </body>
 </html>
