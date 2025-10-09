@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Webpage</title>
   <style>
-    /* General page styling */
     body {
       background-color: black;
       display: flex;
@@ -23,46 +22,45 @@
       text-align: center;
     }
 
-    /* Responsive grid */
+    /* Responsive grid layout */
     .image-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 20px;
-      max-width: 800px;
       width: 90%;
+      max-width: 1000px;
     }
 
-    /* Box styling */
+    /* 16:9 boxes for images */
     .image-box {
       width: 100%;
-      aspect-ratio: 1 / 1; /* keeps boxes square */
+      aspect-ratio: 16 / 9;
+      border: 2px solid white;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      background-color: black;
+      transition: transform 0.2s, box-shadow 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 2px solid white;
-      border-radius: 10px;
-      cursor: pointer;
-      overflow: hidden; /* hides image overflow */
-      background-color: black;
-      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .image-box:hover {
-      transform: scale(1.05);
+      transform: scale(1.03);
       box-shadow: 0 0 10px white;
     }
 
-    /* Make image fill the box fully */
+    /* Image fills the entire box */
     .image-box img {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* fills and stretches to fit the box */
+      object-fit: cover; /* fill box without black borders */
     }
 
-    /* Optional: Adjust grid layout for smaller screens */
     @media (max-width: 600px) {
       .image-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(1, 1fr);
       }
     }
   </style>
