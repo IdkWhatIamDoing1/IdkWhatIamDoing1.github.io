@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Webpage</title>
   <style>
-    /* Black background, center content */
     body {
       background-color: black;
       display: flex;
@@ -22,7 +21,7 @@
       margin-bottom: 40px;
     }
 
-    /* Container for images */
+    /* Grid for the project boxes */
     .image-grid {
       display: flex;
       flex-wrap: wrap;
@@ -31,19 +30,28 @@
       max-width: 800px;
     }
 
-    /* Style for images */
-    .clickable-image {
-      width: 150px;
-      height: 150px;
-      object-fit: contain;
-      cursor: pointer;
+    /* Wrapper box around each image */
+    .image-box {
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border: 2px solid white;
       border-radius: 10px;
-      transition: transform 0.2s;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    .clickable-image:hover {
+    .image-box:hover {
       transform: scale(1.05);
+      box-shadow: 0 0 10px white;
+    }
+
+    .image-box img {
+      width: 90%;
+      height: 90%;
+      object-fit: contain;
     }
   </style>
 </head>
@@ -53,16 +61,32 @@
 
   <div class="image-grid">
     <!-- 7 Coming Soon buttons -->
-    <img src="images/comingsoon.svg" class="clickable-image" onclick="window.location.href='index.html'" alt="Coming Soon">
-    <img src="images/comingsoon.svg" class="clickable-image" onclick="window.location.href='index.html'" alt="Coming Soon">
-    <img src="images/comingsoon.svg" class="clickable-image" onclick="window.location.href='index.html'" alt="Coming Soon">
-    <img src="images/comingsoon.svg" class="clickable-image" onclick="window.location.href='index.html'" alt="Coming Soon">
-    <img src="images/comingsoon.svg" class="clickable-image" onclick="window.location.href='index.html'" alt="Coming Soon">
-    <img src="images/comingsoon.svg" class="clickable-image" onclick="window.location.href='index.html'" alt="Coming Soon">
-    <img src="images/comingsoon.svg" class="clickable-image" onclick="window.location.href='index.html'" alt="Coming Soon">
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
 
     <!-- Face Tracking Test button -->
-    <img src="images/facetrackingtest.svg" class="clickable-image" onclick="window.location.href='Face-tracking.html'" alt="Face Tracking Test">
+    <div class="image-box" onclick="window.location.href='Face-tracking.html'">
+      <img src="images/facetrackingtest.svg" alt="Face Tracking Test">
+    </div>
   </div>
 
 </body>
