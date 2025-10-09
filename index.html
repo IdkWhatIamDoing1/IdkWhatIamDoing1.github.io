@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Webpage</title>
   <style>
+    /* General page styling */
     body {
       background-color: black;
       display: flex;
@@ -19,27 +20,30 @@
 
     h1 {
       margin-bottom: 40px;
+      text-align: center;
     }
 
-    /* Grid for the project boxes */
+    /* Responsive grid */
     .image-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 20px;
       max-width: 800px;
+      width: 90%;
     }
 
-    /* Wrapper box around each image */
+    /* Box styling */
     .image-box {
-      width: 180px;
-      height: 180px;
+      width: 100%;
+      aspect-ratio: 1 / 1; /* keeps boxes square */
       display: flex;
       align-items: center;
       justify-content: center;
       border: 2px solid white;
       border-radius: 10px;
       cursor: pointer;
+      overflow: hidden; /* hides image overflow */
+      background-color: black;
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
@@ -48,10 +52,18 @@
       box-shadow: 0 0 10px white;
     }
 
+    /* Make image fill the box fully */
     .image-box img {
-      width: 90%;
-      height: 90%;
-      object-fit: contain;
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* fills and stretches to fit the box */
+    }
+
+    /* Optional: Adjust grid layout for smaller screens */
+    @media (max-width: 600px) {
+      .image-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
   </style>
 </head>
