@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Select Something Below</title>
+  <title>My Webpage</title>
   <style>
     body {
       background-color: black;
@@ -29,18 +29,20 @@
       text-align: center;
     }
 
+    /* Responsive grid layout */
     .image-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       width: 90%;
       max-width: 1000px;
     }
 
+    /* 16:9 boxes for images */
     .image-box {
       width: 100%;
       aspect-ratio: 16 / 9;
-      border: 2px solid black;
+      border: 2px solid black; /* black border */
       border-radius: 10px;
       overflow: hidden;
       cursor: pointer;
@@ -53,30 +55,38 @@
 
     .image-box:hover {
       transform: scale(1.03);
-      box-shadow: 0 0 10px black;
+      box-shadow: 0 0 10px black; /* black hover glow */
     }
 
+    /* Image fills the entire box */
     .image-box img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
+    /* 2 per row on tablet/mobile */
+    @media (max-width: 900px) {
+      .image-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     @media (max-width: 600px) {
       .image-grid {
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
 </head>
 <body>
-  <h1>Select Something Below</h1>
+  <h1>Checking Your Connection</h1>
 
   <!-- Projects Section -->
-  <h2>Projects / Games</h2>
+  <h2>Projects</h2>
   <div class="image-grid">
-    <div class="image-box" onclick="window.location.href='games/game.html'">
-      <img src="images/Lookatthecircle.svg" alt="Look At The Circle">
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
     </div>
     <div class="image-box" onclick="window.location.href='index.html'">
       <img src="images/comingsoon.svg" alt="Coming Soon">
@@ -140,19 +150,5 @@
       <img src="images/comingsoon.svg" alt="Coming Soon">
     </div>
   </div>
-
-  <script>
-    // 🔍 Check status.txt to see if maintenance mode is active
-    fetch('status.txt')
-      .then(response => response.text())
-      .then(text => {
-        if (text.trim().toLowerCase() === 'maintenance') {
-          window.location.href = 'maintenance.html';
-        }
-      })
-      .catch(error => {
-        console.error('Error checking site status:', error);
-      });
-  </script>
 </body>
 </html>
