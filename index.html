@@ -3,46 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Webpage</title>
+  <title>Select Something Below</title>
   <style>
     body {
+      background-color: black;
+      color: white;
+      font-family: sans-serif;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* Loading Screen */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: black;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    #loading-screen h1 {
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
+
+    .spinner {
+      border: 5px solid rgba(255, 255, 255, 0.2);
+      border-top: 5px solid white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Hidden until loaded */
+    #content {
+      display: none;
       background-color: black;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       min-height: 100vh;
-      margin: 0;
       color: white;
-      font-family: sans-serif;
       padding: 20px 0;
+    }
+
+    h1, h2 {
+      text-align: center;
     }
 
     h1 {
       margin-bottom: 20px;
-      text-align: center;
     }
 
     h2 {
       margin-top: 50px;
       margin-bottom: 20px;
-      text-align: center;
     }
 
-    /* Responsive grid layout */
     .image-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 20px;
       width: 90%;
       max-width: 1000px;
     }
 
-    /* 16:9 boxes for images */
     .image-box {
       width: 100%;
       aspect-ratio: 16 / 9;
-      border: 2px solid black; /* black border */
+      border: 2px solid black;
       border-radius: 10px;
       overflow: hidden;
       cursor: pointer;
@@ -55,100 +94,123 @@
 
     .image-box:hover {
       transform: scale(1.03);
-      box-shadow: 0 0 10px black; /* black hover glow */
+      box-shadow: 0 0 10px black;
     }
 
-    /* Image fills the entire box */
     .image-box img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    /* 2 per row on tablet/mobile */
-    @media (max-width: 900px) {
-      .image-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
     @media (max-width: 600px) {
       .image-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(1, 1fr);
       }
     }
   </style>
 </head>
 <body>
-  <h1>Checking Your Connection</h1>
 
-  <!-- Projects Section -->
-  <h2>Projects</h2>
-  <div class="image-grid">
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="spinner"></div>
+    <h1>Checking Your Connection</h1>
+  </div>
+
+  <!-- Content (hidden until ready) -->
+  <div id="content">
+    <h1>Select Something Below</h1>
+
+    <!-- Projects Section -->
+    <h2>Projects / Games</h2>
+    <div class="image-grid">
+      <div class="image-box" onclick="window.location.href='games/game.html'">
+        <img src="images/Lookatthecircle.svg" alt="Look At The Circle">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
     </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
+
+    <!-- Experiments Section -->
+    <h2>Experiments</h2>
+    <div class="image-grid">
+      <div class="image-box" onclick="window.location.href='Face-tracking.html'">
+        <img src="images/facetrackingtest.svg" alt="Face Tracking Test">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
     </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
+
+    <!-- Utilities Section -->
+    <h2>Utilities</h2>
+    <div class="image-grid">
+      <div class="image-box" onclick="window.location.href='https://www.google.com'">
+        <img src="images/redirecttogoogle.svg" alt="Redirect To Google">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
     </div>
   </div>
 
-  <!-- Experiments Section -->
-  <h2>Experiments</h2>
-  <div class="image-grid">
-    <div class="image-box" onclick="window.location.href='Face-tracking.html'">
-      <img src="images/facetrackingtest.svg" alt="Face Tracking Test">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-  </div>
+  <script>
+    // Check status before loading site
+    fetch('status.txt')
+      .then(response => response.text())
+      .then(text => {
+        if (text.trim().toLowerCase() === 'maintenance') {
+          window.location.href = 'maintenance.html';
+        } else {
+          document.getElementById('loading-screen').style.display = 'none';
+          document.getElementById('content').style.display = 'flex';
+          document.body.style.overflow = 'auto';
+        }
+      })
+      .catch(error => {
+        console.error('Error checking site status:', error);
+        document.getElementById('loading-screen').querySelector('h1').textContent =
+          'Unable to connect. Please check your connection.';
+      });
+  </script>
 
-  <!-- Utilities Section -->
-  <h2>Utilities</h2>
-  <div class="image-grid">
-    <div class="image-box" onclick="window.location.href='https://www.google.com'">
-      <img src="images/redirecttogoogle.svg" alt="Redirect To Google">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-    <div class="image-box" onclick="window.location.href='index.html'">
-      <img src="images/comingsoon.svg" alt="Coming Soon">
-    </div>
-  </div>
 </body>
 </html>
