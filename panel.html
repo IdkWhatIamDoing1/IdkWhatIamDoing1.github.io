@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maintenance Panel</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 100px;
+    }
+    button {
+      margin: 10px;
+      padding: 15px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+    }
+    .on { background-color: red; }
+    .off { background-color: green; }
+  </style>
+</head>
+<body>
+  <h1 id="status-text">Checking access...</h1>
+  <div id="controls" style="display:none;">
+    <button class="on" onclick="setMaintenance('maintenance')">Maintenance ON</button>
+    <button class="off" onclick="setMaintenance('online')">Maintenance OFF</button>
+  </div>
+
+  <script>
+    // --- CONFIG ---
+    const COOKIE_NAME = 'Admin';
+    const COOKIE_VALUE = 'letmepassiamreal1234';
+    const GITHUB_TOKEN = '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';
+    const REPO_OWNER = 'IdkWhatIAmDoing1';
+    const REPO_NAME = 'IdkWhatIAmDoing1.github.io';
+    const FILE_PATH = 'status.txt';
+    const BRANCH = 'main'; // or 'master' depending on your repo
+
+    // --- HELPER: read cookie ---
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    const cookie = getCookie(Admin);
+
+    if (cookie === letmepassiamreal1234) {
+      document.getElementById('status-text').textContent = 'Admin Access Granted';
+      document.getElementById('controls').style.display = 'block';
+    } else {
+      document.body.innerHTML = '<h1>403: Not Allowed</h1>';
+    }
+
+    async function setMaintenance(status) {
+      document.getElementById('status-text').textContent = 'Updating...';
+
+      // Step 1: Get the file’s current SHA
+      const getRes = await fetch(`https://api.github.com/repos/${IdkWhatIAmDoing1}/${IdkWhatIAmDoing1.github.io}/contents/${status.txt}?ref=${main}`, {
+        headers: { Authorization: `token ${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}` }
+      });
+      const fileData = await getRes.json();
+      const sha = fileData.sha;
+
+      // Step 2: Update the file
+      const updateRes = await fetch(`https://api.github.com/repos/${IdkWhatIAmDoing1}/${IdkWhatIAmDoing1.github.io}/contents/${status.txt}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `token ${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}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `Set maintenance status to ${status}`,
+          content: btoa(status), // base64 encode new content
+          sha: sha,
+          branch: BRANCH
+        })
+      });
+
+      if (updateRes.ok) {
+        document.getElementById('status-text').textContent = `Status set to: ${status.toUpperCase()}`;
+      } else {
+        document.getElementById('status-text').textContent = 'Error updating file.';
+      }
+    }
+  </script>
+</body>
+</html>
