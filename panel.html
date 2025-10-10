@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maintenance Panel</title>
@@ -26,8 +24,8 @@
   </style>
 </head>
 <body>
-  <h1 id="status-text">Checking access...</h1>
-  <div id="controls" style="display:none;">
+  <h1 id="status-text">Error updating file.</h1>
+  <div id="controls" style="display: block;">
     <button class="on" onclick="setMaintenance('maintenance')">Maintenance ON</button>
     <button class="off" onclick="setMaintenance('online')">Maintenance OFF</button>
   </div>
@@ -36,7 +34,7 @@
     // --- CONFIG ---
     const COOKIE_NAME = 'admincookie';
     const COOKIE_VALUE = 'iamadminsohi';
-    const GITHUB_TOKEN = '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';
+    const GITHUB_TOKEN = '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';
     const REPO_OWNER = 'IdkWhatIAmDoing1';
     const REPO_NAME = 'IdkWhatIAmDoing1.github.io';
     const FILE_PATH = 'status.txt';
@@ -90,5 +88,6 @@
       }
     }
   </script>
-</body>
-</html>
+
+
+</body></html>
