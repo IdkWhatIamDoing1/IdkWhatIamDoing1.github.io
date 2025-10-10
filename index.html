@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Webpage</title>
+  <title>All Projects</title>
   <style>
     body {
       background-color: black;
@@ -51,6 +51,15 @@
       color: #ccc;
     }
 
+    /* No results message */
+    .no-results {
+      display: none;
+      color: #aaa;
+      margin-top: 30px;
+      font-size: 18px;
+      text-align: center;
+    }
+
     /* Responsive grid layout */
     .image-grid {
       display: grid;
@@ -64,7 +73,6 @@
     .image-box {
       width: 100%;
       aspect-ratio: 16 / 9;
-      border: 2px solid white;
       border-radius: 10px;
       overflow: hidden;
       cursor: pointer;
@@ -77,7 +85,7 @@
 
     .image-box:hover {
       transform: scale(1.03);
-      box-shadow: 0 0 10px white;
+      box-shadow: 0 0 15px white;
     }
 
     .image-box img {
@@ -177,13 +185,17 @@
     </div>
   </section>
 
+  <!-- No results message -->
+  <div id="noResults" class="no-results">No results found 😢</div>
+
   <script>
     const searchInput = document.getElementById('searchInput');
-    const boxes = document.querySelectorAll('.image-box');
     const sections = document.querySelectorAll('.section');
+    const noResults = document.getElementById('noResults');
 
     searchInput.addEventListener('input', () => {
       const query = searchInput.value.toLowerCase();
+      let anyVisible = false;
 
       sections.forEach(section => {
         const imageBoxes = section.querySelectorAll('.image-box');
@@ -196,9 +208,12 @@
           if (match) visibleCount++;
         });
 
-        // Hide section if no matches
         section.style.display = visibleCount > 0 ? 'block' : 'none';
+        if (visibleCount > 0) anyVisible = true;
       });
+
+      // Show or hide "No results" message
+      noResults.style.display = anyVisible ? 'none' : 'block';
     });
   </script>
 
