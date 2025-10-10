@@ -19,7 +19,7 @@
     }
 
     h1 {
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       text-align: center;
     }
 
@@ -27,28 +27,6 @@
       margin-top: 50px;
       margin-bottom: 20px;
       text-align: center;
-    }
-
-    /* Search bar styling */
-    .search-container {
-      margin: 10px 0 30px 0;
-      text-align: center;
-      width: 90%;
-      max-width: 500px;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid white;
-      border-radius: 5px;
-      background-color: black;
-      color: white;
-      font-size: 16px;
-    }
-
-    .search-input::placeholder {
-      color: #ccc;
     }
 
     /* Responsive grid layout */
@@ -77,9 +55,10 @@
 
     .image-box:hover {
       transform: scale(1.03);
-      box-shadow: 0 0 10px white;
+      box-shadow: 0 0 10px black; /* changed from white to black */
     }
 
+    /* Image fills the entire box */
     .image-box img {
       width: 100%;
       height: 100%;
@@ -94,112 +73,75 @@
   </style>
 </head>
 <body>
-
   <h1>Select a Project Below</h1>
 
-  <!-- 🔍 Search Section -->
-  <div class="search-container">
-    <input type="text" id="searchInput" class="search-input" placeholder="Search projects or experiments...">
+  <!-- Projects Section -->
+  <h2>Projects</h2>
+  <div class="image-grid">
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
   </div>
 
-  <!-- Projects Section -->
-  <section class="section" id="projects">
-    <h2>Projects</h2>
-    <div class="image-grid">
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-    </div>
-  </section>
-
   <!-- Experiments Section -->
-  <section class="section" id="experiments">
-    <h2>Experiments</h2>
-    <div class="image-grid">
-      <div class="image-box" data-title="Face Tracking Test" onclick="window.location.href='Face-tracking.html'">
-        <img src="images/facetrackingtest.svg" alt="Face Tracking Test">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
+  <h2>Experiments</h2>
+  <div class="image-grid">
+    <div class="image-box" onclick="window.location.href='Face-tracking.html'">
+      <img src="images/facetrackingtest.svg" alt="Face Tracking Test">
     </div>
-  </section>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+  </div>
 
   <!-- Utilities Section -->
-  <section class="section" id="utilities">
-    <h2>Utilities</h2>
-    <div class="image-grid">
-      <div class="image-box" data-title="Redirect To Google" onclick="window.location.href='https://www.google.com'">
-        <img src="images/redirecttogoogle.svg" alt="Redirect To Google">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
+  <h2>Utilities</h2>
+  <div class="image-grid">
+    <div class="image-box" onclick="window.location.href='https://www.google.com'">
+      <img src="images/redirecttogoogle.svg" alt="Redirect To Google">
     </div>
-  </section>
-
-  <script>
-    const searchInput = document.getElementById('searchInput');
-    const sections = document.querySelectorAll('.section');
-
-    searchInput.addEventListener('input', () => {
-      const query = searchInput.value.toLowerCase();
-
-      sections.forEach(section => {
-        const imageBoxes = section.querySelectorAll('.image-box');
-        let visibleCount = 0;
-
-        imageBoxes.forEach(box => {
-          const title = box.getAttribute('data-title').toLowerCase();
-          const match = title.includes(query);
-          box.style.display = match ? 'flex' : 'none';
-          if (match) visibleCount++;
-        });
-
-        // Hide section if no matches
-        section.style.display = visibleCount > 0 ? 'block' : 'none';
-      });
-    });
-  </script>
-
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+  </div>
 </body>
 </html>
