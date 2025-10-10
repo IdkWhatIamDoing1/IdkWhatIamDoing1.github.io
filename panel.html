@@ -34,8 +34,8 @@
 
   <script>
     // --- CONFIG ---
-    const COOKIE_NAME = 'Admin';
-    const COOKIE_VALUE = 'letmepassiamreal1234';
+    const COOKIE_NAME = 'admincookie';
+    const COOKIE_VALUE = 'iamadminsohi';
     const GITHUB_TOKEN = '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';
     const REPO_OWNER = 'IdkWhatIAmDoing1';
     const REPO_NAME = 'IdkWhatIAmDoing1.github.io';
@@ -49,9 +49,9 @@
       if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
-    const cookie = getCookie(Admin);
+    const cookie = getCookie(COOKIE_NAME);
 
-    if (cookie === letmepassiamreal1234) {
+    if (cookie === COOKIE_VALUE) {
       document.getElementById('status-text').textContent = 'Admin Access Granted';
       document.getElementById('controls').style.display = 'block';
     } else {
@@ -62,17 +62,17 @@
       document.getElementById('status-text').textContent = 'Updating...';
 
       // Step 1: Get the file’s current SHA
-      const getRes = await fetch(`https://api.github.com/repos/${IdkWhatIAmDoing1}/${IdkWhatIAmDoing1.github.io}/contents/${status.txt}?ref=${main}`, {
-        headers: { Authorization: `token ${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}` }
+      const getRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`, {
+        headers: { Authorization: `token ${GITHUB_TOKEN}` }
       });
       const fileData = await getRes.json();
       const sha = fileData.sha;
 
       // Step 2: Update the file
-      const updateRes = await fetch(`https://api.github.com/repos/${IdkWhatIAmDoing1}/${IdkWhatIAmDoing1.github.io}/contents/${status.txt}`, {
+      const updateRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
         method: 'PUT',
         headers: {
-          Authorization: `token ${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}`,
+          Authorization: `token ${GITHUB_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
