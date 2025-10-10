@@ -15,7 +15,7 @@
       margin: 0;
       color: white;
       font-family: sans-serif;
-      padding-top: 120px; 
+      padding: 20px 0;
     }
 
     h1 {
@@ -29,26 +29,12 @@
       text-align: center;
     }
 
-   
-    .sticky-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: black;
-      border-bottom: 2px solid white;
-      padding: 15px 0;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
+    /* Search bar styling */
     .search-container {
+      margin: 10px 0 30px 0;
+      text-align: center;
       width: 90%;
       max-width: 500px;
-      text-align: center;
     }
 
     .search-input {
@@ -65,28 +51,20 @@
       color: #ccc;
     }
 
-    .no-results {
-      display: none;
-      color: #aaa;
-      margin-top: 30px;
-      font-size: 18px;
-      text-align: center;
-    }
-
-   
+    /* Responsive grid layout */
     .image-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 20px;
       width: 90%;
       max-width: 1000px;
-      justify-items: center;
     }
 
-   
+    /* 16:9 boxes for images */
     .image-box {
       width: 100%;
       aspect-ratio: 16 / 9;
+      border: 2px solid black; /* changed from white to black */
       border-radius: 10px;
       overflow: hidden;
       cursor: pointer;
@@ -99,35 +77,32 @@
 
     .image-box:hover {
       transform: scale(1.03);
-      box-shadow: 0 0 15px white;
+      box-shadow: 0 0 10px white;
     }
 
     .image-box img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
     }
 
-   
-    @media (max-width: 1000px) {
+    @media (max-width: 600px) {
       .image-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(1, 1fr);
       }
     }
   </style>
 </head>
 <body>
 
- 
-  <div class="sticky-bar">
-    <h1>Select a Project Below</h1>
-    <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search projects or experiments...">
-    </div>
+  <h1>Select a Project Below</h1>
+
+  <!-- 🔍 Search Section -->
+  <div class="search-container">
+    <input type="text" id="searchInput" class="search-input" placeholder="Search projects or experiments...">
   </div>
 
-  
+  <!-- Projects Section -->
   <section class="section" id="projects">
     <h2>Projects</h2>
     <div class="image-grid">
@@ -140,10 +115,28 @@
       <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
         <img src="images/comingsoon.svg" alt="Coming Soon">
       </div>
+      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
     </div>
   </section>
 
- 
+  <!-- Experiments Section -->
   <section class="section" id="experiments">
     <h2>Experiments</h2>
     <div class="image-grid">
@@ -156,10 +149,19 @@
       <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
         <img src="images/comingsoon.svg" alt="Coming Soon">
       </div>
+      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
+      <div class="image-box" data-title="Coming Soon" onclick="window.location.href='index.html'">
+        <img src="images/comingsoon.svg" alt="Coming Soon">
+      </div>
     </div>
   </section>
 
-  
+  <!-- Utilities Section -->
   <section class="section" id="utilities">
     <h2>Utilities</h2>
     <div class="image-grid">
@@ -175,17 +177,12 @@
     </div>
   </section>
 
-  <!-- 😢 Message if no search results -->
-  <div id="noResults" class="no-results">No results found 😢</div>
-
   <script>
     const searchInput = document.getElementById('searchInput');
     const sections = document.querySelectorAll('.section');
-    const noResults = document.getElementById('noResults');
 
     searchInput.addEventListener('input', () => {
       const query = searchInput.value.toLowerCase();
-      let anyVisible = false;
 
       sections.forEach(section => {
         const imageBoxes = section.querySelectorAll('.image-box');
@@ -198,11 +195,9 @@
           if (match) visibleCount++;
         });
 
+        // Hide section if no matches
         section.style.display = visibleCount > 0 ? 'block' : 'none';
-        if (visibleCount > 0) anyVisible = true;
       });
-
-      noResults.style.display = anyVisible ? 'none' : 'block';
     });
   </script>
 
