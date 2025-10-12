@@ -5,48 +5,103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Vault</title>
 <style>
-  body {
-    background:black; color:white; font-family:sans-serif; margin:0;
-    display:flex; justify-content:center; align-items:flex-start; flex-direction:column; min-height:100vh; text-align:center; padding-top:40px;
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: black;
+    color: white;
+    font-family: sans-serif;
+    overflow: hidden; /* keep body from scrolling, scroll handled by #content */
   }
-  h1 { font-size:2rem; margin:0; opacity:0; transform:scale(0.95); animation:fadeIn 1s forwards ease-out; }
-  p { opacity:0; margin-top:15px; color:#ccc; animation:fadeIn 1.5s forwards ease-out; animation-delay:0.6s; }
-  @keyframes fadeIn{ to{ opacity:1; transform:scale(1); } }
+
+  /* Content wrapper that scrolls */
+  #content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    height: 100%;
+    overflow-y: auto; /* scroll if content is tall */
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin: 0;
+    opacity: 0;
+    transform: scale(0.95);
+    animation: fadeIn 1s forwards ease-out;
+  }
+
+  p {
+    opacity: 0;
+    margin-top: 15px;
+    color: #ccc;
+    animation: fadeIn 1.5s forwards ease-out;
+    animation-delay: 0.6s;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: scale(1); }
+  }
 
   /* Vault doors */
-  .door { position:fixed; top:0; width:50%; height:100%; background:#111; z-index:100; transition: transform 1s ease-in-out; }
-  .door.left{ left:0; transform:translateX(0); }
-  .door.right{ right:0; transform:translateX(0); }
-  .door.open-left{ transform:translateX(-100%); }
-  .door.open-right{ transform:translateX(100%); }
+  .door {
+    position: fixed;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: #111;
+    z-index: 100;
+    transition: transform 1s ease-in-out;
+  }
+  .door.left { left: 0; transform: translateX(0); }
+  .door.right { right: 0; transform: translateX(0); }
+  .door.open-left { transform: translateX(-100%); }
+  .door.open-right { transform: translateX(100%); }
 
   /* Image Grid */
   .image-grid {
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:20px;
-    width:90%;
-    max-width:1000px;
-    margin:40px auto 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 90%;
+    max-width: 1000px;
+    margin-top: 40px;
   }
+
   .image-box {
-    width:100%;
-    aspect-ratio:16/9;
-    border:2px solid black;
-    border-radius:10px;
-    overflow:hidden;
-    cursor:pointer;
-    background-color:black;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: 2px solid black;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.2s, box-shadow 0.2s;
   }
+
   .image-box:hover {
     transform: scale(1.03);
-    box-shadow:0 0 10px black;
+    box-shadow: 0 0 10px black;
   }
-  .image-box img { width:100%; height:100%; object-fit:cover; }
+
+  .image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Responsive: 1 per row on small screens */
+  @media (max-width: 600px) {
+    .image-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 </head>
 <body>
@@ -54,37 +109,39 @@
 <div class="door left"></div>
 <div class="door right"></div>
 
-<h1>Welcome to The Vault.</h1>
-<p>Secret Things Just For You.</p>
+<div id="content">
+  <h1>Welcome to The Vault 🔒</h1>
+  <p>Secret Things, Just For You.</p>
 
-<!-- Coming Soon Grid -->
-<div class="image-grid">
-  <div class="image-box" onclick="window.location.href='index.html'">
-    <img src="images/comingsoon.svg" alt="Coming Soon">
-  </div>
-  <div class="image-box" onclick="window.location.href='index.html'">
-    <img src="images/comingsoon.svg" alt="Coming Soon">
-  </div>
-  <div class="image-box" onclick="window.location.href='index.html'">
-    <img src="images/comingsoon.svg" alt="Coming Soon">
-  </div>
-  <div class="image-box" onclick="window.location.href='index.html'">
-    <img src="images/comingsoon.svg" alt="Coming Soon">
-  </div>
-  <div class="image-box" onclick="window.location.href='index.html'">
-    <img src="images/comingsoon.svg" alt="Coming Soon">
-  </div>
-  <div class="image-box" onclick="window.location.href='index.html'">
-    <img src="images/comingsoon.svg" alt="Coming Soon">
-  </div>
-  <div class="image-box" onclick="window.location.href='index.html'">
-    <img src="images/comingsoon.svg" alt="Coming Soon">
-  </div>
-  <div class="image-box" onclick="window.location.href='index.html'">
-    <img src="images/comingsoon.svg" alt="Coming Soon">
-  </div>
-  <div class="image-box" onclick="window.location.href='index.html'">
-    <img src="images/comingsoon.svg" alt="Coming Soon">
+  <!-- Coming Soon Grid -->
+  <div class="image-grid">
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
+    <div class="image-box" onclick="window.location.href='index.html'">
+      <img src="images/comingsoon.svg" alt="Coming Soon">
+    </div>
   </div>
 </div>
 
@@ -95,25 +152,30 @@
 
   // Vault access check
   if(!data){ window.location.href='index.html'; return; }
-  try{
+  try {
     const {expiry}=JSON.parse(data);
-    if(Date.now()>expiry){ sessionStorage.removeItem(SESSION_KEY); window.location.href='index.html'; return; }
-  }catch{ window.location.href='index.html'; return; }
+    if(Date.now() > expiry){ sessionStorage.removeItem(SESSION_KEY); window.location.href='index.html'; return; }
+  } catch {
+    window.location.href='index.html'; return;
+  }
 
   // Remove token so it can't be reused
   sessionStorage.removeItem(SESSION_KEY);
 
   // Vault door animation
   window.addEventListener('load', ()=>{
-    const leftDoor=document.querySelector('.door.left');
-    const rightDoor=document.querySelector('.door.right');
-    setTimeout(()=>{ leftDoor.classList.add('open-left'); rightDoor.classList.add('open-right'); },400);
+    const leftDoor = document.querySelector('.door.left');
+    const rightDoor = document.querySelector('.door.right');
+    setTimeout(()=>{
+      leftDoor.classList.add('open-left');
+      rightDoor.classList.add('open-right');
+    }, 400);
   });
 
   // Maintenance check (reuse from index.html)
   const MAINTENANCE = sessionStorage.getItem('maintenance') === 'true';
   if(MAINTENANCE){
-    alert('Error');
+    alert('Site is under maintenance.');
     window.location.href='index.html';
   }
 })();
