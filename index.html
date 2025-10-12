@@ -46,9 +46,8 @@
 
     /* Hidden until loaded */
     #content {
-      display: none;
+      display: none; /* start hidden */
       background-color: black;
-      display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
@@ -192,55 +191,62 @@
     </div>
   </div>
 
-<!-- Hidden button and vault access script -->
-<button id="hidden-btn" title="hidden" aria-hidden="true"></button>
+  <!-- Hidden button and vault access script -->
+  <button id="hidden-btn" title="hidden" aria-hidden="true"></button>
 
-<script>
-(function(){
-  const PASSWORD = 'secret123';
-  const SESSION_KEY = 'vaultAccess';
-  const TTL_MS = 5 * 60 * 1000; // 5 minutes
+  <script>
+    // Vault script
+    (function(){
+      const PASSWORD = 'secret123';
+      const SESSION_KEY = 'vaultAccess';
+      const TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-  // Save a valid session
-  function setVaultSession() {
-    const expiry = Date.now() + TTL_MS;
-    const payload = JSON.stringify({ expiry });
-    sessionStorage.setItem(SESSION_KEY, payload);
-  }
+      function setVaultSession() {
+        const expiry = Date.now() + TTL_MS;
+        const payload = JSON.stringify({ expiry });
+        sessionStorage.setItem(SESSION_KEY, payload);
+      }
 
-  function hasVaultSession() {
-    const data = sessionStorage.getItem(SESSION_KEY);
-    if (!data) return false;
-    try {
-      const { expiry } = JSON.parse(data);
-      return expiry > Date.now();
-    } catch {
-      return false;
-    }
-  }
+      function hasVaultSession() {
+        const data = sessionStorage.getItem(SESSION_KEY);
+        if (!data) return false;
+        try {
+          const { expiry } = JSON.parse(data);
+          return expiry > Date.now();
+        } catch {
+          return false;
+        }
+      }
 
-  function onHiddenClick() {
-    const attempt = prompt('Enter password:');
-    if (attempt === null) return;
-    if (attempt === PASSWORD) {
-      setVaultSession();
-      window.location.href = 'thevault.html';
-    } else {
-      alert('Incorrect password');
-    }
-  }
+      function onHiddenClick() {
+        const attempt = prompt('Enter password:');
+        if (attempt === null) return;
+        if (attempt === PASSWORD) {
+          setVaultSession();
+          window.location.href = 'thevault.html';
+        } else {
+          alert('Incorrect password');
+        }
+      }
 
-  // Make sure it works both via click and Ctrl+Shift+V
-  const btn = document.getElementById('hidden-btn');
-  btn.addEventListener('click', onHiddenClick);
+      const btn = document.getElementById('hidden-btn');
+      btn.addEventListener('click', onHiddenClick);
 
-  window.addEventListener('keydown', (ev) => {
-    if (ev.ctrlKey && ev.shiftKey && ev.key.toLowerCase() === 'v') {
-      onHiddenClick();
-    }
-  });
-})();
-</script>
+      window.addEventListener('keydown', (ev) => {
+        if (ev.ctrlKey && ev.shiftKey && ev.key.toLowerCase() === 'v') {
+          onHiddenClick();
+        }
+      });
+    })();
+
+    // Fix for loading screen
+    window.addEventListener('load', () => {
+      const loadingScreen = document.getElementById('loading-screen');
+      const content = document.getElementById('content');
+      loadingScreen.style.display = 'none';
+      content.style.display = 'flex';
+    });
+  </script>
 
 </body>
 </html>
