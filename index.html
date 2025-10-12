@@ -192,6 +192,9 @@
     </div>
   </div>
 
+  <!-- Hidden Vault Button -->
+  <button id="hidden-btn" title="hidden" aria-hidden="true"></button>
+
   <script>
     // Check status before loading site
     fetch('status.txt')
@@ -210,6 +213,66 @@
         document.getElementById('loading-screen').querySelector('h1').textContent =
           'Unable to connect. Please check your connection.';
       });
+
+    // --- Hidden button styling ---
+    (function(){
+      const style = document.createElement('style');
+      style.textContent = `
+        #hidden-btn{
+          position: fixed;
+          right: 6px;
+          bottom: 6px;
+          width: 18px;
+          height: 18px;
+          padding: 0;
+          margin: 0;
+          border-radius: 50%;
+          border: none;
+          background: #111;
+          opacity: 0.06;
+          cursor: pointer;
+          z-index: 99999;
+          transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        #hidden-btn:hover{ opacity: 0.22; transform: scale(1.15); }
+        #hidden-btn:focus{ outline: 2px solid #444; opacity: 0.28; }
+      `;
+      document.head.appendChild(style);
+    })();
+
+    // --- Password-protected vault access ---
+    (function(){
+      const PASSWORD = 'secret123';       // change to your own
+      const SESSION_KEY = 'vaultAccess';
+      const TTL_MS = 5 * 60 * 1000;       // expires after 5 mins
+
+      function setVaultSession() {
+        const token = Math.random().toString(36).slice(2);
+        const expiry = Date.now() + TTL_MS;
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token, expiry }));
+      }
+
+      function onHiddenClick(){
+        const attempt = prompt('Enter password:');
+        if (attempt === null) return;
+        if (attempt === PASSWORD) {
+          setVaultSession();
+          window.location.href = 'thevault.html';
+        } else {
+          alert('Incorrect password');
+        }
+      }
+
+      const btn = document.getElementById('hidden-btn');
+      if (btn) btn.addEventListener('click', onHiddenClick);
+
+      // Keyboard shortcut (Ctrl+Shift+V)
+      window.addEventListener('keydown', (ev) => {
+        if (ev.ctrlKey && ev.shiftKey && ev.key.toLowerCase() === 'v') {
+          onHiddenClick();
+        }
+      });
+    })();
   </script>
 
 </body>
