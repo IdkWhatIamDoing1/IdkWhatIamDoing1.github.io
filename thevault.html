@@ -1,114 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Vault</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      background-color: black;
+      background: black;
       color: white;
-      font-family: "Segoe UI", sans-serif;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      flex-direction: column;
+      font-family: sans-serif;
       text-align: center;
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin: 0;
-      opacity: 0;
-      transform: scale(0.95);
-      animation: fadeIn 1s forwards ease-out;
-    }
-
-    p {
-      opacity: 0;
-      margin-top: 15px;
-      color: #ccc;
-      font-size: 1rem;
-      animation: fadeIn 1.5s forwards ease-out;
-      animation-delay: 0.6s;
-    }
-
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    /* Vault door effect */
-    .door {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 50%;
-      height: 100%;
-      background-color: #111;
-      z-index: 100;
-      transform: translateX(0);
-      transition: transform 1s ease-in-out;
-    }
-
-    .door.right {
-      left: auto;
-      right: 0;
-      background-color: #111;
-      transform: translateX(0);
-    }
-
-    .door.open-left {
-      transform: translateX(-100%);
-    }
-
-    .door.open-right {
-      transform: translateX(100%);
+      padding-top: 100px;
     }
   </style>
 </head>
 <body>
-  <!-- Vault doors -->
-  <div class="door left"></div>
-  <div class="door right"></div>
+  <h1>Welcome to The Vault</h1>
+  <p>Admin options below:</p>
 
-  <!-- Main content -->
-  <h1>Welcome to The Vault 🔒</h1>
-  <p>You've successfully unlocked the secret area.</p>
+  <div id="content">
+    <button onclick="window.location.href='panel.html'">Open Maintenance Panel</button>
+  </div>
 
   <script>
-    // Check session-based access
-    const access = sessionStorage.getItem("vaultAccess");
+  (function(){
+    const SESSION_KEY = 'vaultAccess';
+    const data = sessionStorage.getItem(SESSION_KEY);
 
-    if (access !== "granted") {
-      // If no access, redirect back
-      window.location.href = "index.html";
-    } else {
-      // Remove access token so it can’t be reused
-      sessionStorage.removeItem("vaultAccess");
-
-      // Play vault door open animation
-      window.addEventListener("load", () => {
-        const leftDoor = document.querySelector(".door.left");
-        const rightDoor = document.querySelector(".door.right");
-
-        // Wait a brief moment for dramatic effect
-        setTimeout(() => {
-          leftDoor.classList.add("open-left");
-          rightDoor.classList.add("open-right");
-        }, 400);
-      });
+    if (!data) {
+      window.location.href = 'index.html';
+      return;
     }
+
+    try {
+      const { expiry } = JSON.parse(data);
+      if (Date.now() > expiry) {
+        sessionStorage.removeItem(SESSION_KEY);
+        window.location.href = 'index.html';
+      }
+    } catch {
+      window.location.href = 'index.html';
+    }
+  })();
   </script>
 </body>
 </html>
