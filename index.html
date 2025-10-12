@@ -1,244 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Select Something Below</title>
-  <style>
-    body {
-      background-color: black;
-      color: white;
-      font-family: sans-serif;
-      margin: 0;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Something Below</title>
+<style>
+  body { background: black; color: white; font-family: sans-serif; margin: 0; overflow: hidden; }
 
-    /* Loading Screen */
-    #loading-screen {
-      position: fixed;
-      inset: 0;
-      background: black;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
+  /* Loading Screen */
+  #loading-screen {
+    position: fixed; inset: 0;
+    background: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  #loading-screen h1 { margin-top: 20px; font-size: 1.2rem; }
+  .spinner {
+    border: 5px solid rgba(255,255,255,0.2);
+    border-top:5px solid white;
+    border-radius:50%;
+    width:50px; height:50px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    #loading-screen h1 {
-      margin-top: 20px;
-      font-size: 1.2rem;
-    }
+  #content { display: none; flex-direction: column; align-items:center; justify-content:flex-start; min-height:100vh; padding:20px 0; }
 
-    .spinner {
-      border: 5px solid rgba(255, 255, 255, 0.2);
-      border-top: 5px solid white;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-    }
+  h1,h2 { text-align:center; }
+  h1 { margin-bottom:20px; }
+  h2 { margin:50px 0 20px 0; }
 
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    /* Hidden until loaded */
-    #content {
-      display: none;
-      background-color: black;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      color: white;
-      padding: 20px 0;
-    }
-
-    h1, h2 {
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-    }
-
-    h2 {
-      margin-top: 50px;
-      margin-bottom: 20px;
-    }
-
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      width: 90%;
-      max-width: 1000px;
-    }
-
-    .image-box {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border: 2px solid black;
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      background-color: black;
-      transition: transform 0.2s, box-shadow 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .image-box:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 10px black;
-    }
-
-    .image-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    @media (max-width: 600px) {
-      .image-grid {
-        grid-template-columns: repeat(1, 1fr);
-      }
-    }
-  </style>
+  .image-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; width:90%; max-width:1000px; }
+  .image-box { width:100%; aspect-ratio:16/9; border:2px solid black; border-radius:10px; overflow:hidden; cursor:pointer; background:black; transition: transform 0.2s, box-shadow 0.2s; display:flex; align-items:center; justify-content:center; }
+  .image-box:hover { transform:scale(1.03); box-shadow:0 0 10px black; }
+  .image-box img { width:100%; height:100%; object-fit:cover; }
+  @media (max-width:600px) { .image-grid { grid-template-columns:repeat(1,1fr); } }
+</style>
 </head>
 <body>
 
-  <!-- Loading Screen -->
-  <div id="loading-screen">
-    <div class="spinner"></div>
-    <h1>Checking Your Connection</h1>
+<!-- Loading -->
+<div id="loading-screen">
+  <div class="spinner"></div>
+  <h1>Checking Your Connection</h1>
+</div>
+
+<!-- Main Content -->
+<div id="content">
+  <h1>Select Something Below</h1>
+
+  <!-- Projects -->
+  <h2>Projects / Games</h2>
+  <div class="image-grid">
+    <div class="image-box" onclick="window.location.href='games/game.html'"><img src="images/Lookatthecircle.svg" alt="Look At The Circle"></div>
+    <div class="image-box" onclick="window.location.href='index.html'"><img src="images/comingsoon.svg" alt="Coming Soon"></div>
+    <div class="image-box" onclick="window.location.href='index.html'"><img src="images/comingsoon.svg" alt="Coming Soon"></div>
+    <div class="image-box" onclick="window.location.href='index.html'"><img src="images/comingsoon.svg" alt="Coming Soon"></div>
   </div>
 
-  <!-- Content (hidden until ready) -->
-  <div id="content">
-    <h1>Select Something Below</h1>
-
-    <!-- Projects Section -->
-    <h2>Projects / Games</h2>
-    <div class="image-grid">
-      <div class="image-box" onclick="window.location.href='games/game.html'">
-        <img src="images/Lookatthecircle.svg" alt="Look At The Circle">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-    </div>
-
-    <!-- Experiments Section -->
-    <h2>Experiments</h2>
-    <div class="image-grid">
-      <div class="image-box" onclick="window.location.href='Face-tracking.html'">
-        <img src="images/facetrackingtest.svg" alt="Face Tracking Test">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-    </div>
-
-    <!-- Utilities Section -->
-    <h2>Utilities</h2>
-    <div class="image-grid">
-      <div class="image-box" onclick="window.location.href='https://www.google.com'">
-        <img src="images/redirecttogoogle.svg" alt="Redirect To Google">
-      </div>
-      <div class="image-box" onclick="window.location.href='games/preformancetest/preformancetest.html'">
-        <img src="images/preformancetest.svg" alt="Preformance Test">
-      </div>
-      <div class="image-box" onclick="window.location.href='index.html'">
-        <img src="images/comingsoon.svg" alt="Coming Soon">
-      </div>
-    </div>
+  <!-- Experiments -->
+  <h2>Experiments</h2>
+  <div class="image-grid">
+    <div class="image-box" onclick="window.location.href='Face-tracking.html'"><img src="images/facetrackingtest.svg" alt="Face Tracking Test"></div>
+    <div class="image-box" onclick="window.location.href='index.html'"><img src="images/comingsoon.svg" alt="Coming Soon"></div>
   </div>
 
-  <!-- Hidden button and vault access script -->
+  <!-- Utilities -->
+  <h2>Utilities</h2>
+  <div class="image-grid">
+    <div class="image-box" onclick="window.location.href='https://www.google.com'"><img src="images/redirecttogoogle.svg" alt="Redirect To Google"></div>
+    <div class="image-box" onclick="window.location.href='games/preformancetest/preformancetest.html'"><img src="images/preformancetest.svg" alt="Performance Test"></div>
+  </div>
+</div>
+
+<!-- Hidden Vault Button -->
 <button id="hidden-btn" title="hidden" aria-hidden="true"></button>
 
 <script>
-(function(){
-  const PASSWORD = 'secret123';
-  const SESSION_KEY = 'vaultAccess';
-  const TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-  // Save a valid session
-  function setVaultSession() {
-    const expiry = Date.now() + TTL_MS;
-    const payload = JSON.stringify({ expiry });
-    sessionStorage.setItem(SESSION_KEY, payload);
-  }
-
-  function hasVaultSession() {
-    const data = sessionStorage.getItem(SESSION_KEY);
-    if (!data) return false;
-    try {
-      const { expiry } = JSON.parse(data);
-      return expiry > Date.now();
-    } catch {
-      return false;
+  // Maintenance check
+  fetch('status.txt').then(r=>r.text()).then(t=>{
+    if(t.trim().toLowerCase()==='maintenance'){ window.location.href='maintenance.html'; }
+    else {
+      document.getElementById('loading-screen').style.display='none';
+      document.getElementById('content').style.display='flex';
+      document.body.style.overflow='auto';
     }
-  }
-
-  function onHiddenClick() {
-    const attempt = prompt('Enter password:');
-    if (attempt === null) return;
-    if (attempt === PASSWORD) {
-      setVaultSession();
-      window.location.href = 'thevault.html';
-    } else {
-      alert('Incorrect password');
-    }
-  }
-
-  // Make sure it works both via click and Ctrl+Shift+V
-  const btn = document.getElementById('hidden-btn');
-  btn.addEventListener('click', onHiddenClick);
-
-  window.addEventListener('keydown', (ev) => {
-    if (ev.ctrlKey && ev.shiftKey && ev.key.toLowerCase() === 'v') {
-      onHiddenClick();
-    }
+  }).catch(e=>{
+    console.error(e);
+    document.getElementById('loading-screen').querySelector('h1').textContent='Unable to connect. Please check your connection.';
   });
-})();
-</script>
 
+  // Hidden button / Vault
+  (function(){
+    const PASSWORD='secret123';
+    const SESSION_KEY='vaultAccess';
+    const TTL_MS=5*60*1000;
+
+    function setVaultSession(){ 
+      const expiry=Date.now()+TTL_MS;
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({expiry}));
+    }
+    function onHiddenClick(){
+      const attempt=prompt('Enter password:');
+      if(attempt===null) return;
+      if(attempt===PASSWORD){ setVaultSession(); window.location.href='thevault.html'; }
+      else if(attempt) alert('Incorrect password');
+    }
+
+    const btn=document.getElementById('hidden-btn');
+    btn.style.position='fixed';
+    btn.style.right='6px';
+    btn.style.bottom='6px';
+    btn.style.width='18px';
+    btn.style.height='18px';
+    btn.style.border='none';
+    btn.style.borderRadius='50%';
+    btn.style.background='#111';
+    btn.style.opacity='0.06';
+    btn.style.cursor='pointer';
+    btn.style.zIndex='99999';
+    btn.addEventListener('click', onHiddenClick);
+    window.addEventListener('keydown', ev=>{ if(ev.ctrlKey&&ev.shiftKey&&ev.key.toLowerCase()==='v') onHiddenClick(); });
+  })();
+</script>
+</body>
+</html>
