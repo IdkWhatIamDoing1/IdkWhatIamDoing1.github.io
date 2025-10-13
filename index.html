@@ -251,63 +251,16 @@ function openExplorerUI(initialFolder='desktop'){
   overlay.addEventListener('click',(ev)=>{if(ev.target===overlay) closeExplorer();});
   openBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0) openFileAt(explorerState.selectedIndex);});
   deleteBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0) deleteFileAt(explorerState.selectedIndex);});
-  renameBtn.addEventListener('click',()=>
-  renameBtn.addEventListener('click',()=>{
-    if(explorerState.selectedIndex>=0){
-      const list=explorerState.folders[explorerState.current];
-      const file=list[explorerState.selectedIndex];
-      const newName=prompt('Rename "'+file.name+'" to:',file.name);
-      if(newName){
-        // Optional: prevent changing file extension
-        const oldExt=file.name.split('.').pop();
-        const newExt=newName.includes('.')?newName.split('.').pop():oldExt;
-        file.name=newName.replace(/\.[^/.]+$/,'.'+newExt);
-        renderFiles();
-      }
-    }
-  });
+  renameBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0){const list=explorerState.folders[explorerState.current];const file=list[explorerState.selectedIndex];const newName=prompt('Rename "'+file.name+'" to:',file.name);if(newName){const oldExt=file.name.split('.').pop();const newExt=newName.includes('.')?newName.split('.').pop():oldExt;file.name=newName.replace(/\.[^/.]+$/,'.'+newExt);renderFiles();}}});
 
-  function deleteFileAt(idx){
-    const list=explorerState.folders[explorerState.current];
-    if(confirm('Delete "'+list[idx].name+'"?')){
-      list.splice(idx,1);
-      explorerState.selectedIndex=-1;
-      renderFiles();
-    }
-  }
-
-  function openFileAt(idx){
-    const list=explorerState.folders[explorerState.current];
-    const file=list[idx];
-    if(file.name==='exit.exe'){
-      closeExplorer();
-      appendLine('Explorer.exe closed.');
-    } else {
-      alert('Cannot open "'+file.name+'": file type not supported.');
-    }
-  }
-
-  function closeExplorer(){
-    if(explorerState&&explorerState.overlay){
-      explorerState.overlay.remove();
-      explorerState=null;
-    }
-  }
+  function deleteFileAt(idx){const list=explorerState.folders[explorerState.current];if(confirm('Delete "'+list[idx].name+'"?')){list.splice(idx,1);explorerState.selectedIndex=-1;renderFiles();}}
+  function openFileAt(idx){const list=explorerState.folders[explorerState.current];const file=list[idx];if(file.name==='exit.exe'){closeExplorer();appendLine('Explorer.exe closed.');} else {alert('Cannot open "'+file.name+'": file type not supported.');}}
+  function closeExplorer(){if(explorerState&&explorerState.overlay){explorerState.overlay.remove();explorerState=null;}}
 
   // Make Explorer draggable
   let isDragging=false, dragOffsetX=0, dragOffsetY=0;
-  titlebar.addEventListener('mousedown',e=>{
-    isDragging=true;
-    const rect=win.getBoundingClientRect();
-    dragOffsetX=e.clientX-rect.left;
-    dragOffsetY=e.clientY-rect.top;
-  });
-  document.addEventListener('mousemove',e=>{
-    if(isDragging){
-      win.style.left=(e.clientX-dragOffsetX)+'px';
-      win.style.top=(e.clientY-dragOffsetY)+'px';
-    }
-  });
+  titlebar.addEventListener('mousedown',e=>{isDragging=true; const rect=win.getBoundingClientRect(); dragOffsetX=e.clientX-rect.left; dragOffsetY=e.clientY-rect.top;});
+  document.addEventListener('mousemove',e=>{if(isDragging){win.style.left=(e.clientX-dragOffsetX)+'px'; win.style.top=(e.clientY-dragOffsetY)+'px';}});
   document.addEventListener('mouseup',()=>{isDragging=false;});
 }
 
