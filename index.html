@@ -3,333 +3,263 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Terminal</title>
+<title>Windows Basic Web Edition</title>
 <style>
-  :root{
-    --cmd-bg:#000;
-    --cmd-green:#00ff00;
-    --cmd-red:#ff4c4c;
-    --title-blue:#0078d7;
-    --ui-dark:#0b0b0b;
-    --pane-dark:#0f0f0f;
-    --panel:#111;
-    --muted:#9ca3af;
-    --win-white:#f7f7f7;
-    --win-dark:#1e1e1e;
-    --win-light:#ffffff;
-  }
-  html,body{height:100%;margin:0;background:var(--cmd-bg);font-family:Consolas,monospace;color:var(--cmd-green);overflow:hidden;}
-
-  /* Boot screen */
-  #bootscreen{
-    position:fixed;left:0;top:0;width:100%;height:100%;background:#0078d7;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:"Segoe UI",sans-serif;z-index:5000;
-  }
-  #bootscreen h1{font-size:48px;margin:0;}
-  #bootscreen p{font-size:16px;margin-top:12px;}
-
-  /* center area */
-  .center{height:100%;display:flex;align-items:center;justify-content:center;}
-
-  /* Terminal window */
-  .window{width:86%;max-width:1000px;height:78%;border:2px solid #333;box-shadow:0 20px 40px rgba(0,0,0,.8);display:flex;flex-direction:column;background:var(--ui-dark);}
-  .title-bar{background:var(--title-blue);color:#fff;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;user-select:none;}
-  .title{font-weight:700;font-family:"Segoe UI",sans-serif;}
-  .controls{display:flex;gap:8px;}
-  .control{width:18px;height:18px;background:#fff;color:#000;font-size:12px;border-radius:2px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-
-  .terminal{flex:1;padding:12px;overflow:auto;white-space:pre-wrap;display:flex;flex-direction:column;background:var(--cmd-bg);font-size:15px;}
-  .line{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-  .prompt{color:var(--cmd-green);margin-right:6px;}
-  input.cmd{background:transparent;border:none;outline:none;color:var(--cmd-green);font-family:inherit;font-size:15px;flex:1;}
-  .cursor{display:inline-block;width:10px;height:18px;background:var(--cmd-green);animation:blink 1s step-start infinite;margin-left:6px;}
-  @keyframes blink{50%{opacity:0}}
-
-  /* restore button after minimize */
-  .restore-btn{position:fixed;left:12px;bottom:12px;background:var(--title-blue);color:#fff;padding:6px 10px;border-radius:4px;cursor:pointer;box-shadow:0 6px 12px rgba(0,0,0,0.5);display:none;z-index:2000;}
-
-  /* Explorer styled to match Windows 10 dark */
-  .explorer-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:1500;}
-  .explorer{width:760px;max-width:96%;height:480px;background:var(--win-dark);color:var(--win-light);border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,.8);display:flex;flex-direction:column;border:1px solid rgba(255,255,255,0.1);font-family:Consolas,monospace;}
-  .explorer .titlebar{background:#0078d7;color:#fff;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;font-weight:600;}
-  .explorer .content{flex:1;display:flex;gap:12px;padding:12px;background:var(--win-dark);}
-  .sidebar{width:180px;background:#1e1e1e;padding:6px;border-right:1px solid rgba(255,255,255,0.1);font-size:14px;display:flex;flex-direction:column;gap:6px;}
-  .quick-btn{display:block;padding:8px;border-radius:4px;background:#0078d7;color:#fff;font-weight:600;border:none;cursor:pointer;text-align:left;}
-  .quick-btn:hover{background:#005a9e;}
-  .files-area{flex:1;display:flex;flex-direction:column;gap:8px;background:#252526;border-radius:4px;padding:6px;}
-  .toolbar{display:flex;gap:8px;padding-bottom:6px;}
-  .btn{padding:6px 10px;border-radius:4px;background:#0078d7;color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:600;}
-  .btn:hover{background:#005a9e;}
-  .file-list{display:flex;flex-wrap:wrap;gap:10px;padding:4px;align-items:flex-start}
-  .file{width:150px;min-height:64px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:8px;background:#333;cursor:pointer;display:flex;flex-direction:column;justify-content:center;}
-  .file .name{font-size:14px;color:#fff;word-break:break-all}
-  .file .meta{font-size:12px;color:#7fdc7f;margin-top:6px}
-  .file.selected{outline:2px solid #0078d7;background:#1a1a1a}
-  .explorer-footer{padding:8px 12px;border-top:1px solid rgba(255,255,255,0.1);font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
-
-  /* Message box (Windows-style) */
-  .msg-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2200}
-  .msg-box{width:420px;background:var(--win-white);border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,0.6);overflow:hidden;font-family:"Segoe UI",Tahoma,Arial,sans-serif}
-  .msg-title{background:#0078d7;color:#fff;padding:8px 12px;font-weight:600}
-  .msg-body{padding:18px;color:#111;font-size:14px;background:#f7f7f7;display:flex;align-items:flex-start}
-  .msg-actions{display:flex;justify-content:flex-end;padding:10px 12px;background:#efefef}
-  .msg-actions button{padding:6px 12px;border-radius:4px;border:1px solid #cfcfcf;background:#fff;cursor:pointer}
-  .msg-icon{float:left;width:42px;height:42px;margin-right:12px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#b00}
-
-  /* draggable browser overlay */
-  .browser-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);z-index:2500;}
-  .browser-window{width:800px;height:600px;background:#fff;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,.8);display:flex;flex-direction:column;border:1px solid #555;position:absolute;top:50px;left:50px;}
-  .browser-title{background:#0078d7;color:#fff;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;cursor:move;font-weight:600;}
-  .browser-content{flex:1;}
-  .browser-content iframe{width:100%;height:100%;border:none;border-radius:0 0 6px 6px;}
-
-  /* small helpers */
-  .hidden{display:none}
+:root{
+  --cmd-bg:#000;
+  --cmd-green:#00ff00;
+  --red-terminal:#ff4c4c;
+  --title-blue:#0078d7;
+  --ui-dark:#0b0b0b;
+  --pane-dark:#0f0f0f;
+  --panel:#111;
+  --muted:#9ca3af;
+}
+html,body{height:100%;margin:0;background:var(--cmd-bg);font-family:Consolas,monospace;color:var(--cmd-green);}
+.center{height:100%;display:flex;align-items:center;justify-content:center;}
+.window{width:86%;max-width:1000px;height:78%;border:2px solid #333;box-shadow:0 20px 40px rgba(0,0,0,.8);display:flex;flex-direction:column;background:var(--ui-dark);}
+.title-bar{background:var(--title-blue);color:#fff;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;user-select:none;}
+.title{font-weight:700;font-family:"Segoe UI",sans-serif;}
+.controls{display:flex;gap:8px;}
+.control{width:18px;height:18px;background:#fff;color:#000;font-size:12px;border-radius:2px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.terminal{flex:1;padding:12px;overflow:auto;white-space:pre-wrap;display:flex;flex-direction:column;background:var(--cmd-bg);font-size:15px;}
+.line{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.prompt{color:var(--cmd-green);margin-right:6px;}
+input.cmd{background:transparent;border:none;outline:none;color:var(--cmd-green);font-family:inherit;font-size:15px;flex:1;}
+.cursor{display:inline-block;width:10px;height:18px;background:var(--cmd-green);animation:blink 1s step-start infinite;margin-left:6px;}
+@keyframes blink{50%{opacity:0}}
+.restore-btn{position:fixed;left:12px;bottom:12px;background:var(--title-blue);color:#fff;padding:6px 10px;border-radius:4px;cursor:pointer;box-shadow:0 6px 12px rgba(0,0,0,0.5);display:none;z-index:2000;}
+.explorer-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:1500;}
+.explorer{width:760px;max-width:96%;height:480px;background:#1e1e1e;color:#fff;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,.8);display:flex;flex-direction:column;border:2px solid #222;font-family:Consolas,monospace;position:absolute;}
+.explorer .titlebar{background:#2d2d30;color:#fff;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;cursor:move;}
+.explorer .content{flex:1;display:flex;gap:12px;padding:12px;background:#1e1e1e;border-top:1px solid #111;}
+.sidebar{width:160px;background:transparent;padding:6px;border-right:1px solid rgba(255,255,255,0.03);font-size:14px;}
+.quick-btn{display:block;padding:8px;border-radius:4px;margin-bottom:8px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.03);color:#fff}
+.quick-btn:hover{background:rgba(255,255,255,0.1)}
+.files-area{flex:1;display:flex;flex-direction:column;gap:8px;}
+.toolbar{display:flex;gap:8px;margin-bottom:6px;}
+.btn{padding:6px 10px;border-radius:4px;background:#2d2d30;border:none;cursor:pointer;color:#fff}
+.btn:hover{background:#3e3e42}
+.file-list{display:flex;flex-wrap:wrap;gap:10px;padding:8px;align-items:flex-start}
+.file{width:150px;min-height:64px;border:1px solid rgba(255,255,255,0.03);border-radius:4px;padding:8px;background:#2b2b2b;cursor:pointer;display:flex;flex-direction:column;justify-content:center;color:#fff;}
+.file.selected{outline:2px solid rgba(0,120,215,0.9);background:#3a3d41}
+.file .name{font-size:14px;word-break:break-all}
+.file .meta{font-size:12px;color:#7fdc7f;margin-top:6px}
+.explorer-footer{padding:8px 12px;border-top:1px solid rgba(255,255,255,0.03);font-size:13px;color:#9ca3af;display:flex;justify-content:space-between;align-items:center}
+.msg-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2200}
+.msg-box{width:420px;background:#efefef;border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,0.6);overflow:hidden;font-family:"Segoe UI",Tahoma,Arial,sans-serif}
+.msg-title{background:#0078d7;color:#fff;padding:8px 12px;font-weight:600}
+.msg-body{padding:18px;color:#111;font-size:14px;background:#f7f7f7;display:flex;}
+.msg-actions{display:flex;justify-content:flex-end;padding:10px 12px;background:#efefef}
+.msg-actions button{padding:6px 12px;border-radius:4px;border:1px solid #cfcfcf;background:#fff;cursor:pointer}
+.msg-icon{width:42px;height:42px;margin-right:12px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#b00;flex-shrink:0}
+.hidden{display:none}
+.browser-overlay{position:fixed;left:0;top:0;right:0;bottom:0;z-index:2500;}
+.browser-window{width:800px;height:600px;background:#fff;border:2px solid #555;position:absolute;top:50px;left:50px;display:flex;flex-direction:column;box-shadow:0 16px 40px rgba(0,0,0,0.6);}
+.browser-title{background:#0078d7;color:#fff;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;cursor:move;}
+.browser-content{flex:1;display:flex;flex-direction:column;padding:6px;}
+.browser-content iframe{flex:1;border:none;}
 </style>
 </head>
 <body>
-  <!-- Boot screen -->
-  <div id="bootscreen">
-    <h1>Windows Basic Web Edition</h1>
-    <p>Loading...</p>
+<div class="center" id="bootScreen">
+  <div style="text-align:center;color:#00f;margin-bottom:20px;font-size:30px;font-family:'Segoe UI',sans-serif;">
+    Windows Basic Web Edition<br><small style="font-size:16px;color:#9ca3af;">Loading...</small>
   </div>
+</div>
 
-  <div class="center">
-    <div id="terminalWindow" class="window" role="application" aria-label="Command Prompt">
-      <div class="title-bar">
-        <span class="title">Command Prompt</span>
-        <div class="controls">
-          <div id="minBtn" class="control" title="Minimize">−</div>
-          <div id="maxBtn" class="control" title="Maximize">□</div>
-          <div id="closeBtn" class="control" title="Close">×</div>
-        </div>
+<div class="center" id="mainDesktop" style="display:none;">
+  <div id="terminalWindow" class="window" role="application" aria-label="Command Prompt">
+    <div class="title-bar">
+      <span class="title">Command Prompt</span>
+      <div class="controls">
+        <div id="minBtn" class="control" title="Minimize">−</div>
+        <div id="maxBtn" class="control" title="Maximize">□</div>
+        <div id="closeBtn" class="control" title="Close">×</div>
       </div>
-
-      <div id="terminal" class="terminal" tabindex="0">
-        <div class="line">
-          <span class="prompt">C:\></span>
-          <input id="command" class="cmd" type="text" autocomplete="off" />
-          <span class="cursor" aria-hidden="true"></span>
-        </div>
+    </div>
+    <div id="terminal" class="terminal" tabindex="0">
+      <div class="line">
+        <span class="prompt">C:\></span>
+        <input id="command" class="cmd" type="text" autocomplete="off" />
+        <span class="cursor" aria-hidden="true"></span>
       </div>
     </div>
   </div>
+</div>
 
-  <button id="restoreBtn" class="restore-btn">Command Prompt</button>
-  <button id="hidden-btn" title="hidden" aria-hidden="true" style="display:none"></button>
+<button id="restoreBtn" class="restore-btn">Command Prompt</button>
+<button id="hidden-btn" title="hidden" aria-hidden="true" class="hidden"></button>
 
 <script>
-/***********************
- * Boot screen logic
- ************************/
-window.addEventListener('load', ()=>{
-  setTimeout(()=>{
-    const boot = document.getElementById('bootscreen');
-    if(boot) boot.style.display='none';
-    document.getElementById('command').focus();
-  },1800);
-});
+/***** Boot Screen *****/
+setTimeout(()=>{
+  document.getElementById('bootScreen').style.display='none';
+  document.getElementById('mainDesktop').style.display='flex';
+  document.getElementById('command').focus();
+},1500);
 
-/***********************
- * Vault session code
- ************************/
+/***** Vault *****/
 (function(){
-  const PASSWORD = 'secret123';
-  const SESSION_KEY = 'vaultAccess';
-  const TTL_MS = 5*60*1000;
-
-  function setVaultSession(){
-    const expiry = Date.now()+TTL_MS;
-    sessionStorage.setItem(SESSION_KEY,JSON.stringify({expiry}));
-  }
-
-  function hasVaultSession(){
-    const data = sessionStorage.getItem(SESSION_KEY);
-    if(!data) return false;
-    try{
-      const {expiry}=JSON.parse(data);
-      return expiry>Date.now();
-    }catch{return false;}
-  }
-
-  function onHiddenClick(){
-    const attempt=prompt('Enter password:');
-    if(attempt===null) return;
-    if(attempt===PASSWORD){setVaultSession();window.location.href='thevault.html';}
-    else alert('Incorrect password');
-  }
-
+  const PASSWORD='secret123';
+  const SESSION_KEY='vaultAccess';
+  const TTL_MS=5*60*1000;
+  function setVaultSession(){sessionStorage.setItem(SESSION_KEY,JSON.stringify({expiry:Date.now()+TTL_MS}));}
+  function hasVaultSession(){const d=sessionStorage.getItem(SESSION_KEY); if(!d) return false; try{return JSON.parse(d).expiry>Date.now();}catch{return false;}}
   const btn=document.getElementById('hidden-btn');
-  btn.addEventListener('click',onHiddenClick);
-
+  btn.addEventListener('click',()=>{
+    const attempt=prompt('Enter password:'); if(attempt===null) return;
+    if(attempt===PASSWORD){setVaultSession(); window.location.href='thevault.html';}
+    else alert('Incorrect password');
+  });
   window.setVaultSession=setVaultSession;
   window.checkVaultSession=hasVaultSession;
 })();
 
-/***********************
- * Terminal behavior
- ************************/
+/***** Terminal & Commands *****/
 (function(){
-  const terminal=document.getElementById('terminal');
-  const input=document.getElementById('command');
-  const terminalWindow=document.getElementById('terminalWindow');
-  const minBtn=document.getElementById('minBtn');
-  const maxBtn=document.getElementById('maxBtn');
-  const closeBtn=document.getElementById('closeBtn');
-  const restoreBtn=document.getElementById('restoreBtn');
+const terminal=document.getElementById('terminal');
+const input=document.getElementById('command');
+const terminalWindow=document.getElementById('terminalWindow');
+const minBtn=document.getElementById('minBtn');
+const maxBtn=document.getElementById('maxBtn');
+const closeBtn=document.getElementById('closeBtn');
+const restoreBtn=document.getElementById('restoreBtn');
+let isMax=false,isMin=false,closed=false;
 
-  let isMax=false,isMin=false,closed=false,secretTerminalCount=0;
-  let secretTerminals=[];
+function appendLine(text,color){
+  const line=document.createElement('div'); line.textContent=text;
+  if(color==='error') line.style.color='#ff6b6b';
+  terminal.insertBefore(line,input.parentElement);
+  terminal.scrollTop=terminal.scrollHeight;
+}
 
-  function appendLine(text,color){
-    const line=document.createElement('div');
-    line.textContent=text;
-    if(color==='error') line.style.color='#ff6b6b';
-    terminal.insertBefore(line,input.parentElement);
-    terminal.scrollTop=terminal.scrollHeight;
+input.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const cmdRaw=input.value.trim(); appendLine('C:\\> '+cmdRaw); handleCommand(cmdRaw); input.value=''; e.preventDefault();
   }
+});
 
-  input.addEventListener('keydown',(e)=>{
+function handleCommand(cmdRaw){
+  if(!cmdRaw) return;
+  const cmd=cmdRaw.toLowerCase();
+  if(cmd==='launch home'){appendLine('Launching home...'); setTimeout(()=>window.location.href='home.html',700);}
+  else if(cmd==='launch secret'){appendLine('Opening secret terminal...'); openSecretTerminal();}
+  else if(cmd==='explorer'||cmd==='explorer.exe'){openExplorerUI();}
+  else if(cmd==='winver'){showWinVer();}
+  else if(cmd==='help'){appendLine('Available commands: launch home, launch secret, explorer, winver, help');}
+  else appendLine('Invalid command.');
+}
+
+/***** Winver *****/
+function showWinVer(){
+  showMsgBox('Windows Basic Web Edition','<div style="font-size:24px;text-align:center;">🪟 Windows Basic Web Edition</div><br>Copyright 2025.<br>This product is not endorsed by Windows or Microsoft Corp.');
+}
+
+/***** Title Bar *****/
+minBtn.addEventListener('click',()=>{if(closed) return;terminalWindow.style.display='none';restoreBtn.style.display='block';isMin=true;});
+restoreBtn.addEventListener('click',()=>{if(closed) return;terminalWindow.style.display='flex';restoreBtn.style.display='none';isMin=false;input.focus();});
+maxBtn.addEventListener('click',()=>{if(closed) return;
+  if(!isMax){terminalWindow.style.position='fixed';terminalWindow.style.left='8px';terminalWindow.style.top='8px';terminalWindow.style.right='8px';terminalWindow.style.bottom='8px';terminalWindow.style.width='auto';terminalWindow.style.height='auto';terminalWindow.style.maxWidth='none';terminalWindow.style.maxHeight='none';terminalWindow.style.zIndex=1000;isMax=true;}
+  else{terminalWindow.style.position='';terminalWindow.style.left='';terminalWindow.style.top='';terminalWindow.style.right='';terminalWindow.style.bottom='';terminalWindow.style.width='';terminalWindow.style.height='';terminalWindow.style.maxWidth='';terminalWindow.style.maxHeight='';terminalWindow.style.zIndex='';isMax=false;}
+  input.focus();
+});
+closeBtn.addEventListener('click',()=>{terminalWindow.style.display='none';restoreBtn.style.display='none';closed=true; appendLine('Terminal closed. Refresh page to reopen.');});
+
+/***** Secret Terminal *****/
+function openSecretTerminal(){
+  const win=document.createElement('div'); win.className='window';
+  win.style.position='fixed'; win.style.top='100px'; win.style.left='100px'; win.style.width='600px'; win.style.height='400px'; win.style.backgroundColor='#330000'; win.style.zIndex=1000;
+  const titleBar=document.createElement('div'); titleBar.className='title-bar';
+  const title=document.createElement('span'); title.className='title'; title.textContent='Secret Terminal';
+  const controls=document.createElement('div'); controls.className='controls';
+  const closeBtn=document.createElement('div'); closeBtn.className='control'; closeBtn.textContent='×';
+  controls.appendChild(closeBtn); titleBar.appendChild(title); titleBar.appendChild(controls);
+  win.appendChild(titleBar);
+  const term=document.createElement('div'); term.className='terminal';
+  const line=document.createElement('div'); line.className='line';
+  const prompt=document.createElement('span'); prompt.className='prompt'; prompt.textContent='C:\\>';
+  const cmdInput=document.createElement('input'); cmdInput.type='text'; cmdInput.className='cmd';
+  cmdInput.style.background='transparent'; cmdInput.style.border='none'; cmdInput.style.color='var(--red-terminal)'; cmdInput.style.flex='1';
+  line.appendChild(prompt); line.appendChild(cmdInput); term.appendChild(line); win.appendChild(term);
+  document.body.appendChild(win); cmdInput.focus();
+
+  cmdInput.addEventListener('keydown',e=>{
     if(e.key==='Enter'){
-      const cmdRaw=input.value.trim();
-      appendLine('C:\\> '+cmdRaw);
-      handleCommand(cmdRaw);
-      input.value='';
-      e.preventDefault();
+      const cmdRaw=cmdInput.value.trim();
+      const out=document.createElement('div'); out.textContent='C:\\> '+cmdRaw; out.style.color='var(--red-terminal)'; term.insertBefore(out,line); cmdInput.value='';
+      if(cmdRaw.toLowerCase()==='iexplore.exe'){openBrowserWindow('https://www.google.com');}
+      else{const invalid=document.createElement('div'); invalid.textContent='Invalid command.'; invalid.style.color='#ff6b6b'; term.insertBefore(invalid,line);}
+      term.scrollTop=term.scrollHeight; e.preventDefault();
     }
   });
+  closeBtn.addEventListener('click',()=>{document.body.removeChild(win);});
 
-  function handleCommand(cmdRaw){
-    if(!cmdRaw) return;
-    const cmd=cmdRaw.toLowerCase();
+  // draggable
+  let drag=false,ox=0,oy=0;
+  titleBar.addEventListener('mousedown',e=>{drag=true; ox=e.clientX-win.offsetLeft; oy=e.clientY-win.offsetTop;});
+  document.addEventListener('mousemove',e=>{if(drag){win.style.left=e.clientX-ox+'px';win.style.top=e.clientY-oy+'px';}});
+  document.addEventListener('mouseup',()=>{drag=false;});
+}
 
-    if(cmd==='launch home'){appendLine('Launching home...');setTimeout(()=>window.location.href='home.html',700);}
-    else if(cmd==='launch secret'){appendLine('Opening secret terminal...');openSecretTerminal();}
-    else if(cmd==='explorer'||cmd==='explorer.exe'){openExplorerUI();}
-    else if(cmd==='winver'){showWinVer();}
-    else if(cmd==='help'){showHelp();}
-    else{appendLine('Invalid command.');}
-  }
+/***** Browser *****/
+function openBrowserWindow(url='https://www.google.com'){
+  const overlay=document.createElement('div'); overlay.className='browser-overlay';
+  const win=document.createElement('div'); win.className='browser-window';
+  const title=document.createElement('div'); title.className='browser-title';
+  const titleText=document.createElement('span'); titleText.textContent='Internet Explorer';
+  const closeBtn=document.createElement('div'); closeBtn.textContent='×'; closeBtn.style.cursor='pointer'; closeBtn.style.marginLeft='auto';
+  title.appendChild(titleText); title.appendChild(closeBtn);
+  const content=document.createElement('div'); content.className='browser-content';
+  const urlBar=document.createElement('input'); urlBar.type='text'; urlBar.value=url; urlBar.style.width='100%'; urlBar.style.boxSizing='border-box'; urlBar.style.marginBottom='6px'; urlBar.style.padding='6px';
+  const iframe=document.createElement('iframe'); iframe.src=url; iframe.style.height='calc(100% - 30px)'; iframe.style.width='100%';
+  content.appendChild(urlBar); content.appendChild(iframe); win.appendChild(title); win.appendChild(content); overlay.appendChild(win); document.body.appendChild(overlay);
+  urlBar.addEventListener('keydown',e=>{if(e.key==='Enter'){iframe.src=urlBar.value;}});
+  let drag=false,ox=0,oy=0;
+  title.addEventListener('mousedown',e=>{drag=true; ox=e.clientX-win.offsetLeft; oy=e.clientY-win.offsetTop;});
+  document.addEventListener('mousemove',e=>{if(drag){win.style.left=e.clientX-ox+'px'; win.style.top=e.clientY-oy+'px';}});
+  document.addEventListener('mouseup',()=>{drag=false;});
+  closeBtn.addEventListener('click',()=>{document.body.removeChild(overlay);});
+}
 
-  function showWinVer(){
-    showMsgBox('Windows Basic Web Edition','<div style="text-align:center;"><img src="https://upload.wikimedia.org/wikipedia/commons/4/48/Windows_logo_-_2021.svg" style="width:64px;margin-bottom:12px;"><br>Windows Basic Web Edition<br>Copyright 2025<br>This product is not endorsed by Windows or Microsoft and is not affiliated with Microsoft Corporation.</div>');
-  }
+/***** Explorer *****/
+function openExplorerUI(){
+  if(document.getElementById('explorerOverlay')) return;
+  const overlay=document.createElement('div'); overlay.className='explorer-overlay'; overlay.id='explorerOverlay';
+  const explorer=document.createElement('div'); explorer.className='explorer';
+  const titlebar=document.createElement('div'); titlebar.className='titlebar'; titlebar.textContent='Explorer';
+  const closeBtn=document.createElement('div'); closeBtn.textContent='×'; closeBtn.style.cursor='pointer'; closeBtn.style.marginLeft='auto';
+  titlebar.appendChild(closeBtn); explorer.appendChild(titlebar);
+  const content=document.createElement('div'); content.className='content';
+  const sidebar=document.createElement('div'); sidebar.className='sidebar';
+  ['Home','Documents','Downloads'].forEach(t=>{const b=document.createElement('button');b.className='quick-btn';b.textContent=t;sidebar.appendChild(b);});
+  const filesArea=document.createElement('div'); filesArea.className='files-area';
+  const toolbar=document.createElement('div'); toolbar.className='toolbar';
+  const newBtn=document.createElement('button'); newBtn.className='btn'; newBtn.textContent='New Folder'; toolbar.appendChild(newBtn);
+  const fileList=document.createElement('div'); fileList.className='file-list';
+  ['File1.txt','File2.txt','Secret.doc'].forEach(f=>{const file=document.createElement('div');file.className='file';file.innerHTML=`<div class="name">${f}</div>`; fileList.appendChild(file);});
+  filesArea.appendChild(toolbar); filesArea.appendChild(fileList);
+  content.appendChild(sidebar); content.appendChild(filesArea);
+  const footer=document.createElement('div'); footer.className='explorer-footer'; footer.textContent='Ready';
+  explorer.appendChild(content); explorer.appendChild(footer);
+  overlay.appendChild(explorer); document.body.appendChild(overlay);
+  closeBtn.addEventListener('click',()=>{document.body.removeChild(overlay);});
 
-  function showHelp(){
-    appendLine('Available commands:');
-    appendLine('launch home');
-    appendLine('launch secret');
-    appendLine('explorer / explorer.exe');
-    appendLine('winver');
-    appendLine('help');
-  }
+  let drag=false,ox=0,oy=0;
+  titlebar.addEventListener('mousedown',e=>{drag=true; ox=e.clientX-explorer.offsetLeft; oy=e.clientY-explorer.offsetTop;});
+  document.addEventListener('mousemove',e=>{if(drag){explorer.style.left=e.clientX-ox+'px'; explorer.style.top=e.clientY-oy+'px'; explorer.style.position='absolute';}});
+  document.addEventListener('mouseup',()=>{drag=false;});
+}
 
-  /***** Secret terminal *****/
-  function openSecretTerminal(){
-    secretTerminalCount++;
-    const win=document.createElement('div'); win.className='window';
-    win.style.position='fixed';
-    win.style.top=50+secretTerminalCount*30+'px';
-    win.style.left=50+secretTerminalCount*30+'px';
-    win.style.width='600px';
-    win.style.height='400px';
-    win.style.backgroundColor='#330000';
-    win.style.zIndex=1000+secretTerminalCount;
-
-    const titleBar=document.createElement('div'); titleBar.className='title-bar';
-    const title=document.createElement('span'); title.className='title'; title.textContent='Secret Terminal';
-    const controls=document.createElement('div'); controls.className='controls';
-    ['−','□','×'].forEach((c,i)=>{
-      const btn=document.createElement('div'); btn.className='control'; btn.textContent=c;
-      controls.appendChild(btn);
-    });
-    titleBar.appendChild(title); titleBar.appendChild(controls);
-    win.appendChild(titleBar);
-
-    const term=document.createElement('div'); term.className='terminal';
-    const line=document.createElement('div'); line.className='line';
-    const prompt=document.createElement('span'); prompt.className='prompt'; prompt.textContent='C:\\>';
-    const cmdInput=document.createElement('input'); cmdInput.type='text'; cmdInput.className='cmd'; cmdInput.style.background='transparent'; cmdInput.style.border='none'; cmdInput.style.color='#ff4c4c'; cmdInput.style.flex='1';
-    line.appendChild(prompt); line.appendChild(cmdInput); term.appendChild(line);
-    win.appendChild(term);
-    document.body.appendChild(win);
-
-    cmdInput.focus();
-
-    cmdInput.addEventListener('keydown',(e)=>{
-      if(e.key==='Enter'){
-        const cmdRaw=cmdInput.value.trim();
-        const output=document.createElement('div'); output.textContent='C:\\> '+cmdRaw; output.style.color='#ff4c4c';
-        term.insertBefore(output,line);
-        cmdInput.value='';
-        handleSecretCommand(cmdRaw,term,line);
-        e.preventDefault();
-      }
-    });
-
-    // basic draggable
-    let drag=false,offsetX=0,offsetY=0;
-    titleBar.addEventListener('mousedown',(e)=>{drag=true; offsetX=e.clientX-win.offsetLeft; offsetY=e.clientY-win.offsetTop;});
-    document.addEventListener('mousemove',(e)=>{if(drag){win.style.left=e.clientX-offsetX+'px'; win.style.top=e.clientY-offsetY+'px';}});
-    document.addEventListener('mouseup',()=>{drag=false;});
-  }
-
-  function handleSecretCommand(cmdRaw,term,line){
-    const cmd=cmdRaw.toLowerCase();
-    if(cmd==='iexplore.exe'){
-      openBrowserWindow('https://example.com');
-    } else{
-      const out=document.createElement('div'); out.textContent='Invalid command.'; out.style.color='#ff6b6b';
-      term.insertBefore(out,line);
-    }
-  }
-
-  /***** Browser overlay *****/
-  function openBrowserWindow(url){
-    const overlay=document.createElement('div'); overlay.className='browser-overlay';
-    const win=document.createElement('div'); win.className='browser-window';
-    const title=document.createElement('div'); title.className='browser-title';
-    title.textContent='Internet Explorer';
-    const closeBtn=document.createElement('div'); closeBtn.textContent='×'; closeBtn.style.cursor='pointer'; closeBtn.style.marginLeft='auto';
-    title.appendChild(closeBtn);
-    const content=document.createElement('div'); content.className='browser-content';
-    const iframe=document.createElement('iframe'); iframe.src=url; content.appendChild(iframe);
-    win.appendChild(title); win.appendChild(content);
-    overlay.appendChild(win); document.body.appendChild(overlay);
-
-    // draggable
-    let drag=false,ox=0,oy=0;
-    title.addEventListener('mousedown',(e)=>{drag=true; ox=e.clientX-win.offsetLeft; oy=e.clientY-win.offsetTop;});
-    document.addEventListener('mousemove',(e)=>{if(drag){win.style.left=e.clientX-ox+'px';win.style.top=e.clientY-oy+'px';}});
-    document.addEventListener('mouseup',()=>{drag=false;});
-    closeBtn.addEventListener('click',()=>{document.body.removeChild(overlay);});
-  }
-
-  /***** Title bar controls *****/
-  minBtn.addEventListener('click',()=>{if(closed) return;terminalWindow.style.display='none';restoreBtn.style.display='block';isMin=true;});
-  restoreBtn.addEventListener('click',()=>{if(closed) return;terminalWindow.style.display='flex';restoreBtn.style.display='none';isMin=false;input.focus();});
-  maxBtn.addEventListener('click',()=>{if(closed) return; if(!isMax){terminalWindow.style.position='fixed'; terminalWindow.style.left='8px';terminalWindow.style.top='8px'; terminalWindow.style.right='8px';terminalWindow.style.bottom='8px'; terminalWindow.style.width='auto'; terminalWindow.style.height='auto'; terminalWindow.style.maxWidth='none'; terminalWindow.style.maxHeight='none'; terminalWindow.style.zIndex=1000; isMax=true;} else{terminalWindow.style.position=''; terminalWindow.style.left=''; terminalWindow.style.top=''; terminalWindow.style.right=''; terminalWindow.style.bottom=''; terminalWindow.style.width=''; terminalWindow.style.height=''; terminalWindow.style.maxWidth=''; terminalWindow.style.maxHeight=''; terminalWindow.style.zIndex=''; isMax=false;} input.focus();});
-  closeBtn.addEventListener('click',()=>{terminalWindow.style.display='none';restoreBtn.style.display='none';closed=true; appendLine('Terminal closed. Refresh page to reopen.');});
-
-  /***** Message box *****/
-  function showMsgBox(title,message){
-    return new Promise((resolve)=>{
-      const overlay=document.createElement('div'); overlay.className='msg-overlay';
-      const box=document.createElement('div'); box.className='msg-box';
-      const t=document.createElement('div'); t.className='msg-title'; t.textContent=title;
-      const body=document.createElement('div'); body.className='msg-body';
-      const icon=document.createElement('div'); icon.className='msg-icon'; icon.textContent='!';
-      const text=document.createElement('div'); text.innerHTML=message.replace(/\n/g,'<br>');
-      body.appendChild(icon); body.appendChild(text);
-      const actions=document.createElement('div'); actions.className='msg-actions';
-      const ok=document.createElement('button'); ok.textContent='OK';
-      actions.appendChild(ok);
-      box.appendChild(t); box.appendChild(body); box.appendChild(actions);
-      overlay.appendChild(box); document.body.appendChild(overlay);
-      ok.addEventListener('click',()=>{document.body.removeChild(overlay);resolve();});
-    });
-  }
-
-  input.focus();
+/***** MsgBox *****/
+function showMsgBox(title,msg){
+  const overlay=document.createElement('div'); overlay.className='msg-overlay';
+  const box=document.createElement('div'); box.className='msg-box';
+  const t=document.createElement('div'); t.className='msg-title'; t.innerHTML=title;
+  const b=document.createElement('div'); b.className='msg-body'; b.innerHTML='<div class="msg-icon">🪟</div><div>'+msg+'</div>';
+  const a=document.createElement('div'); a.className='msg-actions'; const ok=document.createElement('button'); ok.textContent='OK'; ok.addEventListener('click',()=>{document.body.removeChild(overlay);}); a.appendChild(ok);
+  box.appendChild(t); box.appendChild(b); box.appendChild(a); overlay.appendChild(box); document.body.appendChild(overlay);
+}
 })();
 </script>
 </body>
