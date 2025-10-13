@@ -1,60 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Terminal</title>
   <style>
-    body {
-      background-color: black;
-      color: #00ff00;
-      font-family: Consolas, monospace;
-      padding: 20px;
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
+    :root {
+      --bg: #000;
+      --green: #00ff00;
+      --title-blue: #0078d7;
+      --ui-gray: #222;
+      --light-gray: #ddd;
     }
-    #terminal {
-      width: 100%;
-      height: 100%;
-      overflow-y: auto;
-      white-space: pre-wrap;
+    html,body { height:100%; margin:0; background:var(--bg); font-family:Consolas,monospace; color:var(--green); }
+    .center {
+      height:100%;
+      display:flex; align-items:center; justify-content:center;
     }
-    .line {
-      display: flex;
-      align-items: center;
+
+    /* Window / CMD look */
+    .window {
+      width:84%;
+      max-width:980px;
+      height:80%;
+      background:#000;
+      border:2px solid #333;
+      box-shadow:0 20px 40px rgba(0,0,0,0.8);
+      display:flex;
+      flex-direction:column;
     }
-    .prompt {
-      color: #00ff00;
-      margin-right: 6px;
+    .title-bar {
+      background:var(--title-blue);
+      color:#fff;
+      padding:6px 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      user-select:none;
     }
-    input {
-      background: transparent;
-      border: none;
-      outline: none;
-      color: #00ff00;
-      font-family: inherit;
-      font-size: 16px;
-      width: 100%;
+    .title { font-weight:700; font-family:"Segoe UI",sans-serif; }
+    .controls { display:flex; gap:8px; }
+    .control { width:14px; height:14px; background:#fff; color:#000; font-size:10px; border-radius:2px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+    .terminal {
+      flex:1;
+      padding:12px;
+      overflow:auto;
+      white-space:pre-wrap;
+      display:flex; flex-direction:column;
+      background:#000;
+      font-size:15px;
     }
-    ::selection {
-      background: #00ff00;
-      color: black;
+    .line { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .prompt { color:var(--green); margin-right:6px; }
+    input[type="text"].cmd {
+      background:transparent; border:none; outline:none; color:var(--green); font-family:inherit; font-size:15px; flex:1;
     }
+
+    .cursor {
+      display:inline-block; width:10px; height:18px; background:var(--green); animation:blink 1s step-start infinite; margin-left:6px;
+    }
+    @keyframes blink { 50% { opacity:0 } }
+
+    /* Explorer modal */
+    .explorer-overlay {
+      position:fixed; left:0; top:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.5); z-index:9999;
+    }
+    .explorer {
+      width:720px; max-width:95%; height:440px; background:#f3f3f3; color:#000; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,.6); overflow:hidden; display:flex; flex-direction:column;
+      font-family:Segoe UI, Tahoma, sans-serif;
+    }
+    .explorer .titlebar {
+      background:#e5e5e5; padding:8px 10px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #d0d0d0;
+    }
+    .explorer .titlebar .name { font-weight:600; }
+    .explorer .titlebar .xbtn { cursor:pointer; padding:4px 8px; border-radius:4px; background:#ddd; }
+    .explorer .content { display:flex; flex:1; gap:12px; padding:12px; background:white; }
+    .sidebar { width:150px; background:#fafafa; border-right:1px solid #eee; padding:8px; font-size:13px; }
+    .files-area { flex:1; padding:8px; display:flex; flex-direction:column; gap:8px; }
+    .toolbar { display:flex; gap:8px; margin-bottom:6px; }
+    .btn { padding:6px 8px; background:#0078d7; color:white; border-radius:4px; cursor:pointer; font-size:13px; border:none; }
+    .file-list { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; }
+    .file {
+      width:140px; min-height:60px; border:1px solid #e6e6e6; border-radius:4px; padding:8px; background:#fff; cursor:pointer; display:flex; flex-direction:column; justify-content:center;
+      box-shadow:0 2px 4px rgba(0,0,0,0.03);
+      user-select:none;
+    }
+    .file .name { font-size:13px; color:#111; word-break:break-all; }
+    .file .meta { font-size:11px; color:#666; margin-top:6px; }
+    .file.selected { outline:2px solid #0078d7; background:linear-gradient(0deg,#fbfdff,#fff); }
+
+    .explorer-footer { padding:8px 12px; border-top:1px solid #e7e7e7; background:#fbfbfb; font-size:13px; color:#333; display:flex; justify-content:space-between; align-items:center; }
+    .message { font-size:13px; color:#d00; }
+
+    /* small helper styles for rename input */
+    .rename-input { width:100%; box-sizing:border-box; font-size:13px; padding:4px; }
   </style>
 </head>
 <body>
-  <div id="terminal">
-    <div class="line">
-      <span class="prompt">C:\></span>
-      <input type="text" id="command" autofocus autocomplete="off" />
+  <div class="center">
+    <div class="window" role="application" aria-label="Command Prompt">
+      <div class="title-bar">
+        <span class="title">Command Prompt</span>
+        <div class="controls">
+          <div class="control" title="Minimize">−</div>
+          <div class="control" title="Maximize">□</div>
+          <div class="control" title="Close">×</div>
+        </div>
+      </div>
+
+      <div id="terminal" class="terminal" tabindex="0">
+        <div class="line">
+          <span class="prompt">C:\></span>
+          <input id="command" class="cmd" type="text" autocomplete="off" autofocus />
+          <span class="cursor" aria-hidden="true"></span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Hidden button and vault access script -->
+  <!-- Hidden button (keeps your original vault code in place) -->
   <button id="hidden-btn" title="hidden" aria-hidden="true" style="display:none;"></button>
 
   <script>
+  /**********************
+   * Vault session code (from your original)
+   **********************/
   (function(){
     const PASSWORD = 'secret123';
     const SESSION_KEY = 'vaultAccess';
@@ -90,82 +162,378 @@
 
     const btn = document.getElementById('hidden-btn');
     btn.addEventListener('click', onHiddenClick);
+
+    // keep access for the terminal's password prompt as well
+    window.setVaultSession = setVaultSession;
+    window.checkVaultSession = hasVaultSession;
   })();
 
-  // Terminal command handling
-  const terminal = document.getElementById('terminal');
-  const input = document.getElementById('command');
+  /**********************
+   * Terminal behaviour
+   **********************/
+  (function(){
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('command');
 
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      const command = input.value.trim();
-      appendOutput(command);
-      processCommand(command);
-      input.value = '';
-      e.preventDefault();
-    }
-  });
-
-  function appendOutput(text) {
-    const line = document.createElement('div');
-    line.textContent = `C:\\> ${text}`;
-    terminal.insertBefore(line, input.parentElement);
-    terminal.scrollTop = terminal.scrollHeight;
-  }
-
-  function appendMessage(message) {
-    const line = document.createElement('div');
-    line.textContent = message;
-    terminal.insertBefore(line, input.parentElement);
-    terminal.scrollTop = terminal.scrollHeight;
-  }
-
-  function processCommand(cmd) {
-    if (cmd.toLowerCase() === 'launch home') {
-      appendMessage('Launching home...');
-      setTimeout(() => window.location.href = 'home.html', 1000);
-    } 
-    else if (cmd.toLowerCase() === 'launch secret') {
-      appendMessage('Enter password:');
-      // Simulate terminal password input
-      const passwordInput = document.createElement('input');
-      passwordInput.type = 'password';
-      passwordInput.style.background = 'transparent';
-      passwordInput.style.border = 'none';
-      passwordInput.style.outline = 'none';
-      passwordInput.style.color = '#00ff00';
-      passwordInput.style.fontFamily = 'Consolas, monospace';
-      passwordInput.autofocus = true;
-
+    // utility to append a line above the input
+    function appendLine(text, isError) {
       const line = document.createElement('div');
-      line.classList.add('line');
-      line.appendChild(passwordInput);
+      line.textContent = text;
+      if (isError) line.style.color = '#ff6b6b';
       terminal.insertBefore(line, input.parentElement);
       terminal.scrollTop = terminal.scrollHeight;
+    }
 
-      passwordInput.focus();
+    // click enter handling
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const cmd = input.value.trim();
+        appendLine('C:\\> ' + cmd);
+        handleCommand(cmd);
+        input.value = '';
+        e.preventDefault();
+      }
+    });
 
-      passwordInput.addEventListener('keydown', (e) => {
+    function handleCommand(cmdRaw) {
+      if (!cmdRaw) return;
+      const cmd = cmdRaw.toLowerCase();
+
+      if (cmd === 'launch home') {
+        appendLine('Launching home...');
+        setTimeout(()=> window.location.href = 'home.html', 800);
+      } else if (cmd === 'launch secret') {
+        appendLine('Enter password:');
+        // create password-like prompt in terminal
+        createTerminalPasswordPrompt();
+      } else if (cmd === 'explorer' || cmd === 'explorer.exe') {
+        openExplorerUI();
+      } else {
+        appendLine('Invalid command.');
+      }
+    }
+
+    /**********************
+     * Terminal password prompt (inline)
+     **********************/
+    function createTerminalPasswordPrompt() {
+      const line = document.createElement('div');
+      line.className = 'line';
+      const prompt = document.createElement('span');
+      prompt.className = 'prompt';
+      prompt.textContent = 'Password:';
+      const pw = document.createElement('input');
+      pw.type = 'password';
+      pw.style.background = 'transparent';
+      pw.style.border = 'none';
+      pw.style.outline = 'none';
+      pw.style.color = 'var(--green)';
+      pw.style.fontFamily = 'Consolas,monospace';
+      pw.style.fontSize = '15px';
+      pw.autofocus = true;
+
+      line.appendChild(prompt);
+      line.appendChild(pw);
+      terminal.insertBefore(line, input.parentElement);
+      terminal.scrollTop = terminal.scrollHeight;
+      pw.focus();
+
+      pw.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
-          const attempt = passwordInput.value;
-          passwordInput.disabled = true;
+          const attempt = pw.value;
+          pw.disabled = true;
           if (attempt === 'secret123') {
-            appendMessage('Access granted.');
-            sessionStorage.setItem('vaultAccess', JSON.stringify({ expiry: Date.now() + 5 * 60 * 1000 }));
-            setTimeout(() => window.location.href = 'thevault.html', 1000);
+            appendLine('Access granted.');
+            window.setVaultSession(); // store session via earlier function
+            setTimeout(()=> window.location.href = 'thevault.html', 700);
           } else {
-            appendMessage('Incorrect password.');
+            appendLine('Incorrect password.');
           }
         }
       });
-    } 
-    else if (cmd === '') {
-      // do nothing
-    } 
-    else {
-      appendMessage('Invalid command.');
     }
-  }
+
+    /**********************
+     * Explorer UI & logic
+     **********************/
+    let explorerState = null;
+
+    function openExplorerUI() {
+      // If already open, bring to front (no stacking implemented)
+      if (explorerState && explorerState.overlay) {
+        // do nothing special
+        return;
+      }
+
+      // initial files
+      const files = [
+        { name: 'test.bin', type: '.bin' },
+        { name: 'encrypted.bin', type: '.bin' },
+        { name: 'secretdata.txt', type: '.txt' },
+        { name: 'exit.exe', type: '.exe' }
+      ];
+
+      // build overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'explorer-overlay';
+
+      const win = document.createElement('div');
+      win.className = 'explorer';
+      win.setAttribute('role','dialog');
+      win.setAttribute('aria-label','Explorer');
+
+      // titlebar
+      const titlebar = document.createElement('div');
+      titlebar.className = 'titlebar';
+      const name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = 'File Explorer';
+      const xbtn = document.createElement('div');
+      xbtn.className = 'xbtn';
+      xbtn.textContent = 'Close';
+      titlebar.appendChild(name);
+      titlebar.appendChild(xbtn);
+
+      // content area
+      const content = document.createElement('div');
+      content.className = 'content';
+
+      const sidebar = document.createElement('div');
+      sidebar.className = 'sidebar';
+      sidebar.innerHTML = '<div><strong>Quick access</strong></div><div style="margin-top:8px;">Desktop<br/>Documents<br/>Downloads</div>';
+
+      const filesArea = document.createElement('div');
+      filesArea.className = 'files-area';
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'toolbar';
+      const openBtn = document.createElement('button');
+      openBtn.className = 'btn';
+      openBtn.textContent = 'Open';
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn';
+      deleteBtn.textContent = 'Delete';
+      const renameBtn = document.createElement('button');
+      renameBtn.className = 'btn';
+      renameBtn.textContent = 'Rename';
+      toolbar.appendChild(openBtn);
+      toolbar.appendChild(deleteBtn);
+      toolbar.appendChild(renameBtn);
+
+      const fileList = document.createElement('div');
+      fileList.className = 'file-list';
+
+      const footer = document.createElement('div');
+      footer.className = 'explorer-footer';
+      const footerLeft = document.createElement('div');
+      footerLeft.textContent = files.length + ' items';
+      const footerRight = document.createElement('div');
+      footerRight.className = 'message';
+      footerRight.textContent = '';
+      footer.appendChild(footerLeft);
+      footer.appendChild(footerRight);
+
+      filesArea.appendChild(toolbar);
+      filesArea.appendChild(fileList);
+      content.appendChild(sidebar);
+      content.appendChild(filesArea);
+
+      win.appendChild(titlebar);
+      win.appendChild(content);
+      win.appendChild(footer);
+      overlay.appendChild(win);
+      document.body.appendChild(overlay);
+
+      // state
+      explorerState = { overlay, win, files, fileList, footerLeft, footerRight, selectedIndex: -1 };
+
+      // render files
+      renderFileList();
+
+      // close handlers
+      xbtn.addEventListener('click', closeExplorer);
+      overlay.addEventListener('click', (ev) => {
+        if (ev.target === overlay) closeExplorer();
+      });
+
+      // buttons behavior
+      openBtn.addEventListener('click', () => {
+        if (explorerState.selectedIndex >= 0) {
+          openFileAt(explorerState.selectedIndex);
+        }
+      });
+
+      deleteBtn.addEventListener('click', () => {
+        if (explorerState.selectedIndex >= 0) {
+          deleteFileAt(explorerState.selectedIndex);
+        }
+      });
+
+      renameBtn.addEventListener('click', () => {
+        if (explorerState.selectedIndex >= 0) {
+          promptRenameAt(explorerState.selectedIndex);
+        }
+      });
+
+      // double-click handler: open file
+      fileList.addEventListener('dblclick', (ev) => {
+        const el = ev.target.closest('.file');
+        if (!el) return;
+        const idx = Number(el.dataset.index);
+        openFileAt(idx);
+      });
+
+      // keyboard support within explorer: Delete = delete, Enter = open, F2 = rename
+      overlay.addEventListener('keydown', (ev) => {
+        if (!explorerState) return;
+        if (ev.key === 'Delete') {
+          if (explorerState.selectedIndex >= 0) deleteFileAt(explorerState.selectedIndex);
+        } else if (ev.key === 'Enter') {
+          if (explorerState.selectedIndex >= 0) openFileAt(explorerState.selectedIndex);
+        } else if (ev.key === 'F2') {
+          if (explorerState.selectedIndex >= 0) promptRenameAt(explorerState.selectedIndex);
+        }
+      });
+
+      // make sure focus
+      setTimeout(()=> overlay.focus(), 0);
+
+      /**** Render function ****/
+      function renderFileList() {
+        fileList.innerHTML = ''; // clear
+        explorerState.files.forEach((f, i) => {
+          const fileEl = document.createElement('div');
+          fileEl.className = 'file';
+          fileEl.dataset.index = i;
+          if (explorerState.selectedIndex === i) fileEl.classList.add('selected');
+
+          const nameEl = document.createElement('div');
+          nameEl.className = 'name';
+          nameEl.textContent = f.name;
+          const metaEl = document.createElement('div');
+          metaEl.className = 'meta';
+          metaEl.textContent = f.type + ' • ' + (f.size || '1 KB');
+
+          fileEl.appendChild(nameEl);
+          fileEl.appendChild(metaEl);
+
+          // click to select
+          fileEl.addEventListener('click', (ev) => {
+            const prev = explorerState.selectedIndex;
+            explorerState.selectedIndex = i;
+            if (prev !== -1) {
+              const prevEl = fileList.querySelector('.file[data-index="'+prev+'"]');
+              if (prevEl) prevEl.classList.remove('selected');
+            }
+            fileEl.classList.add('selected');
+            // update footer
+            footerLeft.textContent = explorerState.files.length + ' items';
+            footerRight.textContent = '';
+          });
+
+          fileList.appendChild(fileEl);
+        });
+        footerLeft.textContent = explorerState.files.length + ' items';
+      }
+
+      /**** file operations ****/
+      function openFileAt(idx) {
+        const f = explorerState.files[idx];
+        if (!f) return;
+        if (f.name.toLowerCase() === 'exit.exe') {
+          appendLine('Opening exit.exe...');
+          closeExplorer();
+        } else if (f.type === '.txt') {
+          // strict requirement: show a windows alert box
+          alert('Unable To Open File. The File May Be Corrupt.');
+        } else if (f.type === '.bin') {
+          const err = 'error: could not find any apps on this device that support opening this type of file.';
+          // show inline
+          footerRight.textContent = err;
+          appendLine(err, true);
+        } else {
+          appendLine('Opened ' + f.name);
+        }
+      }
+
+      function deleteFileAt(idx) {
+        const f = explorerState.files[idx];
+        if (!f) return;
+        const confirmed = confirm('Are you sure you want to delete "' + f.name + '"?');
+        if (!confirmed) return;
+        explorerState.files.splice(idx,1);
+        // adjust selected index
+        explorerState.selectedIndex = -1;
+        renderFileList();
+        appendLine('Deleted ' + f.name);
+      }
+
+      function promptRenameAt(idx) {
+        const f = explorerState.files[idx];
+        if (!f) return;
+        // create inline rename UI by replacing file element content
+        const fileEl = fileList.querySelector('.file[data-index="'+idx+'"]');
+        if (!fileEl) return;
+
+        const nameOnly = f.name.slice(0, f.name.lastIndexOf('.')) || f.name;
+        const ext = f.type; // including dot
+
+        fileEl.innerHTML = ''; // clear
+        const input = document.createElement('input');
+        input.className = 'rename-input';
+        input.value = nameOnly;
+        fileEl.appendChild(input);
+        input.focus();
+
+        function finishRename() {
+          const newNameOnly = input.value.trim();
+          if (!newNameOnly) {
+            alert('Name cannot be empty.');
+            input.focus();
+            return;
+          }
+          const newFull = newNameOnly + ext;
+          // ensure extension unchanged (we only allowed changing the nameOnly)
+          if (!newFull.endsWith(ext)) {
+            alert('You cannot change the file extension.');
+            input.focus();
+            return;
+          }
+          // update model
+          explorerState.files[idx].name = newFull;
+          renderFileList();
+          appendLine('Renamed to ' + newFull);
+        }
+
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter') finishRename();
+          else if (ev.key === 'Escape') renderFileList();
+        });
+
+        // on blur, attempt finalize
+        input.addEventListener('blur', () => {
+          // small delay: if clicked elsewhere (e.g. delete) avoid double-calls
+          setTimeout(()=> {
+            // if still present as input, finalize
+            if (document.body.contains(input)) {
+              finishRename();
+            }
+          }, 120);
+        });
+      }
+
+      function closeExplorer() {
+        if (!explorerState) return;
+        document.body.removeChild(overlay);
+        explorerState = null;
+        appendLine('Explorer closed.');
+      }
+    } // end openExplorerUI
+
+    // expose to global for debugging if needed:
+    window._openExplorerUI = openExplorerUI;
+
+  })(); // end terminal IIFE
   </script>
 </body>
 </html>
