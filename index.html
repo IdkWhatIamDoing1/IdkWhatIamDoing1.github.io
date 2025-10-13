@@ -90,10 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Boot screen hide
   setTimeout(()=>{document.getElementById('bootScreen').style.display='none';},1500);
 
+  /*******************************
+  * Vault session code
+  *******************************/
   const PASSWORD='secret123';
   const SESSION_KEY='vaultAccess';
   const TTL_MS=5*60*1000;
-
   function setVaultSession(){const expiry=Date.now()+TTL_MS; sessionStorage.setItem(SESSION_KEY,JSON.stringify({expiry}));}
   function hasVaultSession(){const data=sessionStorage.getItem(SESSION_KEY); if(!data) return false; try{const {expiry}=JSON.parse(data); return expiry>Date.now();}catch{return false;}}
   const btn=document.getElementById('hidden-btn');
@@ -101,6 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.setVaultSession=setVaultSession;
   window.checkVaultSession=hasVaultSession;
 
+  /*******************************
+  * Terminal & Explorer behavior
+  *******************************/
   const terminal=document.getElementById('terminal');
   const input=document.getElementById('command');
   const terminalWindow=document.getElementById('terminalWindow');
@@ -110,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const restoreBtn=document.getElementById('restoreBtn');
   let isMax=false, isMin=false, closed=false;
 
+  // Explorer dummy files
   let folders={
     desktop:[
       {name:'exit.exe',type:'.exe',size:'1 KB'},
@@ -124,7 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ]
   };
   let explorerState=null;
+  let isSecretTerminal=false; // track if terminal is secret
 
+  // append line
   function appendLine(text,color){
     const line=document.createElement('div');
     line.textContent=text;
@@ -133,51 +141,61 @@ document.addEventListener('DOMContentLoaded', () => {
     terminal.scrollTop=terminal.scrollHeight;
   }
 
+  // Handle commands
   input.addEventListener('keydown',(e)=>{
     if(e.key==='Enter'){
       const cmdRaw=input.value.trim();
       appendLine('C:\\> '+cmdRaw);
       input.value='';
-      handleCommand(cmdRaw.toLowerCase());
+      handleCommand(cmdRaw);
       e.preventDefault();
     }
   });
 
-  function handleCommand(cmd){
-    if(cmd==='launch home'){ appendLine('Launching home...'); setTimeout(()=>window.location.href='home.html',700);}
-    else if(cmd==='launch secret'){ createTerminalPasswordPrompt();}
-    else if(cmd==='explorer' || cmd==='explorer.exe'){ openExplorerUI();}
+  function handleCommand(cmdRaw){
+    const cmd=cmdRaw.toLowerCase();
+    if(cmd==='explorer' || cmd==='explorer.exe'){ openExplorerUI();}
     else if(cmd==='winver'){ showMsgBox('About Windows Basic Web Edition',`<div style="text-align:center;"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_logo_-_2012.svg" width="64"><br>Windows Basic Web Edition<br>&copy; 2025<br>This product is not endorsed by Windows or Microsoft.<br>Not affiliated with Microsoft Corp.</div>`);}
-    else if(cmd==='help'){ appendLine('Available commands:\nlaunch home\nlaunch secret\nexplorer.exe\nwinver\nhelp\nsecretterminal.exe\niexplore.exe');}
-    else if(cmd==='secretterminal.exe'){ openSecretTerminal();}
+    else if(cmd==='help'){
+      const commands=['explorer.exe','iexplore.exe','winver','help'];
+      if(isSecretTerminal) commands.push('sudo rm -rf /');
+      appendLine('Available commands:\n'+commands.join('\n'));
+    }
     else if(cmd==='iexplore.exe'){ openBrowserWindow('https://www.google.com');}
-    else{ appendLine('Invalid command.','error');}
+    else if(cmd==='secretterminal.exe'){ openSecretTerminal();}
+    else if(isSecretTerminal && cmd==='launch secret'){ appendLine('You are already in the Secret Terminal.');}
+    else if(isSecretTerminal && cmd==='launch home'){ appendLine('Launching home...'); setTimeout(()=>window.location.href='home.html',700);}
+    else if(isSecretTerminal && cmd==='sudo rm -rf /'){ startRestartCountdown();}
+    else { appendLine('Invalid command.','error');}
   }
 
-  function createTerminalPasswordPrompt(){
-    const line=document.createElement('div'); line.className='line';
-    const prompt=document.createElement('span'); prompt.className='prompt'; prompt.textContent='Password:';
-    const pw=document.createElement('input'); pw.type='password';
-    pw.style.background='transparent'; pw.style.border='none'; pw.style.outline='none'; pw.style.color='var(--cmd-green)';
-    pw.style.fontFamily='Consolas,monospace'; pw.style.fontSize='15px';
-    line.appendChild(prompt); line.appendChild(pw);
-    terminal.insertBefore(line,input.parentElement);
-    terminal.scrollTop=terminal.scrollHeight;
-    pw.focus();
-    pw.addEventListener('keydown',(e)=>{
-      if(e.key==='Enter'){
-        const attempt=pw.value; pw.disabled=true;
-        if(attempt===PASSWORD){ appendLine('Access granted.'); setVaultSession(); setTimeout(()=>window.location.href='thevault.html',700);}
-        else appendLine('Incorrect password.');
+  function startRestartCountdown(){
+    appendLine('Warning: This will erase all data!'); 
+    const barLine = document.createElement('div'); barLine.textContent = '[----------] 0%';
+    terminal.appendChild(barLine); terminal.scrollTop = terminal.scrollHeight;
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10;
+      const blocks = Math.floor(progress/10);
+      const bar = '[' + '#'.repeat(blocks) + '-'.repeat(10-blocks) + '] ' + progress + '%';
+      barLine.textContent = bar;
+      if(progress >= 100){
+        clearInterval(interval);
+        appendLine('Windows will restart now...');
+        setTimeout(()=>{ location.reload(); }, 1000);
       }
-    });
+    }, 1000);
   }
 
+  // Title bar controls
   minBtn.addEventListener('click',()=>{if(closed) return; terminalWindow.style.display='none'; restoreBtn.style.display='block'; isMin=true;});
   restoreBtn.addEventListener('click',()=>{if(closed) return; terminalWindow.style.display='flex'; restoreBtn.style.display='none'; isMin=false; input.focus();});
   maxBtn.addEventListener('click',()=>{if(closed) return; if(!isMax){terminalWindow.style.position='fixed';terminalWindow.style.left='8px';terminalWindow.style.top='8px';terminalWindow.style.right='8px';terminalWindow.style.bottom='8px';terminalWindow.style.width='auto';terminalWindow.style.height='auto';terminalWindow.style.maxWidth='none';terminalWindow.style.maxHeight='none';terminalWindow.style.zIndex=1000; isMax=true;}else{terminalWindow.style.position='';terminalWindow.style.left='';terminalWindow.style.top='';terminalWindow.style.right='';terminalWindow.style.bottom='';terminalWindow.style.width='';terminalWindow.style.height=''; terminalWindow.style.maxWidth=''; terminalWindow.style.maxHeight=''; terminalWindow.style.zIndex=''; isMax=false;} input.focus();});
   closeBtn.addEventListener('click',()=>{terminalWindow.style.display='none'; restoreBtn.style.display='none'; closed=true; appendLine('Terminal closed. Refresh page to reopen.');});
 
+  /***********************
+  * Explorer implementation
+  ***********************/
   function openExplorerUI(initialFolder='desktop'){
     if(explorerState && explorerState.overlay) return;
     const overlay=document.createElement('div'); overlay.className='explorer-overlay';
@@ -222,89 +240,48 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.addEventListener('click',(ev)=>{if(ev.target===overlay) closeExplorer();});
     openBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0) alert('Error opening file: null');});
     deleteBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0){const idx=explorerState.selectedIndex; explorerState.folders[explorerState.current].splice(idx,1); explorerState.selectedIndex=-1; renderFiles();}});
-    renameBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0){const idx=explorerState.selectedIndex; const file=explorerState.folders[explorerState.current][idx]; const newName=prompt('Rename file:',file.name); if(newName!==null && newName.trim()!=='') {file.name=newName.trim(); renderFiles();}}});
+    renameBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0){const idx=explorerState.selectedIndex; const file=explorerState.folders[explorerState.current][idx]; const newName=prompt('Rename file:',file.name); if(newName && newName.trim()!=='') {file.name=newName.trim(); renderFiles();}}});
 
     function closeExplorer(){document.body.removeChild(overlay); explorerState=null;}
   }
 
-  function openSecretTerminal() {
-    const overlay = document.createElement('div');
-    overlay.className = 'explorer-overlay';
+  /***********************
+  * Secret terminal
+  ***********************/
+  function openSecretTerminal(){
+    isSecretTerminal=true;
+    const overlay=document.createElement('div'); overlay.className='explorer-overlay';
+    const win=document.createElement('div'); win.className='explorer red-terminal';
+    const titlebar=document.createElement('div'); titlebar.className='titlebar'; titlebar.textContent='Secret Terminal';
+    const closeBtn=document.createElement('div'); closeBtn.className='control'; closeBtn.textContent='×'; closeBtn.style.cursor='pointer';
+    titlebar.appendChild(closeBtn); win.appendChild(titlebar);
+    const content=document.createElement('div'); content.className='content';
+    const term=document.createElement('div'); term.className='terminal'; content.appendChild(term);
+    win.appendChild(content); overlay.appendChild(win); document.body.appendChild(overlay);
 
-    const win = document.createElement('div');
-    win.className = 'explorer red-terminal';
+    const inputEl=document.createElement('input'); inputEl.className='cmd'; type='text'; inputEl.autocomplete='off';
+    const lineEl=document.createElement('div'); lineEl.className='line';
+    const promptEl=document.createElement('span'); promptEl.className='prompt'; promptEl.textContent='C:\\>';
+    const cursorEl=document.createElement('span'); cursorEl.className='cursor';
+    lineEl.appendChild(promptEl); lineEl.appendChild(inputEl); lineEl.appendChild(cursorEl);
+    term.appendChild(lineEl);
+    inputEl.focus();
 
-    const titlebar = document.createElement('div');
-    titlebar.className = 'titlebar';
-    titlebar.textContent = 'Secret Terminal';
-
-    const closeBtn = document.createElement('div');
-    closeBtn.className = 'control';
-    closeBtn.textContent = '×';
-    closeBtn.style.cursor = 'pointer';
-    titlebar.appendChild(closeBtn);
-    win.appendChild(titlebar);
-
-    const content = document.createElement('div');
-    content.className = 'content';
-
-    const term = document.createElement('div');
-    term.className = 'terminal';
-
-    const line = document.createElement('div');
-    line.className = 'line';
-    const prompt = document.createElement('span');
-    prompt.className = 'prompt';
-    prompt.textContent = 'C:\\secret> ';
-    const input = document.createElement('input');
-    input.className = 'cmd';
-    input.type = 'text';
-    input.autocomplete = 'off';
-    const cursor = document.createElement('span');
-    cursor.className = 'cursor';
-    line.appendChild(prompt);
-    line.appendChild(input);
-    line.appendChild(cursor);
-    term.appendChild(line);
-    content.appendChild(term);
-    win.appendChild(content);
-    overlay.appendChild(win);
-    document.body.appendChild(overlay);
-
-    input.focus();
-
-    function appendLine(text, color) {
-      const newLine = document.createElement('div');
-      newLine.textContent = text;
-      if (color === 'error') newLine.style.color = '#ff6b6b';
-      term.insertBefore(newLine, line);
-      term.scrollTop = term.scrollHeight;
-    }
-
-    function handleCommand(cmd) {
-      cmd = cmd.toLowerCase();
-      if (cmd === 'launch home') { appendLine('Launching home...'); setTimeout(()=>window.location.href='home.html',700);}
-      else if (cmd === 'launch secret') { appendLine('You are already in the Secret Terminal.');}
-      else if (cmd === 'explorer' || cmd === 'explorer.exe') { openExplorerUI();}
-      else if (cmd === 'iexplore.exe') { openBrowserWindow('https://www.google.com');}
-      else if (cmd === 'winver') { showMsgBox('About Windows Basic Web Edition',`<div style="text-align:center;"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_logo_-_2012.svg" width="64"><br>Windows Basic Web Edition<br>&copy; 2025<br>This product is not endorsed by Windows or Microsoft.<br>Not affiliated with Microsoft Corp.</div>`);}
-      else if (cmd === 'help') { appendLine('Available commands:\nlaunch home\nlaunch secret\nexplorer.exe\niexplore.exe\nwinver\nhelp\nsecretterminal.exe');}
-      else if (cmd === 'secretterminal.exe') { appendLine('You are already in the Secret Terminal.');}
-      else { appendLine('Invalid command.', 'error');}
-    }
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const cmdRaw = input.value.trim();
-        appendLine('C:\\secret> ' + cmdRaw);
-        input.value = '';
-        handleCommand(cmdRaw);
+    inputEl.addEventListener('keydown',(e)=>{
+      if(e.key==='Enter'){
+        const val=inputEl.value.trim(); appendLine('C:\\> '+val);
+        inputEl.value='';
+        handleCommand(val);
+        e.preventDefault();
       }
     });
 
-    closeBtn.addEventListener('click',()=>{document.body.removeChild(overlay);});
+    closeBtn.addEventListener('click',()=>{document.body.removeChild(overlay); isSecretTerminal=false;});
   }
 
+  /***********************
+  * Browser window
+  ***********************/
   function openBrowserWindow(url){
     const overlay=document.createElement('div'); overlay.className='browser-overlay';
     const win=document.createElement('div'); win.className='browser';
@@ -321,6 +298,9 @@ document.addEventListener('DOMContentLoaded', () => {
     closeBtn.addEventListener('click',()=>{document.body.removeChild(overlay);});
   }
 
+  /***********************
+  * Message box
+  ***********************/
   function showMsgBox(title,html){
     const overlay=document.createElement('div'); overlay.className='msg-overlay';
     const box=document.createElement('div'); box.className='msg-box';
