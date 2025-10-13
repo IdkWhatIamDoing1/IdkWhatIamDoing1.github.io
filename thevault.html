@@ -9,7 +9,6 @@
   --ui-dark:#0b0b0b;
   --title-blue:#0078d7;
   --cmd-green:#00ff00;
-  --muted:#9ca3af;
 }
 html,body{height:100%;margin:0;overflow:hidden;font-family:Consolas,monospace;color:var(--cmd-green);}
 #desktop{position:relative;width:100%;height:100%;background:linear-gradient(#0b0b0b,#111);}
@@ -22,6 +21,7 @@ html,body{height:100%;margin:0;overflow:hidden;font-family:Consolas,monospace;co
 .icon{width:80px;text-align:center;color:var(--cmd-green);font-size:12px;cursor:pointer;position:absolute;}
 .icon img{width:48px;height:48px;}
 .icon.selected{outline:2px solid rgba(0,120,215,0.9);}
+.fullscreen-content{flex:1;background:#000;overflow:auto;}
 </style>
 </head>
 <body>
@@ -29,7 +29,7 @@ html,body{height:100%;margin:0;overflow:hidden;font-family:Consolas,monospace;co
 <div id="desktop">
   <!-- Minecraft 1.8.8 icon -->
   <div class="icon" style="top:20px;left:20px;" data-app="minecraft">
-    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_cover.png" alt="Minecraft Logo"/>
+    <img src="https://cdn.pixabay.com/photo/2021/12/31/11/34/minecraft-6905550_640.png" alt="Minecraft Logo"/>
     <div>Minecraft 1.8.8</div>
   </div>
 </div>
@@ -57,7 +57,6 @@ html,body{height:100%;margin:0;overflow:hidden;font-family:Consolas,monospace;co
     return; 
   }
 
-  // Remove token so it can't be reused
   sessionStorage.removeItem(SESSION_KEY);
 })();
 
@@ -69,7 +68,7 @@ document.getElementById('startBtn').addEventListener('click', ()=>{
 // Desktop & windows logic
 const desktop=document.getElementById('desktop');
 
-function createWindow(title, url){
+function createWindow(title, htmlContent){
   const win=document.createElement('div'); 
   win.className='window';
   win.style.top='0px';
@@ -93,13 +92,10 @@ function createWindow(title, url){
   titlebar.appendChild(controls);
   win.appendChild(titlebar);
 
-  // Iframe content
-  const content=document.createElement('iframe');
-  content.src=url;
-  content.style.flex='1';
-  content.style.border='none';
-  content.style.width='100%';
-  content.style.height='100%';
+  // Fullscreen content
+  const content=document.createElement('div');
+  content.className='fullscreen-content';
+  content.innerHTML=htmlContent; // embed HTML directly
   win.appendChild(content);
 
   desktop.appendChild(win);
@@ -117,7 +113,12 @@ function createWindow(title, url){
 document.querySelectorAll('.icon').forEach(icon=>{
   icon.addEventListener('dblclick',()=>{
     if(icon.dataset.app==='minecraft'){
-      createWindow("Make Sure To Pick Javascript Instead","https://eaglercraft.com/mc/1.8.8");
+      // Replace the string below with the full HTML of https://eaglercraft.com/mc/1.8.8
+      const mcHTML = `
+      <h1 style="color:white;text-align:center;margin-top:20px;">Eaglercraft 1.8.8 - Embedded</h1>
+      <p style="color:white;text-align:center;">The full HTML content would go here...</p>
+      `;
+      createWindow("Make Sure To Pick Javascript Instead", mcHTML);
     }
   });
 });
