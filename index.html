@@ -1,1 +1,171 @@
-<b>Test!</b>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal</title>
+  <style>
+    body {
+      background-color: black;
+      color: #00ff00;
+      font-family: Consolas, monospace;
+      padding: 20px;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #terminal {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .line {
+      display: flex;
+      align-items: center;
+    }
+    .prompt {
+      color: #00ff00;
+      margin-right: 6px;
+    }
+    input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #00ff00;
+      font-family: inherit;
+      font-size: 16px;
+      width: 100%;
+    }
+    ::selection {
+      background: #00ff00;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal">
+    <div class="line">
+      <span class="prompt">C:\></span>
+      <input type="text" id="command" autofocus autocomplete="off" />
+    </div>
+  </div>
+
+  <!-- Hidden button and vault access script -->
+  <button id="hidden-btn" title="hidden" aria-hidden="true" style="display:none;"></button>
+
+  <script>
+  (function(){
+    const PASSWORD = 'secret123';
+    const SESSION_KEY = 'vaultAccess';
+    const TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+    function setVaultSession() {
+      const expiry = Date.now() + TTL_MS;
+      const payload = JSON.stringify({ expiry });
+      sessionStorage.setItem(SESSION_KEY, payload);
+    }
+
+    function hasVaultSession() {
+      const data = sessionStorage.getItem(SESSION_KEY);
+      if (!data) return false;
+      try {
+        const { expiry } = JSON.parse(data);
+        return expiry > Date.now();
+      } catch {
+        return false;
+      }
+    }
+
+    function onHiddenClick() {
+      const attempt = prompt('Enter password:');
+      if (attempt === null) return;
+      if (attempt === PASSWORD) {
+        setVaultSession();
+        window.location.href = 'thevault.html';
+      } else {
+        alert('Incorrect password');
+      }
+    }
+
+    const btn = document.getElementById('hidden-btn');
+    btn.addEventListener('click', onHiddenClick);
+  })();
+
+  // Terminal command handling
+  const terminal = document.getElementById('terminal');
+  const input = document.getElementById('command');
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const command = input.value.trim();
+      appendOutput(command);
+      processCommand(command);
+      input.value = '';
+      e.preventDefault();
+    }
+  });
+
+  function appendOutput(text) {
+    const line = document.createElement('div');
+    line.textContent = `C:\\> ${text}`;
+    terminal.insertBefore(line, input.parentElement);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function appendMessage(message) {
+    const line = document.createElement('div');
+    line.textContent = message;
+    terminal.insertBefore(line, input.parentElement);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function processCommand(cmd) {
+    if (cmd.toLowerCase() === 'launch home') {
+      appendMessage('Launching home...');
+      setTimeout(() => window.location.href = 'home.html', 1000);
+    } 
+    else if (cmd.toLowerCase() === 'launch secret') {
+      appendMessage('Enter password:');
+      // Simulate terminal password input
+      const passwordInput = document.createElement('input');
+      passwordInput.type = 'password';
+      passwordInput.style.background = 'transparent';
+      passwordInput.style.border = 'none';
+      passwordInput.style.outline = 'none';
+      passwordInput.style.color = '#00ff00';
+      passwordInput.style.fontFamily = 'Consolas, monospace';
+      passwordInput.autofocus = true;
+
+      const line = document.createElement('div');
+      line.classList.add('line');
+      line.appendChild(passwordInput);
+      terminal.insertBefore(line, input.parentElement);
+      terminal.scrollTop = terminal.scrollHeight;
+
+      passwordInput.focus();
+
+      passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const attempt = passwordInput.value;
+          passwordInput.disabled = true;
+          if (attempt === 'secret123') {
+            appendMessage('Access granted.');
+            sessionStorage.setItem('vaultAccess', JSON.stringify({ expiry: Date.now() + 5 * 60 * 1000 }));
+            setTimeout(() => window.location.href = 'thevault.html', 1000);
+          } else {
+            appendMessage('Incorrect password.');
+          }
+        }
+      });
+    } 
+    else if (cmd === '') {
+      // do nothing
+    } 
+    else {
+      appendMessage('Invalid command.');
+    }
+  }
+  </script>
+</body>
+</html>
