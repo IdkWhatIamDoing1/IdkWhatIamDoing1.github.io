@@ -95,7 +95,7 @@ function createWindow(title, htmlContent){
   // Fullscreen content
   const content=document.createElement('div');
   content.className='fullscreen-content';
-  content.innerHTML=htmlContent; // embed HTML directly
+  content.innerHTML=htmlContent; // embed full Minecraft HTML
   win.appendChild(content);
 
   desktop.appendChild(win);
@@ -113,11 +113,8 @@ function createWindow(title, htmlContent){
 document.querySelectorAll('.icon').forEach(icon=>{
   icon.addEventListener('dblclick',()=>{
     if(icon.dataset.app==='minecraft'){
-      // Replace the string below with the full HTML of https://eaglercraft.com/mc/1.8.8
-      const mcHTML = `
-      <h1 style="color:white;text-align:center;margin-top:20px;">Eaglercraft 1.8.8 - Embedded</h1>
-      <p style="color:white;text-align:center;">The full HTML content would go here...</p>
-      `;
+      // Full HTML of https://eaglercraft.com/mc/1.8.8
+      const mcHTML = `<iframe src="https://eaglercraft.com/mc/1.8.8" style="width:100%;height:100%;border:none;"></iframe>`;
       createWindow("Make Sure To Pick Javascript Instead", mcHTML);
     }
   });
