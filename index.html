@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Windows Basic Web Edition</title>
 <style>
@@ -9,54 +9,43 @@
     --cmd-bg:#000;
     --cmd-green:#00ff00;
     --title-blue:#0078d7;
-    --secret-red:#b20000;
     --ui-dark:#0b0b0b;
     --pane-dark:#0f0f0f;
     --panel:#111;
     --muted:#9ca3af;
-    --white:#fff;
+    --secret-bg:#8b0000;
+    --secret-text:#ffffff;
   }
-  html,body{height:100%;margin:0;background:var(--cmd-bg);font-family:Consolas,monospace;color:var(--cmd-green);}
-  .center{height:100%;display:flex;align-items:center;justify-content:center;position:relative;}
-  /* Boot screen */
-  #bootScreen{position:absolute;left:0;top:0;right:0;bottom:0;background:#000;color:#00ff00;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:18px;z-index:3000;}
-  #bootCircle{width:40px;height:40px;border:4px solid #00ff00;border-top-color:transparent;border-radius:50%;margin-top:20px;animation:spin 1s linear infinite;}
-  @keyframes spin{100%{transform:rotate(360deg)}}
-  /* Terminal window */
+  html,body{height:100%;margin:0;font-family:Consolas,monospace;background:#000;color:var(--cmd-green);}
+  .center{height:100%;display:flex;align-items:center;justify-content:center;}
   .window{width:86%;max-width:1000px;height:78%;border:2px solid #333;box-shadow:0 20px 40px rgba(0,0,0,.8);display:flex;flex-direction:column;background:var(--ui-dark);}
   .title-bar{background:var(--title-blue);color:#fff;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;user-select:none;}
-  .secret-bar{background:var(--secret-red);}
   .title{font-weight:700;font-family:"Segoe UI",sans-serif;}
   .controls{display:flex;gap:8px;}
   .control{width:18px;height:18px;background:#fff;color:#000;font-size:12px;border-radius:2px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-  .terminal{flex:1;padding:12px;overflow:auto;white-space:pre-wrap;display:flex;flex-direction:column;background:var(--cmd-bg);font-size:15px;}
+  .terminal{flex:1;padding:12px;overflow:auto;white-space:pre-wrap;display:flex;flex-direction:column;font-size:15px;}
   .line{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-  .prompt{color:var(--cmd-green);margin-right:6px;}
-  .prompt-white{color:var(--white);}
-  input.cmd{background:transparent;border:none;outline:none;color:var(--cmd-green);font-family:inherit;font-size:15px;flex:1;}
-  input.cmd-white{color:var(--white);}
+  .prompt{margin-right:6px;}
+  input.cmd{background:transparent;border:none;outline:none;flex:1;}
   .cursor{display:inline-block;width:10px;height:18px;background:var(--cmd-green);animation:blink 1s step-start infinite;margin-left:6px;}
-  .cursor-white{background:var(--white);}
   @keyframes blink{50%{opacity:0}}
   .restore-btn{position:fixed;left:12px;bottom:12px;background:var(--title-blue);color:#fff;padding:6px 10px;border-radius:4px;cursor:pointer;box-shadow:0 6px 12px rgba(0,0,0,0.5);display:none;z-index:2000;}
-  /* Explorer */
   .explorer-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:1500;}
   .explorer{width:760px;max-width:96%;height:480px;background:linear-gradient(#0b0b0b,#111);color:var(--cmd-green);border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,.8);display:flex;flex-direction:column;border:2px solid #222;font-family:Consolas,monospace;}
   .explorer .titlebar{background:var(--title-blue);color:#fff;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;}
-  .content{flex:1;display:flex;gap:12px;padding:12px;background:linear-gradient(#0b0b0b,#0f0f0f);border-top:1px solid #111;}
+  .explorer .content{flex:1;display:flex;gap:12px;padding:12px;background:linear-gradient(#0b0b0b,#0f0f0f);border-top:1px solid #111;}
   .sidebar{width:160px;background:transparent;padding:6px;border-right:1px solid rgba(255,255,255,0.03);font-size:14px;}
-  .quick-btn{display:block;padding:8px;border-radius:4px;margin-bottom:8px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--cmd-green)}
+  .quick-btn{display:block;padding:8px;border-radius:4px;margin-bottom:8px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.03);}
   .quick-btn:hover{background:rgba(255,255,255,0.02)}
   .files-area{flex:1;display:flex;flex-direction:column;gap:8px;}
   .toolbar{display:flex;gap:8px}
-  .btn{padding:6px 10px;border-radius:4px;background:transparent;border:1px solid rgba(255,255,255,0.06);cursor:pointer;color:var(--cmd-green)}
+  .btn{padding:6px 10px;border-radius:4px;background:transparent;border:1px solid rgba(255,255,255,0.06);cursor:pointer;}
   .file-list{display:flex;flex-wrap:wrap;gap:10px;padding:8px;align-items:flex-start}
   .file{width:150px;min-height:64px;border:1px solid rgba(255,255,255,0.03);border-radius:4px;padding:8px;background:linear-gradient(#0b0b0b,#0e0e0e);cursor:pointer;display:flex;flex-direction:column;justify-content:center}
   .file .name{font-size:14px;color:var(--cmd-green);word-break:break-all}
   .file .meta{font-size:12px;color:#7fdc7f;margin-top:6px}
   .file.selected{outline:2px solid rgba(0,120,215,0.9);background:linear-gradient(#08202a,#071a20)}
   .explorer-footer{padding:8px 12px;border-top:1px solid rgba(255,255,255,0.03);font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
-  /* Message box */
   .msg-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2200}
   .msg-box{width:420px;background:#efefef;border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,0.6);overflow:hidden;font-family:"Segoe UI",Tahoma,Arial,sans-serif}
   .msg-title{background:var(--title-blue);color:#fff;padding:8px 12px;font-weight:600}
@@ -65,23 +54,21 @@
   .msg-actions button{padding:6px 12px;border-radius:4px;border:1px solid #cfcfcf;background:#fff;cursor:pointer}
   .msg-icon{float:left;width:42px;height:42px;margin-right:12px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#b00}
   .hidden{display:none}
-  /* Progress bar for sudo rm */
-  .countdown-overlay{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:4000;color:#fff;}
-  .progress-bar{width:300px;height:24px;border:2px solid #fff;border-radius:6px;margin-top:12px;overflow:hidden;}
-  .progress-fill{height:100%;width:0%;background:#0078d7;transition:width 0.1s linear;}
+  /* Boot screen */
+  #bootScreen{position:fixed;top:0;left:0;right:0;bottom:0;background:#000;color:#00ff00;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Consolas,monospace;font-size:18px;z-index:3000;}
+  .loader{border:4px solid #fff;border-top:4px solid #00ff00;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin-top:16px;}
+  @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
-<div class="center">
-  <!-- Boot screen -->
-  <div id="bootScreen">
-    <div>Starting Windows Basic Web Edition...</div>
-    <div>© 2025 Fraser</div>
-    <div id="bootCircle"></div>
-  </div>
+<div id="bootScreen">
+  <div>Starting Windows Basic Web Edition...</div>
+  <div>© 2025 USERENTERNAMEHERE888</div>
+  <div class="loader"></div>
+</div>
 
-  <!-- Terminal window -->
-  <div id="terminalWindow" class="window" role="application" aria-label="Command Prompt" style="display:none">
+<div class="center" style="display:none;" id="mainInterface">
+  <div id="terminalWindow" class="window" role="application" aria-label="Command Prompt">
     <div class="title-bar">
       <span class="title">Command Prompt</span>
       <div class="controls">
@@ -99,44 +86,32 @@
     </div>
   </div>
 </div>
-
 <button id="restoreBtn" class="restore-btn">Command Prompt</button>
 <button id="hidden-btn" title="hidden" aria-hidden="true" style="display:none"></button>
 
 <script>
-// Wait for boot screen
+/****************** Boot screen ******************/
 setTimeout(()=>{
   document.getElementById('bootScreen').style.display='none';
-  document.getElementById('terminalWindow').style.display='flex';
+  document.getElementById('mainInterface').style.display='flex';
   document.getElementById('command').focus();
 },5000);
 
-/* ========= Persistent Storage ========= */
-const savedFiles = JSON.parse(localStorage.getItem('files')) || {
-  'desktop':[
-    {name:'test.bin',type:'.bin',size:'1 KB'},
-    {name:'encrypted.bin',type:'.bin',size:'1 KB'},
-    {name:'secretdata.txt',type:'.txt',size:'1 KB'},
-    {name:'exit.exe',type:'.exe',size:'1 KB'}
-  ],
-  'documents':[ {name:'titanic.pptx',type:'.pptx',size:'3.2 MB'} ],
-  'downloads':[ {name:'website.zip',type:'.zip',size:'12 MB'} ]
-};
-function saveFiles(){ localStorage.setItem('files',JSON.stringify(savedFiles)); }
-
-/* ========= Vault Session ========= */
+/****************** Vault session ******************/
 (function(){
   const PASSWORD='secret123';
   const SESSION_KEY='vaultAccess';
   const TTL_MS=5*60*1000;
   function setVaultSession(){ const expiry=Date.now()+TTL_MS; sessionStorage.setItem(SESSION_KEY,JSON.stringify({expiry})); }
-  function hasVaultSession(){ const data=sessionStorage.getItem(SESSION_KEY); if(!data)return false; try{const {expiry}=JSON.parse(data);return expiry>Date.now();}catch{return false;} }
-  const btn=document.getElementById('hidden-btn');
-  btn.addEventListener('click',()=>{ const attempt=prompt('Enter password:'); if(attempt===PASSWORD){setVaultSession();window.location.href='thevault.html';}else if(attempt!==null){alert('Incorrect password');} });
-  window.setVaultSession=setVaultSession; window.checkVaultSession=hasVaultSession;
+  function hasVaultSession(){ const data=sessionStorage.getItem(SESSION_KEY); if(!data) return false; try{ return JSON.parse(data).expiry>Date.now();}catch{return false;} }
+  document.getElementById('hidden-btn').addEventListener('click',()=>{
+    const attempt=prompt('Enter password:'); if(attempt===PASSWORD){ setVaultSession(); window.location.href='thevault.html'; }else alert('Incorrect password');
+  });
+  window.setVaultSession=setVaultSession;
+  window.checkVaultSession=hasVaultSession;
 })();
 
-/* ========= Terminal ========= */
+/****************** Terminal & Explorer ******************/
 (function(){
 const terminal=document.getElementById('terminal');
 const input=document.getElementById('command');
@@ -145,149 +120,157 @@ const minBtn=document.getElementById('minBtn');
 const maxBtn=document.getElementById('maxBtn');
 const closeBtn=document.getElementById('closeBtn');
 const restoreBtn=document.getElementById('restoreBtn');
+
 let isMax=false,isMin=false,closed=false;
-let currentDir='C:\\';
-const dirs={'C:\\':['desktop','documents','downloads'],'C:\\Secret':['']};
+let cwd='C:\\',folders=null,secretMode=false;
 
-// Append line
-function appendLine(text,color){
-  const line=document.createElement('div');line.textContent=text;
-  if(color==='error')line.style.color='#ff6b6b';
-  terminal.insertBefore(line,input.parentElement);
-  terminal.scrollTop=terminal.scrollHeight;
-}
+// Hardcoded filesystem
+const initialFolders={
+  'C:\\':[
+    {name:'Desktop',type:'folder'},
+    {name:'Documents',type:'folder'},
+    {name:'Downloads',type:'folder'},
+    {name:'Secret',type:'folder'}
+  ],
+  'C:\\Desktop':[
+    {name:'test.bin',type:'.bin',size:'1 KB'},
+    {name:'encrypted.bin',type:'.bin',size:'1 KB'},
+    {name:'secretdata.txt',type:'.txt',size:'1 KB'},
+    {name:'exit.exe',type:'.exe',size:'1 KB'}
+  ],
+  'C:\\Documents':[
+    {name:'titanic.pptx',type:'.pptx',size:'3.2 MB'},
+    {name:'notes.docx',type:'.docx',size:'2 MB'}
+  ],
+  'C:\\Downloads':[
+    {name:'website.zip',type:'.zip',size:'12 MB'},
+    {name:'setup.exe',type:'.exe',size:'5 MB'}
+  ],
+  'C:\\Secret':[
+    {name:'vault.dat',type:'.dat',size:'4 KB'}
+  ]
+};
 
-// Command handling
+// Load persistent storage
+if(localStorage.getItem('folders')) folders=JSON.parse(localStorage.getItem('folders'));
+else folders=initialFolders;
+
+function saveFolders(){ localStorage.setItem('folders',JSON.stringify(folders)); }
+function appendLine(text,color){ const line=document.createElement('div'); line.textContent=text; if(color==='error') line.style.color='#ff6b6b'; terminal.insertBefore(line,input.parentElement); terminal.scrollTop=terminal.scrollHeight; }
+
+/****************** Command handler ******************/
 input.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    const cmdRaw=input.value.trim();
-    appendLine(currentDir+'> '+cmdRaw);
-    handleCommand(cmdRaw);
-    input.value='';
-    e.preventDefault();
-  }
-});
+if(e.key==='Enter'){ const cmdRaw=input.value.trim(); appendLine(cwd+'> '+cmdRaw); handleCommand(cmdRaw); input.value=''; e.preventDefault(); }});
 
-// Core commands
 function handleCommand(cmdRaw){
-  if(!cmdRaw)return;
-  const cmd=cmdRaw.toLowerCase();
-
-  if(cmd==='launch home'){ appendLine('Launching home...'); setTimeout(()=>window.location.href='home.html',700); }
-  else if(cmd==='launch secret'){ appendLine('Enter password:'); createTerminalPasswordPrompt(); }
-  else if(cmd==='explorer'||cmd==='explorer.exe'){ openExplorerUI(); }
-  else if(cmd==='winver'||cmd==='winver.exe'){ showWinVer(); }
-  else if(cmd.startsWith('cd ')){ changeDir(cmd.substring(3)); }
-  else if(cmd==='dir'){ listDir(); }
-  else if(cmd.startsWith('delete ')){ deleteFile(cmd.substring(7)); }
-  else if(cmd.startsWith('rename ')){ renameFile(cmd.substring(7)); }
-  else if(cmd.startsWith('copy ')){ copyFile(cmd.substring(5)); }
-  else if(cmd==='bash'){ appendLine('This command is not available in this build.'); }
-  else if(cmd==='secretterminal.exe'){ secretTerminal(); }
-  else if(cmd==='sudo rm -rf /'){ startSelfDestruct(); }
-  else{ appendLine('Invalid command.','error'); }
+if(!cmdRaw) return;
+const args=cmdRaw.split(' '),cmd=args[0].toLowerCase();
+if(secretMode){
+  // Secret Terminal Commands
+  if(cmd==='launch'){
+    if(args[1]==='minecraft1.8.8.exe') appendLine('This Command Has Been Disabled By Mojang.','error');
+    else if(args[1]==='unblockedbrowser.exe') openExplorerUI();
+    else appendLine('Unknown file.','error');
+  }else if(cmd==='exit'){ secretMode=false; terminalWindow.querySelector('.title').textContent='Command Prompt'; terminal.style.color='var(--cmd-green)'; }
+  else appendLine('Invalid command.','error'); return;
 }
 
-/* --- Boot / Secret Terminal --- */
-function secretTerminal(){
-  if(currentDir.toLowerCase()==='c:\\secret\\' || currentDir.toLowerCase()==='c:\\secret'){
-    appendLine('Opening Secret Vault...');
-    openSecretTerminal();
-  }else appendLine('Error: Could Not find file.','error');
+// General Commands
+switch(cmd){
+case 'bash': appendLine('This command is not available in this build.'); break;
+case 'dir':
+  (folders[cwd]||[]).forEach(f=>appendLine(f.name+(f.type==='folder'?'\\':'')+'   '+(f.size||''))); break;
+case 'cd':
+  let target=args[1]||''; if(target==='..'){ cwd=cwd.slice(0,cwd.lastIndexOf('\\')); if(!cwd) cwd='C:\\'; appendLine('Changed directory to '+cwd); break;}
+  if(target.endsWith('\\')) target=target.slice(0,-1);
+  if(target.toLowerCase()==='c:\\secret'){ cwd='C:\\Secret'; appendLine('Changed directory to '+cwd); break;}
+  let newPath=(cwd+'\\'+target).replace(/\\\\/g,'\\'); if(folders[newPath]){ cwd=newPath; appendLine('Changed directory to '+cwd); }else appendLine('The system cannot find the path specified.','error'); break;
+case 'winver':
+case 'winver.exe': showMsgBox('Windows Basic Web Edition','Windows Basic Web Edition\nMade by USERENTERNAMEHERE888\n© 2025\nThis is not an official Microsoft product and is not affiliated with Microsoft Corporation.'); break;
+case 'launch':
+  if(args[1]==='secretterminal.exe'){
+    if(cwd.toLowerCase()==='c:\\secret'){ secretMode=true; terminalWindow.querySelector('.title').textContent='The Secret Vault'; terminal.style.color='var(--secret-text)'; terminal.style.background='var(--secret-bg)'; appendLine('Secret Terminal Launched'); }
+    else appendLine('Error: Could Not Find File.','error'); } break;
+case 'sudo':
+  if(args[1]==='rm'&&args[2]==='-rf'&&args[3]==='/'){ runSelfDestruct(); } break;
+default: appendLine('Invalid command.','error'); break;
+}
+saveFolders();
 }
 
-function openSecretTerminal(){
-  terminalWindow.querySelector('.title-bar').classList.add('secret-bar');
-  terminalWindow.querySelector('.title').textContent='The Secret Vault';
-  input.classList.add('cmd-white');
-  terminal.querySelector('.cursor').classList.add('cursor-white');
+/****************** Explorer UI ******************/
+function openExplorerUI(initialFolder='C:\\Desktop'){
+  const overlay=document.createElement('div'); overlay.className='explorer-overlay';
+  const win=document.createElement('div'); win.className='explorer'; win.setAttribute('role','dialog');
+  const titlebar=document.createElement('div'); titlebar.className='titlebar';
+  const titleName=document.createElement('div'); titleName.textContent='File Explorer';
+  const closeBtn=document.createElement('div'); closeBtn.className='control'; closeBtn.style.background='#fff'; closeBtn.style.color='#000'; closeBtn.style.padding='2px 6px'; closeBtn.style.borderRadius='4px'; closeBtn.style.cursor='pointer'; closeBtn.textContent='Close';
+  titlebar.appendChild(titleName); titlebar.appendChild(closeBtn);
+
+  const content=document.createElement('div'); content.className='content';
+  const sidebar=document.createElement('div'); sidebar.className='sidebar';
+  const filesArea=document.createElement('div'); filesArea.className='files-area';
+  const toolbar=document.createElement('div'); toolbar.className='toolbar';
+  const openBtn=document.createElement('button'); openBtn.className='btn'; openBtn.textContent='Open';
+  const deleteBtn=document.createElement('button'); deleteBtn.className='btn'; deleteBtn.textContent='Delete';
+  const renameBtn=document.createElement('button'); renameBtn.className='btn'; renameBtn.textContent='Rename';
+  toolbar.appendChild(openBtn); toolbar.appendChild(deleteBtn); toolbar.appendChild(renameBtn);
+
+  const fileList=document.createElement('div'); fileList.className='file-list';
+  const footer=document.createElement('div'); footer.className='explorer-footer';
+  const footerLeft=document.createElement('div'); const footerRight=document.createElement('div');
+  footer.appendChild(footerLeft); footer.appendChild(footerRight);
+
+  const desktopBtn=document.createElement('button'); desktopBtn.className='quick-btn'; desktopBtn.textContent='Desktop';
+  const documentsBtn=document.createElement('button'); documentsBtn.className='quick-btn'; documentsBtn.textContent='Documents';
+  const downloadsBtn=document.createElement('button'); downloadsBtn.className='quick-btn'; downloadsBtn.textContent='Downloads';
+  sidebar.appendChild(desktopBtn); sidebar.appendChild(documentsBtn); sidebar.appendChild(downloadsBtn);
+
+  content.appendChild(sidebar); content.appendChild(filesArea);
+  filesArea.appendChild(toolbar); filesArea.appendChild(fileList);
+
+  win.appendChild(titlebar); win.appendChild(content); win.appendChild(footer);
+  overlay.appendChild(win); document.body.appendChild(overlay);
+
+  let currentFolder=initialFolder;
+  function renderFiles(){ fileList.innerHTML='';(folders[currentFolder]||[]).forEach(f=>{
+    const fi=document.createElement('div'); fi.className='file'; fi.tabIndex=0;
+    fi.innerHTML=`<div class="name">${f.name}</div><div class="meta">${f.size||f.type||''}</div>`;
+    fileList.appendChild(fi);
+    fi.addEventListener('dblclick',()=>{ if(f.type==='folder') { currentFolder=currentFolder+'\\'+f.name; renderFiles(); } else appendLine('Opened '+f.name);});
+  }); footerLeft.textContent='Path: '+currentFolder; footerRight.textContent=folders[currentFolder]?.length+' items'; }
+  renderFiles();
+
+  closeBtn.onclick=()=>overlay.remove();
+  desktopBtn.onclick=()=>{ currentFolder='C:\\Desktop'; renderFiles(); };
+  documentsBtn.onclick=()=>{ currentFolder='C:\\Documents'; renderFiles(); };
+  downloadsBtn.onclick=()=>{ currentFolder='C:\\Downloads'; renderFiles(); };
 }
 
-function createTerminalPasswordPrompt(){
-  const line=document.createElement('div'); line.className='line';
-  const promptEl=document.createElement('span'); promptEl.className='prompt'; promptEl.textContent='Password:';
-  const pw=document.createElement('input'); pw.type='password';
-  pw.style.background='transparent';pw.style.border='none';pw.style.outline='none';pw.style.color='var(--cmd-green)';pw.style.fontFamily='Consolas,monospace';pw.style.fontSize='15px';pw.autofocus=true;
-  line.appendChild(promptEl); line.appendChild(pw); terminal.insertBefore(line,input.parentElement); terminal.scrollTop=terminal.scrollHeight; pw.focus();
-  pw.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      const attempt=pw.value; pw.disabled=true;
-      if(attempt==='secret123'){ appendLine('Access granted.'); window.setVaultSession(); setTimeout(()=>window.location.href='thevault.html',700); }
-      else appendLine('Incorrect password.');
-    }
-  });
-}
-
-/* --- Simple Commands --- */
-function showWinVer(){
-  showMsgBox('Windows Basic Web Edition',`Windows Basic Web Edition
-Made by Fraser
-Copyright 2025
-This is not an official Microsoft or Windows endorsed product and is not related to Microsoft Corporation at all.`);
-}
-
-function changeDir(path){
-  if(path==='C:\\Secret' || path==='C:\\Secret\\'){ currentDir='C:\\Secret\\'; appendLine('Directory changed to '+currentDir); }
-  else if(path==='C:' || path==='C:\\'){ currentDir='C:\\'; appendLine('Directory changed to '+currentDir); }
-  else appendLine('The system cannot find the path specified.','error');
-}
-
-function listDir(){
-  let list='';
-  if(currentDir==='C:\\'){
-    list='desktop documents downloads';
-  }else if(currentDir==='C:\\Secret\\'){ list='secret.txt secretterminal.exe'; }
-  else list=''; 
-  appendLine(list);
-}
-
-function deleteFile(name){
-  appendLine('Simulated delete of '+name);
-}
-
-function renameFile(name){ appendLine('Simulated rename of '+name); }
-
-function copyFile(name){ appendLine('Simulated copy of '+name); }
-
-/* --- Self destruct --- */
-function startSelfDestruct(){
-  const overlay=document.createElement('div'); overlay.className='countdown-overlay';
-  overlay.innerHTML='<div>Windows Will Restart In 10 Seconds To Finalise Changes</div><div class="progress-bar"><div class="progress-fill"></div></div>';
+/****************** Message Box ******************/
+function showMsgBox(title,text){ 
+  const overlay=document.createElement('div'); overlay.className='msg-overlay';
+  const box=document.createElement('div'); box.className='msg-box';
+  const titleBar=document.createElement('div'); titleBar.className='msg-title'; titleBar.textContent=title;
+  const body=document.createElement('div'); body.className='msg-body'; body.textContent=text;
+  const actions=document.createElement('div'); actions.className='msg-actions';
+  const okBtn=document.createElement('button'); okBtn.textContent='OK';
+  okBtn.onclick=()=>overlay.remove(); actions.appendChild(okBtn);
+  box.appendChild(titleBar); box.appendChild(body); box.appendChild(actions); overlay.appendChild(box);
   document.body.appendChild(overlay);
-  const fill=overlay.querySelector('.progress-fill'); let sec=0;
-  const interval=setInterval(()=>{
-    sec++;
-    fill.style.width=(sec*10)+'%';
-    if(sec>=10){ clearInterval(interval); localStorage.clear(); window.location.reload(); }
-  },1000);
 }
 
-/* --- Titlebar --- */
-minBtn.addEventListener('click',()=>{ if(closed)return; terminalWindow.style.display='none'; restoreBtn.style.display='block'; isMin=true; });
-restoreBtn.addEventListener('click',()=>{ if(closed)return; terminalWindow.style.display='flex'; restoreBtn.style.display='none'; isMin=false; input.focus(); });
-maxBtn.addEventListener('click',()=>{ if(closed)return; if(!isMax){ terminalWindow.style.position='fixed'; terminalWindow.style.left='8px'; terminalWindow.style.top='8px'; terminalWindow.style.right='8px'; terminalWindow.style.bottom='8px'; terminalWindow.style.width='auto'; terminalWindow.style.height='auto'; terminalWindow.style.maxWidth='none'; terminalWindow.style.maxHeight='none'; terminalWindow.style.zIndex=1000; isMax=true; } else { terminalWindow.style.position=''; terminalWindow.style.left=''; terminalWindow.style.top=''; terminalWindow.style.right=''; terminalWindow.style.bottom=''; terminalWindow.style.width=''; terminalWindow.style.height=''; terminalWindow.style.maxWidth=''; terminalWindow.style.maxHeight=''; terminalWindow.style.zIndex=''; isMax=false; } input.focus(); });
-closeBtn.addEventListener('click',()=>{ terminalWindow.style.display='none'; restoreBtn.style.display='none'; closed=true; appendLine('Terminal closed. Refresh page to reopen.'); });
-
-/* --- Message Box --- */
-function showMsgBox(title,message){
-  return new Promise(resolve=>{
-    const overlay=document.createElement('div'); overlay.className='msg-overlay';
-    const box=document.createElement('div'); box.className='msg-box';
-    const t=document.createElement('div'); t.className='msg-title'; t.textContent=title;
-    const body=document.createElement('div'); body.className='msg-body';
-    const icon=document.createElement('div'); icon.className='msg-icon'; icon.textContent='!';
-    const text=document.createElement('div'); text.innerHTML=message.replace(/\n/g,'<br>');
-    body.appendChild(icon); body.appendChild(text);
-    const actions=document.createElement('div'); actions.className='msg-actions';
-    const ok=document.createElement('button'); ok.textContent='OK';
-    actions.appendChild(ok); box.appendChild(t); box.appendChild(body); box.appendChild(actions);
-    overlay.appendChild(box); document.body.appendChild(overlay);
-    ok.addEventListener('click',()=>{ document.body.removeChild(overlay); resolve(); });
-  });
+/****************** Self destruct ******************/
+function runSelfDestruct(){
+  let count=10; appendLine('Warning! This will erase all local storage in 10 seconds...');
+  const interval=setInterval(()=>{ appendLine(`Windows Will Restart In ${count} Seconds To Finalise Changes.`); count--; if(count<0){ clearInterval(interval); localStorage.clear(); sessionStorage.clear(); appendLine('Local Storage erased.');} },1000);
 }
 
-/* Focus */
-input.focus();
+/****************** Window Controls ******************/
+minBtn.onclick=()=>{ terminalWindow.style.display='none'; restoreBtn.style.display='block'; };
+restoreBtn.onclick=()=>{ terminalWindow.style.display='flex'; restoreBtn.style.display='none'; input.focus(); };
+maxBtn.onclick=()=>{ if(!isMax){ terminalWindow.style.width='95%'; terminalWindow.style.height='90%'; isMax=true;} else { terminalWindow.style.width='86%'; terminalWindow.style.height='78%'; isMax=false; } };
+closeBtn.onclick=()=>{ terminalWindow.style.display='none'; closed=true; restoreBtn.style.display='block'; };
 })();
 </script>
 </body>
