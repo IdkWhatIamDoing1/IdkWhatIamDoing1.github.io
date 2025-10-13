@@ -29,9 +29,9 @@ input.cmd{background:transparent;border:none;outline:none;color:var(--cmd-green)
 .cursor{display:inline-block;width:10px;height:18px;background:var(--cmd-green);animation:blink 1s step-start infinite;margin-left:6px;}
 @keyframes blink{50%{opacity:0}}
 .restore-btn{position:fixed;left:12px;bottom:12px;background:var(--title-blue);color:#fff;padding:6px 10px;border-radius:4px;cursor:pointer;box-shadow:0 6px 12px rgba(0,0,0,0.5);display:none;z-index:2000;}
-.explorer-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:1500;}
-.explorer{width:760px;max-width:96%;height:480px;background:linear-gradient(#0b0b0b,#111);color:var(--cmd-green);border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,.8);display:flex;flex-direction:column;border:2px solid #222;font-family:Consolas,monospace;position:absolute;}
-.explorer .titlebar{background:var(--title-blue);color:#fff;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;}
+.explorer-overlay,.browser-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:1500;}
+.explorer,.browser{width:760px;max-width:96%;height:480px;background:linear-gradient(#0b0b0b,#111);color:var(--cmd-green);border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,.8);display:flex;flex-direction:column;border:2px solid #222;font-family:Consolas,monospace;position:absolute;}
+.explorer .titlebar,.browser .titlebar{background:var(--title-blue);color:#fff;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;}
 .explorer .content{flex:1;display:flex;gap:12px;padding:12px;background:linear-gradient(#0b0b0b,#0f0f0f);border-top:1px solid #111;}
 .sidebar{width:160px;background:transparent;padding:6px;border-right:1px solid rgba(255,255,255,0.03);font-size:14px;}
 .quick-btn{display:block;padding:8px;border-radius:4px;margin-bottom:8px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--cmd-green)}
@@ -53,7 +53,7 @@ input.cmd{background:transparent;border:none;outline:none;color:var(--cmd-green)
 .msg-actions button{padding:6px 12px;border-radius:4px;border:1px solid #cfcfcf;background:#fff;cursor:pointer}
 .msg-icon{float:left;width:42px;height:42px;margin-right:12px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#b00}
 .hidden{display:none}
-@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+.red-terminal{background:var(--red-terminal);}
 </style>
 </head>
 <body>
@@ -88,13 +88,13 @@ input.cmd{background:transparent;border:none;outline:none;color:var(--cmd-green)
 <button id="hidden-btn" class="hidden"></button>
 
 <script>
-// Boot screen hide
-setTimeout(()=>{document.getElementById('bootScreen').style.display='none';},1500);
+document.addEventListener('DOMContentLoaded', () => {
+  // Boot screen hide
+  setTimeout(()=>{document.getElementById('bootScreen').style.display='none';},1500);
 
-/*******************************
-* Vault session code
-*******************************/
-(function(){
+  /*******************************
+  * Vault session code
+  *******************************/
   const PASSWORD='secret123';
   const SESSION_KEY='vaultAccess';
   const TTL_MS=5*60*1000;
@@ -104,294 +104,204 @@ setTimeout(()=>{document.getElementById('bootScreen').style.display='none';},150
   btn.addEventListener('click',()=>{const attempt=prompt('Enter password:'); if(attempt===PASSWORD){setVaultSession(); window.location.href='thevault.html';}else alert('Incorrect password');});
   window.setVaultSession=setVaultSession;
   window.checkVaultSession=hasVaultSession;
-})();
 
-/*******************************
-* Terminal & Explorer behavior
-*******************************/
-(function(){
-const terminal=document.getElementById('terminal');
-const input=document.getElementById('command');
-const terminalWindow=document.getElementById('terminalWindow');
-const minBtn=document.getElementById('minBtn');
-const maxBtn=document.getElementById('maxBtn');
-const closeBtn=document.getElementById('closeBtn');
-const restoreBtn=document.getElementById('restoreBtn');
-let isMax=false, isMin=false, closed=false;
+  /*******************************
+  * Terminal & Explorer behavior
+  *******************************/
+  const terminal=document.getElementById('terminal');
+  const input=document.getElementById('command');
+  const terminalWindow=document.getElementById('terminalWindow');
+  const minBtn=document.getElementById('minBtn');
+  const maxBtn=document.getElementById('maxBtn');
+  const closeBtn=document.getElementById('closeBtn');
+  const restoreBtn=document.getElementById('restoreBtn');
+  let isMax=false, isMin=false, closed=false;
 
-// Explorer dummy files
-let folders={
-  desktop:[
-    {name:'exit.exe',type:'.exe',size:'1 KB'},
-    {name:'readme.txt',type:'.txt',size:'2 KB'},
-    {name:'secretdata.bin',type:'.bin',size:'4 KB'}
-  ],
-  documents:[
-    {name:'presentation.pptx',type:'.pptx',size:'3 MB'}
-  ],
-  downloads:[
-    {name:'archive.zip',type:'.zip',size:'12 MB'}
-  ]
-};
-let explorerState=null;
+  // Explorer dummy files
+  let folders={
+    desktop:[
+      {name:'exit.exe',type:'.exe',size:'1 KB'},
+      {name:'readme.txt',type:'.txt',size:'2 KB'},
+      {name:'secretdata.bin',type:'.bin',size:'4 KB'}
+    ],
+    documents:[
+      {name:'presentation.pptx',type:'.pptx',size:'3 MB'}
+    ],
+    downloads:[
+      {name:'archive.zip',type:'.zip',size:'12 MB'}
+    ]
+  };
+  let explorerState=null;
 
-// append line
-function appendLine(text,color){
-  const line=document.createElement('div');
-  line.textContent=text;
-  if(color==='error') line.style.color='#ff6b6b';
-  terminal.insertBefore(line,input.parentElement);
-  terminal.scrollTop=terminal.scrollHeight;
-}
-
-// Handle commands
-input.addEventListener('keydown',(e)=>{
-  if(e.key==='Enter'){
-    const cmdRaw=input.value.trim();
-    appendLine('C:\\> '+cmdRaw);
-    input.value='';
-    handleCommand(cmdRaw.toLowerCase());
-    e.preventDefault();
+  // append line
+  function appendLine(text,color){
+    const line=document.createElement('div');
+    line.textContent=text;
+    if(color==='error') line.style.color='#ff6b6b';
+    terminal.insertBefore(line,input.parentElement);
+    terminal.scrollTop=terminal.scrollHeight;
   }
-});
 
-// Command handler
-function handleCommand(cmd){
-  if(cmd==='launch home'){
-    appendLine('Launching home...');
-    setTimeout(()=>window.location.href='home.html',700);
-  } else if(cmd==='launch secret'){
-    createTerminalPasswordPrompt();
-  } else if(cmd==='explorer' || cmd==='explorer.exe'){
-    openExplorerUI();
-  } else if(cmd==='winver'){
-    showMsgBox('About Windows Basic Web Edition',
-      `<div style="text-align:center;"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_logo_-_2012.svg" width="64"><br>
-      Windows Basic Web Edition<br>&copy; 2025<br>This product is not endorsed by Windows or Microsoft.<br>Not affiliated with Microsoft Corp.</div>`
-    );
-  } else if(cmd==='help'){
-    appendLine('Available commands:\nlaunch home\nlaunch secret\nexplorer.exe\nwinver\nhelp\nsecretterminal.exe');
-  } else if(cmd==='secretterminal.exe'){
-    openSecretTerminal();
-  } else{
-    appendLine('Invalid command.','error');
-  }
-}
-
-// Password prompt inline
-function createTerminalPasswordPrompt(){
-  const line=document.createElement('div'); line.className='line';
-  const prompt=document.createElement('span'); prompt.className='prompt'; prompt.textContent='Password:';
-  const pw=document.createElement('input'); pw.type='password';
-  pw.style.background='transparent'; pw.style.border='none'; pw.style.outline='none'; pw.style.color='var(--cmd-green)';
-  pw.style.fontFamily='Consolas,monospace'; pw.style.fontSize='15px';
-  line.appendChild(prompt); line.appendChild(pw);
-  terminal.insertBefore(line,input.parentElement);
-  terminal.scrollTop=terminal.scrollHeight;
-  pw.focus();
-  pw.addEventListener('keydown',(e)=>{
+  // Handle commands
+  input.addEventListener('keydown',(e)=>{
     if(e.key==='Enter'){
-      const attempt=pw.value; pw.disabled=true;
-      if(attempt==='secret123'){ appendLine('Access granted.'); window.setVaultSession(); setTimeout(()=>window.location.href='thevault.html',700);}
-      else appendLine('Incorrect password.');
+      const cmdRaw=input.value.trim();
+      appendLine('C:\\> '+cmdRaw);
+      input.value='';
+      handleCommand(cmdRaw.toLowerCase());
+      e.preventDefault();
     }
   });
-}
 
-// Title bar controls
-minBtn.addEventListener('click',()=>{if(closed) return; terminalWindow.style.display='none'; restoreBtn.style.display='block'; isMin=true;});
-restoreBtn.addEventListener('click',()=>{if(closed) return; terminalWindow.style.display='flex'; restoreBtn.style.display='none'; isMin=false; input.focus();});
-maxBtn.addEventListener('click',()=>{if(closed) return; if(!isMax){terminalWindow.style.position='fixed';terminalWindow.style.left='8px';terminalWindow.style.top='8px';terminalWindow.style.right='8px';terminalWindow.style.bottom='8px';terminalWindow.style.width='auto';terminalWindow.style.height='auto';terminalWindow.style.maxWidth='none';terminalWindow.style.maxHeight='none';terminalWindow.style.zIndex=1000; isMax=true;}else{terminalWindow.style.position='';terminalWindow.style.left='';terminalWindow.style.top='';terminalWindow.style.right='';terminalWindow.style.bottom='';terminalWindow.style.width='';terminalWindow.style.height=''; terminalWindow.style.maxWidth=''; terminalWindow.style.maxHeight=''; terminalWindow.style.zIndex=''; isMax=false;} input.focus();});
-closeBtn.addEventListener('click',()=>{terminalWindow.style.display='none'; restoreBtn.style.display='none'; closed=true; appendLine('Terminal closed. Refresh page to reopen.');});
-
-/***********************
-* Explorer implementation
-***********************/
-function openExplorerUI(initialFolder='desktop'){
-  if(explorerState && explorerState.overlay) return;
-  const overlay=document.createElement('div'); overlay.className='explorer-overlay';
-  const win=document.createElement('div'); win.className='explorer';
-  const titlebar=document.createElement('div'); titlebar.className='titlebar'; titlebar.textContent='File Explorer';
-  const closeBtn=document.createElement('div'); closeBtn.className='control'; closeBtn.textContent='×'; closeBtn.style.cursor='pointer';
-  titlebar.appendChild(closeBtn); win.appendChild(titlebar);
-  const content=document.createElement('div'); content.className='content';
-  const sidebar=document.createElement('div'); sidebar.className='sidebar';
-  const filesArea=document.createElement('div'); filesArea.className='files-area';
-  const toolbar=document.createElement('div'); toolbar.className='toolbar';
-  const openBtn=document.createElement('button'); openBtn.className='btn'; openBtn.textContent='Open';
-  const deleteBtn=document.createElement('button'); deleteBtn.className='btn'; deleteBtn.textContent='Delete';
-  const renameBtn=document.createElement('button'); renameBtn.className='btn'; renameBtn.textContent='Rename';
-  toolbar.appendChild(openBtn); toolbar.appendChild(deleteBtn); toolbar.appendChild(renameBtn);
-  const fileList=document.createElement('div'); fileList.className='file-list';
-  filesArea.appendChild(toolbar); filesArea.appendChild(fileList);
-  content.appendChild(sidebar); content.appendChild(filesArea);
-  const footer=document.createElement('div'); footer.className='explorer-footer'; footer.textContent='Ready';
-  win.appendChild(content); win.appendChild(footer);
-  overlay.appendChild(win); document.body.appendChild(overlay);
-  explorerState={overlay,win,folders,current:initialFolder,fileList,footer,selectedIndex:-1};
-
-  function renderFiles(){
-    fileList.innerHTML='';
-    const list=explorerState.folders[explorerState.current]||[];
-    list.forEach((f,i)=>{
-      const fileEl=document.createElement('div'); fileEl.className='file'; fileEl.dataset.index=i;
-      if(explorerState.selectedIndex===i) fileEl.classList.add('selected');
-      const nameEl=document.createElement('div'); nameEl.className='name'; nameEl.textContent=f.name;
-      const metaEl=document.createElement('div'); metaEl.className='meta'; metaEl.textContent=f.type+' • '+(f.size||'');
-      fileEl.appendChild(nameEl); fileEl.appendChild(metaEl);
-      fileEl.addEventListener('click',()=>{const prev=explorerState.selectedIndex; explorerState.selectedIndex=i; if(prev!==-1){const prevEl=fileList.querySelector('.file[data-index="'+prev+'"]'); if(prevEl) prevEl.classList.remove('selected');} fileEl.classList.add('selected');});
-      fileList.appendChild(fileEl);
-    });
-    explorerState.footer.textContent=list.length+' items';
+  // Command handler
+  function handleCommand(cmd){
+    if(cmd==='launch home'){
+      appendLine('Launching home...');
+      setTimeout(()=>window.location.href='home.html',700);
+    } else if(cmd==='launch secret'){
+      createTerminalPasswordPrompt();
+    } else if(cmd==='explorer' || cmd==='explorer.exe'){
+      openExplorerUI();
+    } else if(cmd==='winver'){
+      showMsgBox('About Windows Basic Web Edition',
+        `<div style="text-align:center;"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_logo_-_2012.svg" width="64"><br>
+        Windows Basic Web Edition<br>&copy; 2025<br>This product is not endorsed by Windows or Microsoft.<br>Not affiliated with Microsoft Corp.</div>`
+      );
+    } else if(cmd==='help'){
+      appendLine('Available commands:\nlaunch home\nlaunch secret\nexplorer.exe\nwinver\nhelp\nsecretterminal.exe\niexplore.exe');
+    } else if(cmd==='secretterminal.exe'){
+      openSecretTerminal();
+    } else if(cmd==='iexplore.exe'){
+      openBrowserWindow('https://www.google.com');
+    } else{
+      appendLine('Invalid command.','error');
+    }
   }
 
-  renderFiles();
-
-  closeBtn.addEventListener('click',closeExplorer);
-  overlay.addEventListener('click',(ev)=>{if(ev.target===overlay) closeExplorer();});
-  openBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0) openFileAt(explorerState.selectedIndex);});
-  deleteBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0) deleteFileAt(explorerState.selectedIndex);});
-  renameBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0){const list=explorerState.folders[explorerState.current];const file=list[explorerState.selectedIndex];const newName=prompt('Rename "'+file.name+'" to:',file.name);if(newName){const oldExt=file.name.split('.').pop();const newExt=newName.includes('.')?newName.split('.').pop():oldExt;file.name=newName.replace(/\.[^/.]+$/,'.'+newExt);renderFiles();}}});
-
-  function deleteFileAt(idx){const list=explorerState.folders[explorerState.current];if(confirm('Delete "'+list[idx].name+'"?')){list.splice(idx,1);explorerState.selectedIndex=-1;renderFiles();}}
-  function openFileAt(idx){const list=explorerState.folders[explorerState.current];const file=list[idx];if(file.name==='exit.exe'){closeExplorer();appendLine('Explorer.exe closed.');} else {alert('Cannot open "'+file.name+'": file type not supported.');}}
-  function closeExplorer(){if(explorerState&&explorerState.overlay){explorerState.overlay.remove();explorerState=null;}}
-
-  // Make Explorer draggable
-  let isDragging=false, dragOffsetX=0, dragOffsetY=0;
-  titlebar.addEventListener('mousedown',e=>{isDragging=true; const rect=win.getBoundingClientRect(); dragOffsetX=e.clientX-rect.left; dragOffsetY=e.clientY-rect.top;});
-  document.addEventListener('mousemove',e=>{if(isDragging){win.style.left=(e.clientX-dragOffsetX)+'px'; win.style.top=(e.clientY-dragOffsetY)+'px';}});
-  document.addEventListener('mouseup',()=>{isDragging=false;});
-}
-
-/*******************************
-* Secret Terminal & Browser
-*******************************/
-function openSecretTerminal(){
-  const termWin=document.createElement('div'); termWin.className='window';
-  termWin.style.background= 'var(--red-terminal)';
-  termWin.style.color='#fff';
-  termWin.style.position='fixed';
-  termWin.style.left='100px';
-  termWin.style.top='100px';
-  termWin.style.width='600px';
-  termWin.style.height='400px';
-  termWin.style.zIndex=3000;
-  termWin.style.display='flex';
-  termWin.style.flexDirection='column';
-
-  const titlebar=document.createElement('div');
-  titlebar.className='title-bar';
-  titlebar.style.background='#b00';
-  titlebar.innerHTML='<span class="title">Secret Terminal</span>';
-  const close=document.createElement('div'); close.className='control'; close.textContent='×';
-  close.addEventListener('click',()=>termWin.remove());
-  titlebar.appendChild(close);
-  termWin.appendChild(titlebar);
-
-  const termBody=document.createElement('div');
-  termBody.style.flex='1';
-  termBody.style.padding='10px';
-  termBody.style.overflow='auto';
-  termBody.style.background='#220000';
-  termBody.style.fontFamily='Consolas,monospace';
-  termBody.style.fontSize='14px';
-  termWin.appendChild(termBody);
-
-  const inputLine=document.createElement('div'); inputLine.className='line';
-  const prompt=document.createElement('span'); prompt.className='prompt'; prompt.textContent='C:\\SECRET>';
-  const inputEl=document.createElement('input'); inputEl.type='text';
-  inputEl.style.background='transparent'; inputEl.style.border='none'; inputEl.style.outline='none'; inputEl.style.color='#ff4b4b';
-  inputEl.style.fontFamily='Consolas,monospace'; inputEl.style.flex='1';
-  inputLine.appendChild(prompt); inputLine.appendChild(inputEl);
-  termBody.appendChild(inputLine);
-  inputEl.focus();
-
-  document.body.appendChild(termWin);
-
-  // draggable
-  let drag=false, offsetX=0, offsetY=0;
-  titlebar.addEventListener('mousedown',e=>{drag=true; const rect=termWin.getBoundingClientRect(); offsetX=e.clientX-rect.left; offsetY=e.clientY-rect.top;});
-  document.addEventListener('mousemove',e=>{if(drag){termWin.style.left=(e.clientX-offsetX)+'px'; termWin.style.top=(e.clientY-offsetY)+'px';}});
-  document.addEventListener('mouseup',()=>{drag=false;});
-
-  inputEl.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      const val=inputEl.value.trim().toLowerCase();
-      const line=document.createElement('div'); line.textContent='C:\\SECRET> '+inputEl.value; termBody.insertBefore(line,inputLine); inputEl.value='';
-      termBody.scrollTop=termBody.scrollHeight;
-
-      if(val==='iexplore.exe'){
-        openSecretBrowser();
-      } else if(val==='sudo rm -rf /'){
-        startFakeRestart(termBody);
-      } else {
-        const err=document.createElement('div'); err.textContent='Invalid command.'; err.style.color='#ff6b6b';
-        termBody.insertBefore(err,inputLine);
+  // Password prompt inline
+  function createTerminalPasswordPrompt(){
+    const line=document.createElement('div'); line.className='line';
+    const prompt=document.createElement('span'); prompt.className='prompt'; prompt.textContent='Password:';
+    const pw=document.createElement('input'); pw.type='password';
+    pw.style.background='transparent'; pw.style.border='none'; pw.style.outline='none'; pw.style.color='var(--cmd-green)';
+    pw.style.fontFamily='Consolas,monospace'; pw.style.fontSize='15px';
+    line.appendChild(prompt); line.appendChild(pw);
+    terminal.insertBefore(line,input.parentElement);
+    terminal.scrollTop=terminal.scrollHeight;
+    pw.focus();
+    pw.addEventListener('keydown',(e)=>{
+      if(e.key==='Enter'){
+        const attempt=pw.value; pw.disabled=true;
+        if(attempt===PASSWORD){ appendLine('Access granted.'); setVaultSession(); setTimeout(()=>window.location.href='thevault.html',700);}
+        else appendLine('Incorrect password.');
       }
+    });
+  }
+
+  // Title bar controls
+  minBtn.addEventListener('click',()=>{if(closed) return; terminalWindow.style.display='none'; restoreBtn.style.display='block'; isMin=true;});
+  restoreBtn.addEventListener('click',()=>{if(closed) return; terminalWindow.style.display='flex'; restoreBtn.style.display='none'; isMin=false; input.focus();});
+  maxBtn.addEventListener('click',()=>{if(closed) return; if(!isMax){terminalWindow.style.position='fixed';terminalWindow.style.left='8px';terminalWindow.style.top='8px';terminalWindow.style.right='8px';terminalWindow.style.bottom='8px';terminalWindow.style.width='auto';terminalWindow.style.height='auto';terminalWindow.style.maxWidth='none';terminalWindow.style.maxHeight='none';terminalWindow.style.zIndex=1000; isMax=true;}else{terminalWindow.style.position='';terminalWindow.style.left='';terminalWindow.style.top='';terminalWindow.style.right='';terminalWindow.style.bottom='';terminalWindow.style.width='';terminalWindow.style.height=''; terminalWindow.style.maxWidth=''; terminalWindow.style.maxHeight=''; terminalWindow.style.zIndex=''; isMax=false;} input.focus();});
+  closeBtn.addEventListener('click',()=>{terminalWindow.style.display='none'; restoreBtn.style.display='none'; closed=true; appendLine('Terminal closed. Refresh page to reopen.');});
+
+  /***********************
+  * Explorer implementation
+  ***********************/
+  function openExplorerUI(initialFolder='desktop'){
+    if(explorerState && explorerState.overlay) return;
+    const overlay=document.createElement('div'); overlay.className='explorer-overlay';
+    const win=document.createElement('div'); win.className='explorer';
+    const titlebar=document.createElement('div'); titlebar.className='titlebar'; titlebar.textContent='File Explorer';
+    const closeBtn=document.createElement('div'); closeBtn.className='control'; closeBtn.textContent='×'; closeBtn.style.cursor='pointer';
+    titlebar.appendChild(closeBtn); win.appendChild(titlebar);
+    const content=document.createElement('div'); content.className='content';
+    const sidebar=document.createElement('div'); sidebar.className='sidebar';
+    const filesArea=document.createElement('div'); filesArea.className='files-area';
+    const toolbar=document.createElement('div'); toolbar.className='toolbar';
+    const openBtn=document.createElement('button'); openBtn.className='btn'; openBtn.textContent='Open';
+    const deleteBtn=document.createElement('button'); deleteBtn.className='btn'; deleteBtn.textContent='Delete';
+    const renameBtn=document.createElement('button'); renameBtn.className='btn'; renameBtn.textContent='Rename';
+    toolbar.appendChild(openBtn); toolbar.appendChild(deleteBtn); toolbar.appendChild(renameBtn);
+    const fileList=document.createElement('div'); fileList.className='file-list';
+    filesArea.appendChild(toolbar); filesArea.appendChild(fileList);
+    content.appendChild(sidebar); content.appendChild(filesArea);
+    const footer=document.createElement('div'); footer.className='explorer-footer'; footer.textContent='Ready';
+    win.appendChild(content); win.appendChild(footer);
+    overlay.appendChild(win); document.body.appendChild(overlay);
+    explorerState={overlay,win,folders,current:initialFolder,fileList,footer,selectedIndex:-1};
+
+    function renderFiles(){
+      fileList.innerHTML='';
+      const list=explorerState.folders[explorerState.current]||[];
+      list.forEach((f,i)=>{
+        const fileEl=document.createElement('div'); fileEl.className='file'; fileEl.dataset.index=i;
+        if(explorerState.selectedIndex===i) fileEl.classList.add('selected');
+        const nameEl=document.createElement('div'); nameEl.className='name'; nameEl.textContent=f.name;
+        const metaEl=document.createElement('div'); metaEl.className='meta'; metaEl.textContent=f.type+' • '+(f.size||'');
+        fileEl.appendChild(nameEl); fileEl.appendChild(metaEl);
+        fileEl.addEventListener('click',()=>{const prev=explorerState.selectedIndex; explorerState.selectedIndex=i; if(prev!==-1){const prevEl=fileList.querySelector('.file[data-index="'+prev+'"]'); if(prevEl) prevEl.classList.remove('selected');} fileEl.classList.add('selected');});
+        fileList.appendChild(fileEl);
+      });
+      explorerState.footer.textContent=list.length+' items';
     }
-  });
-}
 
-function openSecretBrowser(){
-  const overlay=document.createElement('div'); overlay.className='explorer-overlay';
-  const win=document.createElement('div'); win.className='explorer';
-  win.style.width='700px'; win.style.height='500px';
-  const titlebar=document.createElement('div'); titlebar.className='titlebar';
-  titlebar.textContent='Secret Web Browser';
-  const close=document.createElement('div'); close.className='control'; close.textContent='×';
-  close.addEventListener('click',()=>overlay.remove());
-  titlebar.appendChild(close);
-  win.appendChild(titlebar);
+    renderFiles();
 
-  const urlBar=document.createElement('input'); urlBar.type='text'; urlBar.value='https://www.google.com';
-  urlBar.style.width='100%'; urlBar.style.padding='4px 6px'; urlBar.style.marginBottom='6px';
-  win.appendChild(urlBar);
+    closeBtn.addEventListener('click',closeExplorer);
+    overlay.addEventListener('click',(ev)=>{if(ev.target===overlay) closeExplorer();});
+    openBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0) alert('Cannot open files in this demo.');});
+    deleteBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0){const idx=explorerState.selectedIndex; explorerState.folders[explorerState.current].splice(idx,1); explorerState.selectedIndex=-1; renderFiles();}});
+    renameBtn.addEventListener('click',()=>{if(explorerState.selectedIndex>=0){const idx=explorerState.selectedIndex; const file=explorerState.folders[explorerState.current][idx]; const newName=prompt('Rename file:',file.name); if(newName) {file.name=newName; renderFiles();}}});
 
-  const iframe=document.createElement('iframe');
-  iframe.src=urlBar.value;
-  iframe.style.flex='1';
-  iframe.style.width='100%';
-  iframe.style.border='none';
-  win.appendChild(iframe);
+    function closeExplorer(){document.body.removeChild(overlay); explorerState=null;}
+  }
 
-  urlBar.addEventListener('keydown',e=>{if(e.key==='Enter'){iframe.src=urlBar.value;}});
+  /***********************
+  * Secret terminal
+  ***********************/
+  function openSecretTerminal(){
+    const overlay=document.createElement('div'); overlay.className='explorer-overlay';
+    const win=document.createElement('div'); win.className='explorer red-terminal';
+    const titlebar=document.createElement('div'); titlebar.className='titlebar'; titlebar.textContent='Secret Terminal';
+    const closeBtn=document.createElement('div'); closeBtn.className='control'; closeBtn.textContent='×'; closeBtn.style.cursor='pointer';
+    titlebar.appendChild(closeBtn); win.appendChild(titlebar);
+    const content=document.createElement('div'); content.className='content';
+    const term=document.createElement('div'); term.className='terminal'; content.appendChild(term);
+    win.appendChild(content); overlay.appendChild(win); document.body.appendChild(overlay);
+    closeBtn.addEventListener('click',()=>{document.body.removeChild(overlay);});
+  }
 
-  overlay.appendChild(win);
-  document.body.appendChild(overlay);
+  /***********************
+  * Browser window
+  ***********************/
+  function openBrowserWindow(url){
+    const overlay=document.createElement('div'); overlay.className='browser-overlay';
+    const win=document.createElement('div'); win.className='browser';
+    const titlebar=document.createElement('div'); titlebar.className='titlebar';
+    const titleText=document.createElement('span'); titleText.textContent='Web Browser';
+    const closeBtn=document.createElement('div'); closeBtn.className='control'; closeBtn.textContent='×'; closeBtn.style.cursor='pointer';
+    const urlInput=document.createElement('input'); urlInput.type='text'; urlInput.value=url; urlInput.style.flex='1'; urlInput.style.margin='0 8px'; urlInput.style.borderRadius='4px'; urlInput.style.padding='2px';
+    titlebar.appendChild(titleText); titlebar.appendChild(urlInput); titlebar.appendChild(closeBtn);
+    win.appendChild(titlebar);
+    const iframe=document.createElement('iframe'); iframe.src=url; iframe.style.flex='1'; iframe.style.border='none'; win.appendChild(iframe);
+    const goBtn=document.createElement('button'); goBtn.textContent='Go'; goBtn.style.margin='4px'; goBtn.addEventListener('click',()=>{iframe.src=urlInput.value;});
+    titlebar.appendChild(goBtn);
+    overlay.appendChild(win); document.body.appendChild(overlay);
+    closeBtn.addEventListener('click',()=>{document.body.removeChild(overlay);});
+  }
 
-  // draggable
-  let drag=false, offsetX=0, offsetY=0;
-  titlebar.addEventListener('mousedown',e=>{drag=true; const rect=win.getBoundingClientRect(); offsetX=e.clientX-rect.left; offsetY=e.clientY-rect.top;});
-  document.addEventListener('mousemove',e=>{if(drag){win.style.left=(e.clientX-offsetX)+'px'; win.style.top=(e.clientY-offsetY)+'px';}});
-  document.addEventListener('mouseup',()=>{drag=false;});
-}
+  /***********************
+  * Message box
+  ***********************/
+  function showMsgBox(title,html){
+    const overlay=document.createElement('div'); overlay.className='msg-overlay';
+    const box=document.createElement('div'); box.className='msg-box';
+    box.innerHTML=`<div class="msg-title">${title}</div><div class="msg-body">${html}</div><div class="msg-actions"><button>OK</button></div>`;
+    overlay.appendChild(box); document.body.appendChild(overlay);
+    box.querySelector('button').addEventListener('click',()=>{document.body.removeChild(overlay);});
+  }
 
-// Fake restart spinner
-function startFakeRestart(termBody){
-  const msg=document.createElement('div'); msg.textContent='Windows Will Restart In 10 Seconds To Finalise Changes.'; termBody.appendChild(msg);
-  const spinner=document.createElement('div'); spinner.style.width='24px'; spinner.style.height='24px'; spinner.style.border='4px solid #fff'; spinner.style.borderTop='4px solid transparent'; spinner.style.borderRadius='50%'; spinner.style.animation='spin 1s linear infinite'; termBody.appendChild(spinner);
-  localStorage.clear();
-  let counter=10;
-  const interval=setInterval(()=>{
-    msg.textContent='Windows Will Restart In '+counter+' Seconds To Finalise Changes.';
-    counter--;
-    if(counter<0){clearInterval(interval); location.reload();}
-  },1000);
-}
-
-/**********************
-* Helper Msg Box
-**********************/
-function showMsgBox(title,msg){
-  const overlay=document.createElement('div'); overlay.className='msg-overlay';
-  const box=document.createElement('div'); box.className='msg-box';
-  box.innerHTML=`<div class="msg-title">${title}</div><div class="msg-body">${msg}</div>
-    <div class="msg-actions"><button>OK</button></div>`;
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-  box.querySelector('button').addEventListener('click',()=>overlay.remove());
-}
+});
 </script>
 </body>
 </html>
