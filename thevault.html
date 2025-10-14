@@ -234,6 +234,7 @@
 <script>
 /* -------------------------------------------
    App Store + install/uninstall + UI behavior
+   Start menu fixed: toggles, opens store & returns to index
 --------------------------------------------*/
 
 /* ---------- Keys, app list ---------- */
@@ -325,15 +326,44 @@ function refreshIcons(){
   ensureFactoryIcon();
 }
 
-/* ---------- Start menu ---------- */
+/* ---------- Start menu (FIXED) ---------- */
+/* Toggle open/close and aria attributes; stop propagation so document click doesn't immediately close it. */
 startBtn.addEventListener('click',(e)=>{
-  startMenu.style.display = startMenu.style.display==='flex' ? 'none' : 'flex';
-  startMenu.style.flexDirection='column';
+  e.stopPropagation();
+  const isOpen = startMenu.style.display === 'flex';
+  if(isOpen){
+    closeStartMenu();
+  } else {
+    openStartMenu();
+  }
 });
-returnBasic.addEventListener('click', ()=>{ window.location.href='index.html'; });
-openStoreBtn.addEventListener('click', ()=>{ openAppStore(); });
-autoArrangeBtn.addEventListener('click', ()=>{ autoArrangeIcons(); });
-document.addEventListener('click', (e)=>{ if(!startMenu.contains(e.target) && e.target!==startBtn) startMenu.style.display='none'; });
+function openStartMenu(){
+  startMenu.style.display = 'flex';
+  startMenu.style.flexDirection='column';
+  startMenu.setAttribute('aria-hidden','false');
+  startBtn.setAttribute('aria-expanded','true');
+}
+function closeStartMenu(){
+  startMenu.style.display = 'none';
+  startMenu.setAttribute('aria-hidden','true');
+  startBtn.setAttribute('aria-expanded','false');
+}
+
+/* Menu item actions */
+returnBasic.addEventListener('click',(e)=>{ e.stopPropagation(); window.location.href='index.html'; });
+openStoreBtn.addEventListener('click',(e)=>{ e.stopPropagation(); openAppStore(); closeStartMenu(); });
+autoArrangeBtn.addEventListener('click',(e)=>{ e.stopPropagation(); autoArrangeIcons(); closeStartMenu(); });
+
+/* If click anywhere outside start menu, close it */
+document.addEventListener('click', (e)=>{
+  if(!startMenu.contains(e.target) && e.target !== startBtn){
+    closeStartMenu();
+  }
+});
+/* keyboard escape also closes start menu */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') closeStartMenu();
+});
 
 /* ---------- Context menu handling ---------- */
 function showContextMenu(e, targetIcon){
@@ -653,7 +683,9 @@ function buildAppStore(){
   ALL_APPS.forEach(a=>{
     const row = document.createElement('div');
     row.className = 'appRow';
-    row.innerHTML = `<img src="${a.icon}" alt="${a.name}"/><div class="appMeta"><b>${a.name}</b><div class="small">${a.properties}</div></div><div class="appActions"></div>`;
+    // encode icon for data url usage if needed, otherwise direct URL
+    const iconSrc = a.icon;
+    row.innerHTML = `<img src="${iconSrc}" alt="${a.name}"/><div class="appMeta"><b>${a.name}</b><div class="small">${a.properties}</div></div><div class="appActions"></div>`;
     const actions = row.querySelector('.appActions');
     const installedNow = installed.includes(a.id) && !deleted.includes(a.id);
     const btn = document.createElement('button');
@@ -732,7 +764,7 @@ function bringToFront(el){
 })();
 
 /* ---------- Accessibility & misc ---------- */
-document.addEventListener('keydown',(e)=>{ if(e.key === 'Escape'){ closePopup('passwordPopup'); closePopup('incorrectPopup'); closePopup('propertiesPopup'); ctxMenu.style.display='none'; appStore.style.display='none'; }});
+document.addEventListener('keydown',(e)=>{ if(e.key === 'Escape'){ closePopup('passwordPopup'); closePopup('incorrectPopup'); closePopup('propertiesPopup'); ctxMenu.style.display='none'; appStore.style.display='none'; closeStartMenu(); }});
 document.addEventListener('mousedown',(e)=>{ if(e.detail>1) e.preventDefault(); }); // avoid text select on double click
 
 /* expose helper for inline handlers */
