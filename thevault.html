@@ -3,322 +3,393 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web Desktop</title>
+<title>Windows UI Desktop</title>
 <style>
+  /* ---------- Global Styles ---------- */
   html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background: #1e1e1e;
-    font-family: sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1e1e1e;
     overflow: hidden;
   }
   #desktop {
-    position: relative;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg,#4b6cb7,#182848);
-  }
-  .app {
-    position: absolute;
-    width: 80px;
-    text-align: center;
-    cursor: pointer;
-    color: white;
-  }
-  .app img {
-    width: 64px;
-    height: 64px;
-    display: block;
-    margin: 0 auto;
+    position: relative;
+    background: url('https://wallpaperaccess.com/full/317501.jpg') center/cover no-repeat;
   }
   .window {
     position: absolute;
-    background: #222;
-    border: 2px solid #555;
+    background: #2d2d30;
     color: white;
-    z-index: 1000;
-    display: none;
-    overflow: hidden;
+    border: 1px solid #000;
+    min-width: 300px;
+    min-height: 200px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
   }
-  .window .titlebar {
-    background: #333;
-    padding: 5px 10px;
+  .titlebar {
+    background: #0078d7;
+    padding: 5px;
+    cursor: move;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    cursor: move;
+    user-select: none;
   }
-  .window .titlebar button {
-    background: #555;
+  .titlebar .title {
+    font-weight: bold;
+  }
+  .titlebar button {
+    background: #ff5c5c;
+    border: none;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+  }
+  .content {
+    flex: 1;
+    overflow: auto;
+    padding: 10px;
+  }
+
+  /* ---------- Start Menu ---------- */
+  #startButton {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: #0078d7;
     border: none;
     color: white;
-    cursor: pointer;
-    width: 25px;
-    height: 25px;
-    font-weight: bold;
-  }
-  .window .content {
-    padding: 10px;
-    height: calc(100% - 32px);
-    overflow-y: auto;
-  }
-  #start {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    background: #0078D7;
-    color: white;
+    font-size: 16px;
     padding: 5px 10px;
     cursor: pointer;
-    font-weight: bold;
   }
   #startMenu {
     position: absolute;
-    bottom: 40px;
-    left: 0;
-    background: #333;
-    border: 1px solid #555;
-    color: white;
-    display: none;
+    bottom: 50px;
+    left: 10px;
     width: 200px;
+    background: #2d2d30;
+    border: 1px solid #000;
+    display: none;
+    flex-direction: column;
+    z-index: 9999;
   }
   #startMenu button {
-    width: 100%;
     background: none;
     border: none;
     color: white;
     padding: 10px;
-    cursor: pointer;
     text-align: left;
+    cursor: pointer;
   }
-  #startMenu button:hover { background: #555; }
+  #startMenu button:hover {
+    background: #0078d7;
+  }
+
+  /* ---------- Desktop Icons ---------- */
+  .icon {
+    position: absolute;
+    width: 60px;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .icon img {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* ---------- Context Menu ---------- */
   .context-menu {
     position: absolute;
-    background: #333;
-    border: 1px solid #555;
+    background: #2d2d30;
+    border: 1px solid #000;
     display: none;
-    z-index: 2000;
+    flex-direction: column;
+    z-index: 10000;
   }
   .context-menu button {
-    display: block;
-    width: 150px;
-    border: none;
     background: none;
+    border: none;
     color: white;
     padding: 5px 10px;
-    cursor: pointer;
     text-align: left;
+    cursor: pointer;
   }
-  .context-menu button:hover { background: #555; }
-  /* App Store */
-  #appStore .content {
+  .context-menu button:hover {
+    background: #0078d7;
+  }
+
+  /* ---------- App Store ---------- */
+  #appStoreContent {
     max-height: 400px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
-  #appStore .app-item {
+  .appStoreItem {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
-  }
-  #appStore .app-item img {
-    width: 40px;
-    height: 40px;
-    margin-right: 10px;
-  }
-  #appStore .app-item button {
-    margin-left: auto;
-    background: #0078D7;
-    border: none;
-    color: white;
+    gap: 10px;
     cursor: pointer;
-    padding: 5px 10px;
   }
-  .countdown-bar {
+  .appStoreItem img {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* ---------- Countdown Bar ---------- */
+  #factoryResetBar {
     width: 100%;
-    height: 20px;
     background: #555;
+    height: 20px;
     margin-top: 10px;
-    position: relative;
   }
-  .countdown-bar-inner {
+  #factoryResetProgress {
     height: 100%;
-    background: #0078D7;
+    background: #00ff00;
     width: 0%;
   }
 </style>
 </head>
 <body>
-<div id="desktop"></div>
+<div id="desktop">
+  <!-- Desktop Icons -->
+</div>
 
-<div id="start">Start</div>
+<!-- Start Button -->
+<button id="startButton">Start</button>
 <div id="startMenu">
-  <button id="returnWeb">Return to Basic Web</button>
+  <button id="returnButton">Return to Basic Web</button>
+  <button id="openAppStore">App Store</button>
 </div>
 
+<!-- Context Menu -->
 <div id="contextMenu" class="context-menu">
-  <button id="openProps">Properties</button>
-  <button id="deleteApp">Delete</button>
-</div>
-
-<!-- Windows template -->
-<div id="appWindow" class="window">
-  <div class="titlebar">
-    <span class="title"></span>
-    <button class="closeBtn">X</button>
-  </div>
-  <div class="content"></div>
+  <button id="propertiesBtn">Properties</button>
+  <button id="deleteBtn">Delete</button>
 </div>
 
 <script>
-const desktop = document.getElementById('desktop');
-const start = document.getElementById('start');
-const startMenu = document.getElementById('startMenu');
-const contextMenu = document.getElementById('contextMenu');
-const appWindow = document.getElementById('appWindow');
+  const desktop = document.getElementById('desktop');
+  const startButton = document.getElementById('startButton');
+  const startMenu = document.getElementById('startMenu');
+  const returnButton = document.getElementById('returnButton');
+  const openAppStore = document.getElementById('openAppStore');
+  const contextMenu = document.getElementById('contextMenu');
+  const propertiesBtn = document.getElementById('propertiesBtn');
+  const deleteBtn = document.getElementById('deleteBtn');
 
-let apps = JSON.parse(localStorage.getItem('desktopApps') || '[]');
-const factoryResetApp = {
-  name: 'Factory Reset',
-  icon: 'https://cdn-icons-png.flaticon.com/512/565/565547.png',
-  properties: 'System App - Cannot be deleted',
-  deletable: false,
-  open: () => openWindow('Factory Reset', '<div>Windows has been factory reset!<div class="countdown-bar"><div class="countdown-bar-inner" id="countdownInner"></div></div></div>', true)
-};
+  // ---------- Apps ---------- //
+  const defaultApps = [
+    {
+      id:'factoryReset',
+      name:'Factory Reset',
+      icon:'https://cdn-icons-png.flaticon.com/512/545/545682.png',
+      properties:'Unclosable fullscreen reset app',
+      deletable:false,
+      open:()=>openFactoryReset()
+    },
+    {
+      id:'minecraft',
+      name:'Minecraft 1.8.8',
+      icon:'https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250',
+      properties:'Made 13 Oct 2025, unblocked minecraft in your browser!',
+      deletable:true,
+      open:()=>openMinecraft()
+    },
+    {
+      id:'fortnite',
+      name:'Fortnite Launcher',
+      icon:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s',
+      properties:'Made 14 Oct 2025, Play Fortnite!',
+      deletable:true,
+      open:()=>openFortnite()
+    },
+    {
+      id:'requestApp',
+      name:'Request an App',
+      icon:'https://cdn-icons-png.flaticon.com/512/1828/1828817.png',
+      properties:'Made 14 Oct 2025, suggest a app to be added!',
+      deletable:true,
+      open:()=>openWindow('Request an App','request.html',400,300)
+    },
+    {
+      id:'deviceinfo',
+      name:'Device Info',
+      icon:'https://cdn-icons-png.flaticon.com/512/992/992700.png',
+      properties:'Show device information',
+      deletable:true,
+      open:()=>openWindow('Device Info','deviceinfo.html',400,300)
+    }
+  ];
 
-function saveApps() { localStorage.setItem('desktopApps', JSON.stringify(apps)); }
+  // Load deleted apps from localStorage
+  let deletedApps = JSON.parse(localStorage.getItem('deletedApps')||'[]');
 
-function renderDesktop() {
-  desktop.innerHTML = '';
-  const allApps = [factoryResetApp, ...apps];
-  allApps.forEach((app, i) => {
-    const div = document.createElement('div');
-    div.className = 'app';
-    div.style.left = (i*100 + 20)+'px';
-    div.style.top = '20px';
-    div.innerHTML = `<img src="${app.icon}" alt=""><span>${app.name}</span>`;
-    div.addEventListener('dblclick', () => app.open());
-    div.addEventListener('contextmenu', (e)=>{
-      e.preventDefault();
-      contextMenu.style.display='block';
-      contextMenu.style.left=e.pageX+'px';
-      contextMenu.style.top=e.pageY+'px';
-      contextMenu.currentApp = app;
+  // Render desktop icons
+  function renderDesktop(){
+    desktop.innerHTML='';
+    let top = 20;
+    defaultApps.forEach((app,i)=>{
+      if(deletedApps.includes(app.id)) return;
+      const icon = document.createElement('div');
+      icon.classList.add('icon');
+      icon.style.top = top+'px';
+      icon.style.left = (20+i*70)+'px';
+      icon.dataset.id = app.id;
+      icon.innerHTML=`<img src="${app.icon}"><br>${app.name}`;
+      desktop.appendChild(icon);
+
+      // Left click opens app
+      icon.addEventListener('dblclick',()=>app.open());
+
+      // Right click context menu
+      icon.addEventListener('contextmenu',(e)=>{
+        e.preventDefault();
+        contextMenu.style.display='flex';
+        contextMenu.style.top=e.pageY+'px';
+        contextMenu.style.left=e.pageX+'px';
+        contextMenu.dataset.id=app.id;
+      });
+
+      top += 0;
     });
-    desktop.appendChild(div);
-  });
-}
+  }
 
-// Start menu
-start.addEventListener('click', ()=> startMenu.style.display = startMenu.style.display==='block'?'none':'block');
-document.getElementById('returnWeb').addEventListener('click', ()=> location.href='index.html');
-
-// Context menu
-document.getElementById('openProps').addEventListener('click', ()=>{
-  const app = contextMenu.currentApp;
-  alert(`${app.name}\n${app.properties}`);
-  contextMenu.style.display='none';
-});
-document.getElementById('deleteApp').addEventListener('click', ()=>{
-  const app = contextMenu.currentApp;
-  if(!app.deletable) return;
-  apps = apps.filter(a=>a!==app);
-  saveApps();
   renderDesktop();
-  contextMenu.style.display='none';
-});
-desktop.addEventListener('click', ()=> contextMenu.style.display='none');
 
-// Open window
-function openWindow(title, content, fullscreen=false) {
-  appWindow.style.display='block';
-  appWindow.style.width = fullscreen?'100%':'600px';
-  appWindow.style.height = fullscreen?'100%':'400px';
-  appWindow.style.left = fullscreen?'0':'50px';
-  appWindow.style.top = fullscreen?'0':'50px';
-  appWindow.querySelector('.title').innerText = title;
-  appWindow.querySelector('.content').innerHTML = content;
-  const closeBtn = appWindow.querySelector('.closeBtn');
-  closeBtn.style.display = fullscreen?'none':'block';
-  if(fullscreen && title==='Factory Reset'){
-    let innerBar = document.getElementById('countdownInner');
-    let progress=0;
-    const interval = setInterval(()=>{
-      progress+=10;
-      innerBar.style.width = progress+'%';
-      if(progress>=100){ clearInterval(interval); location.href='index.html'; }
+  // ---------- Context Menu Actions ---------- //
+  propertiesBtn.addEventListener('click',()=>{
+    const id=contextMenu.dataset.id;
+    const app=defaultApps.find(a=>a.id===id);
+    if(app){
+      openWindow('Properties','<p>'+app.properties+'</p>',300,200);
+    }
+    contextMenu.style.display='none';
+  });
+  deleteBtn.addEventListener('click',()=>{
+    const id=contextMenu.dataset.id;
+    const app=defaultApps.find(a=>a.id===id);
+    if(app && app.deletable){
+      deletedApps.push(app.id);
+      localStorage.setItem('deletedApps',JSON.stringify(deletedApps));
+      renderDesktop();
+    }
+    contextMenu.style.display='none';
+  });
+  window.addEventListener('click',()=>contextMenu.style.display='none');
+
+  // ---------- Start Menu ---------- //
+  startButton.addEventListener('click',()=>startMenu.style.display=startMenu.style.display==='flex'?'none':'flex');
+  returnButton.addEventListener('click',()=>window.location.href='index.html');
+
+  // ---------- App Store ---------- //
+  openAppStore.addEventListener('click',()=>{
+    let html='<div id="appStoreContent">';
+    defaultApps.forEach(app=>{
+      html+=`<div class="appStoreItem" onclick="launchAppStore('${app.id}')"><img src="${app.icon}"><span>${app.name}</span></div>`;
+    });
+    html+='</div>';
+    openWindow('App Store',html,400,400);
+  });
+  function launchAppStore(id){
+    const app=defaultApps.find(a=>a.id===id);
+    if(app && deletedApps.includes(app.id)){
+      deletedApps=deletedApps.filter(aid=>aid!==app.id);
+      localStorage.setItem('deletedApps',JSON.stringify(deletedApps));
+      renderDesktop();
+    }
+  }
+
+  // ---------- Generic Window Function ---------- //
+  function openWindow(title,content,width=400,height=300){
+    const win=document.createElement('div');
+    win.classList.add('window');
+    win.style.width=width+'px';
+    win.style.height=height+'px';
+    win.style.top='50px';
+    win.style.left='50px';
+    win.innerHTML=`
+      <div class="titlebar"><span class="title">${title}</span><button class="close">X</button></div>
+      <div class="content">${content}</div>
+    `;
+    desktop.appendChild(win);
+    const closeBtn=win.querySelector('.close');
+    closeBtn.addEventListener('click',()=>desktop.removeChild(win));
+    dragElement(win);
+  }
+
+  // ---------- Dragging Windows ---------- //
+  function dragElement(el){
+    const title=el.querySelector('.titlebar');
+    let posX=0,posY=0,mouseX=0,mouseY=0;
+    title.onmousedown=function(e){
+      e.preventDefault();
+      mouseX=e.clientX;
+      mouseY=e.clientY;
+      document.onmouseup=closeDrag;
+      document.onmousemove=moveDrag;
+    }
+    function moveDrag(e){
+      posX=mouseX-e.clientX;
+      posY=mouseY-e.clientY;
+      mouseX=e.clientX;
+      mouseY=e.clientY;
+      el.style.top=(el.offsetTop-posY)+'px';
+      el.style.left=(el.offsetLeft-posX)+'px';
+    }
+    function closeDrag(){document.onmouseup=null;document.onmousemove=null;}
+  }
+
+  // ---------- Special Apps ---------- //
+  function openFactoryReset(){
+    const win=document.createElement('div');
+    win.classList.add('window');
+    win.style.width='100%';
+    win.style.height='100%';
+    win.style.top='0';
+    win.style.left='0';
+    win.style.zIndex='9999';
+    win.innerHTML=`
+      <div class="titlebar"><span class="title">Factory Reset</span></div>
+      <div class="content">
+        <h2>Windows has been factory reset</h2>
+        <p>All apps will reappear...</p>
+        <div id="factoryResetBar"><div id="factoryResetProgress"></div></div>
+      </div>
+    `;
+    desktop.appendChild(win);
+    let width=0;
+    const interval=setInterval(()=>{
+      width+=10;
+      if(width>100){ clearInterval(interval); localStorage.removeItem('deletedApps'); window.location.href='index.html'; }
+      win.querySelector('#factoryResetProgress').style.width=width+'%';
     },1000);
   }
-}
 
-// Default apps in App Store
-const defaultApps = [
-  {
-    name:'Minecraft 1.8.8',
-    icon:'https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250',
-    properties:'Made 13 Oct 2025, unblocked Minecraft in your browser!',
-    deletable:true,
-    open:()=> openWindow('Minecraft 1.8.8','<h2>This App Is Unavailable</h2><p>Please Wait While I Find Another Unblocked Version!</p>',true)
-  },
-  {
-    name:'Fortnite Launcher',
-    icon:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s',
-    properties:'Made 14 Oct 2025, Play Fortnite!',
-    deletable:true,
-    open:()=> openWindow('Fortnite Launcher',`
+  function openMinecraft(){
+    openWindow('Minecraft 1.8.8','<h2>This App Is Unavailable</h2><p>Please Wait While I Find Another Unblocked Version!</p>',600,400);
+  }
+
+  function openFortnite(){
+    openWindow('Fortnite Launcher',`
       <h2>Disclaimer!</h2>
       <p>You need to be signed in to an Amazon account with Prime to use this service!</p>
-      <p>Link your Epic Games account to your Amazon account on <a href="https://luna.amazon.co.uk" target="_blank">luna.amazon.co.uk</a></p>
+      <p>Also link your Epic Games account to your Amazon account on luna.amazon.co.uk</p>
       <button onclick="window.open('https://luna.amazon.co.uk/game/fortnite?lang=en-US&ref=tmp_ext_epic&autoplay=1','_blank')">Launch Anyway</button>
-    `,true)
-  },
-  {
-    name:'Request an App',
-    icon:'https://cdn-icons-png.flaticon.com/512/1828/1828817.png',
-    properties:'Made 14 Oct 2025, suggest an app to be added!',
-    deletable:true,
-    open:()=> openWindow('Request an App','<iframe src="request.html" style="width:100%;height:100%;border:none;"></iframe>')
-  },
-  {
-    name:'Device Info',
-    icon:'https://cdn-icons-png.flaticon.com/512/2919/2919605.png',
-    properties:'Made 14 Oct 2025, View your device info!',
-    deletable:true,
-    open:()=> openWindow('Device Info','<iframe src="deviceinfo.html" style="width:100%;height:100%;border:none;"></iframe>')
+    `,600,400);
   }
-];
 
-// Install apps via App Store
-function openAppStore() {
-  const content = defaultApps.map(app=>{
-    return `<div class="app-item">
-      <img src="${app.icon}">
-      <div>${app.name}</div>
-      <button onclick="installApp('${app.name}')">Install</button>
-    </div>`;
-  }).join('');
-  openWindow('App Store', content, false);
-}
-
-function installApp(name){
-  const app = defaultApps.find(a=>a.name===name);
-  if(app && !apps.includes(app)){
-    apps.push(app);
-    saveApps();
-    renderDesktop();
-  }
-}
-
-// Add App Store button
-apps.push({
-  name:'App Store',
-  icon:'https://cdn-icons-png.flaticon.com/512/833/833524.png',
-  properties:'App Store',
-  deletable:true,
-  open: openAppStore
-});
-
-renderDesktop();
 </script>
 </body>
 </html>
