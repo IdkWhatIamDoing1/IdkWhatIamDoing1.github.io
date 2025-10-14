@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Windows Basic Web Edition - Final</title>
 <style>
-  :root{--title-blue:#0078D7;--bg:#0b0b0b;--muted:#9ca3af;}
+  :root{
+    --title-blue:#0078D7;
+    --bg:#0b0b0b;
+    --muted:#9ca3af;
+  }
   html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(#0b0b0b,#111);color:#e6e6e6;overflow:hidden;}
   #desktop{position:relative;width:100%;height:100%;}
 
@@ -68,46 +72,266 @@
 </style>
 </head>
 <body>
-<div id="desktop" aria-label="Desktop">
+  <div id="desktop" aria-label="Desktop">
 
-<!-- Taskbar & Start -->
-<div id="taskbar" role="toolbar" aria-label="Taskbar">
-  <button id="startBtn" title="Start">
-    <svg class="win-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg>
-  </button>
-  <div id="startMenu" role="menu" aria-hidden="true">
-    <button class="start-item" id="returnBasic">Return to Basic Web</button>
-  </div>
-  <div id="taskbarApps" aria-hidden="false"></div>
-</div>
+    <!-- Taskbar & Start -->
+    <div id="taskbar" role="toolbar" aria-label="Taskbar">
+      <button id="startBtn" title="Start">
+        <svg class="win-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg>
+      </button>
+      <div id="startMenu" role="menu" aria-hidden="true">
+        <button class="start-item" id="returnBasic">Return to Basic Web</button>
+      </div>
+      <div id="taskbarApps" aria-hidden="false"></div>
+    </div>
 
-<!-- Context menu -->
-<div id="ctxMenu" role="menu" aria-hidden="true">
-  <button id="ctxOpen">Open</button>
-  <button id="ctxProperties">Properties</button>
-  <button id="ctxDelete">Delete</button>
-</div>
+    <!-- Context menu -->
+    <div id="ctxMenu" role="menu" aria-hidden="true">
+      <button id="ctxOpen">Open</button>
+      <button id="ctxProperties">Properties</button>
+      <button id="ctxDelete">Delete</button>
+    </div>
 
-<!-- Desktop icons -->
-<div class="icon" id="iconFactory" data-app="factory" style="left:20px;top:20px;" title="Factory Reset">
-  <img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%23a00"/><path d="M7 12h10v2H7z" fill="%23fff"/></svg>' alt="Factory" />
-  <span>Factory Reset</span>
-</div>
+    <!-- Desktop icons -->
+    <div class="icon" id="iconMinecraft" data-app="minecraft" style="left:20px;top:20px;" title="Minecraft 1.8.8">
+      <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250" alt="Minecraft Block"/>
+      <span>Minecraft 1.8.8</span>
+    </div>
 
-<!-- Windows & Popups (Minecraft, Request, Fortnite, Password, Incorrect, Properties, Factory Full) -->
-<!-- Add all windows and popups here exactly as before, omitted for brevity -->
+    <div class="icon" id="iconRequest" data-app="request" style="left:20px;top:140px;" title="Request an App">
+      <img alt="Request App" src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%230078d7"/><path d="M4 7c.01-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm1.5.5L12 12l6.5-4.5" stroke="%23fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' />
+      <span>Request an App</span>
+    </div>
 
-</div>
+    <div class="icon" id="iconFortnite" data-app="fortnite" style="left:20px;top:260px;" title="Fortnite Launcher">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s" alt="Fortnite Icon" />
+      <span>Fortnite Launcher</span>
+    </div>
+
+    <!-- Factory Reset icon (always visible) -->
+    <div class="icon no-delete" id="iconFactory" data-app="factory" style="left:20px;top:380px;" title="Factory Reset">
+      <img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%23a00"/><path d="M7 12h10v2H7z" fill="%23fff"/></svg>' alt="Factory" />
+      <span>Factory Reset</span>
+    </div>
+
+<!-- Windows, Popups, Factory fullscreen, and script go here -->
+<!-- Due to space limits, I will continue building the full functional JS and HTML in the next message -->
+
+    <!-- Windows -->
+    <div class="window" id="winMinecraft" data-app="minecraft" role="dialog" aria-hidden="true">
+      <div class="titlebar">
+        <div class="title">Minecraft 1.8.8</div>
+        <div class="controls">
+          <button class="tb-btn minimize">–</button>
+          <button class="tb-btn close">✕</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="mc-message">
+          <h1>Minecraft Launcher</h1>
+          <p>Welcome to Minecraft 1.8.8! This is a simulated launcher window.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="window" id="winRequest" data-app="request" role="dialog" aria-hidden="true">
+      <div class="titlebar">
+        <div class="title">Request an App</div>
+        <div class="controls">
+          <button class="tb-btn minimize">–</button>
+          <button class="tb-btn close">✕</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <iframe class="request-iframe" src="about:blank" title="Request App Form"></iframe>
+      </div>
+    </div>
+
+    <div class="window" id="winFortnite" data-app="fortnite" role="dialog" aria-hidden="true">
+      <div class="titlebar">
+        <div class="title">Fortnite Launcher</div>
+        <div class="controls">
+          <button class="tb-btn minimize">–</button>
+          <button class="tb-btn close">✕</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <p style="text-align:center;">Fortnite Launcher Simulation</p>
+      </div>
+    </div>
+
+    <!-- Popups -->
+    <div class="popup" id="popupProps">
+      <div class="p-head"><span>Properties</span><button class="tb-btn close">✕</button></div>
+      <div class="p-body"><p id="propsText">App Properties</p></div>
+      <div class="p-actions"><button class="btn closeBtn">Close</button></div>
+    </div>
+
+    <div class="popup" id="popupPassword">
+      <div class="p-head"><span>Enter Password</span><button class="tb-btn close">✕</button></div>
+      <div class="p-body">
+        <p>Please enter the password to continue:</p>
+        <input type="password" id="pwInput" />
+      </div>
+      <div class="p-actions">
+        <button class="btn" id="pwSubmit">Submit</button>
+      </div>
+    </div>
+
+    <!-- Factory Reset Fullscreen -->
+    <div class="factory-full" id="factoryFull">
+      <h1>Factory Reset in Progress</h1>
+      <p>Windows will be reset. Do not close this window.</p>
+      <div class="progress-wrap">
+        <div class="progress-inner" id="progressBar"></div>
+      </div>
+    </div>
+
+  </div> <!-- end desktop -->
+
 <script>
-// Full JS from previous working code, including:
-// - Context menu open/close
-// - Double-click open
-// - Taskbar management
-// - Factory always visible
-// - Password, properties popups
-// - Window controls (minimize, maximize, close)
-// - Draggable icons & windows
-// Due to space, insert entire previous <script> content here.
+  // Utility functions
+  const desktop=document.getElementById('desktop');
+  const startBtn=document.getElementById('startBtn');
+  const startMenu=document.getElementById('startMenu');
+  const ctxMenu=document.getElementById('ctxMenu');
+  let currentCtx=null;
+
+  // Start menu toggle
+  startBtn.addEventListener('click',()=>{startMenu.style.display=startMenu.style.display==='flex'?'none':'flex'});
+
+  // Desktop icons and apps
+  const icons=document.querySelectorAll('.icon');
+  const windows=document.querySelectorAll('.window');
+  const taskbarApps=document.getElementById('taskbarApps');
+
+  function openWindow(appId){
+    const win=document.querySelector(`.window[data-app="${appId}"]`);
+    if(!win) return;
+    win.style.display='flex';
+    win.setAttribute('aria-hidden','false');
+    createTaskbarButton(appId);
+    bringToFront(win);
+  }
+
+  function closeWindow(win){
+    win.style.display='none';
+    win.setAttribute('aria-hidden','true');
+    removeTaskbarButton(win.dataset.app);
+  }
+
+  function bringToFront(win){
+    let maxZ=1000;
+    windows.forEach(w=>{if(parseInt(w.style.zIndex)>maxZ) maxZ=parseInt(w.style.zIndex)});
+    win.style.zIndex=maxZ+1;
+  }
+
+  // Taskbar buttons
+  function createTaskbarButton(appId){
+    if(document.querySelector(`#taskbarApps button[data-app="${appId}"]`)) return;
+    const btn=document.createElement('button');
+    btn.textContent=appId;
+    btn.dataset.app=appId;
+    btn.className='tb-btn';
+    btn.addEventListener('click',()=>{openWindow(appId)});
+    taskbarApps.appendChild(btn);
+  }
+
+  function removeTaskbarButton(appId){
+    const btn=document.querySelector(`#taskbarApps button[data-app="${appId}"]`);
+    if(btn) btn.remove();
+  }
+
+  // Double click icons
+  icons.forEach(icon=>{
+    icon.addEventListener('dblclick',()=>{openWindow(icon.dataset.app)});
+    icon.addEventListener('contextmenu',e=>{
+      e.preventDefault();
+      currentCtx=icon;
+      ctxMenu.style.left=e.pageX+'px';
+      ctxMenu.style.top=e.pageY+'px';
+      ctxMenu.style.display='block';
+    });
+  });
+
+  // Context menu actions
+  document.getElementById('ctxOpen').addEventListener('click',()=>{
+    if(currentCtx) openWindow(currentCtx.dataset.app);
+    ctxMenu.style.display='none';
+  });
+  document.getElementById('ctxProperties').addEventListener('click',()=>{
+    if(currentCtx){
+      document.getElementById('propsText').textContent=`Properties for ${currentCtx.dataset.app}`;
+      showPopup('popupProps');
+    }
+    ctxMenu.style.display='none';
+  });
+  document.getElementById('ctxDelete').addEventListener('click',()=>{
+    if(currentCtx&&!currentCtx.classList.contains('no-delete')) currentCtx.remove();
+    ctxMenu.style.display='none';
+  });
+
+  // Hide context menu on click elsewhere
+  document.addEventListener('click',()=>{ctxMenu.style.display='none'});
+
+  // Popup utilities
+  function showPopup(id){const p=document.getElementById(id);p.style.display='flex';p.setAttribute('aria-hidden','false');centerPopup(p);}
+  function closePopup(id){const p=document.getElementById(id);p.style.display='none';p.setAttribute('aria-hidden','true');}
+  function centerPopup(p){p.style.left=(window.innerWidth-p.offsetWidth)/2+'px';p.style.top=(window.innerHeight-p.offsetHeight)/2+'px';}
+
+  document.querySelectorAll('.popup .close,.popup .closeBtn').forEach(btn=>{
+    btn.addEventListener('click',()=>{closePopup(btn.closest('.popup').id)});
+  });
+
+  // Factory reset
+  document.getElementById('iconFactory').addEventListener('dblclick',()=>{showPopup('popupPassword')});
+  document.getElementById('pwSubmit').addEventListener('click',()=>{
+    const pw=document.getElementById('pwInput').value;
+    if(pw==='secret123'){closePopup('popupPassword');startFactoryReset();}
+    else alert('Incorrect password!');
+  });
+
+  function startFactoryReset(){
+    const f=document.getElementById('factoryFull');
+    const bar=document.getElementById('progressBar');
+    f.style.display='flex';
+    let progress=0;
+    const interval=setInterval(()=>{
+      progress+=1;
+      bar.style.width=progress+'%';
+      if(progress>=100){clearInterval(interval);alert('Factory Reset Complete!');f.style.display='none';}
+    },50);
+  }
+
+  // Window controls
+  windows.forEach(win=>{
+    const min=win.querySelector('.minimize');
+    const close=win.querySelector('.close');
+    min.addEventListener('click',()=>{win.style.display='none'});
+    close.addEventListener('click',()=>{closeWindow(win)});
+    const titlebar=win.querySelector('.titlebar');
+    dragElement(win,titlebar);
+  });
+
+  // Drag function
+  function dragElement(elmnt,handle){
+    let pos1=0,pos2=0,pos3=0,pos4=0;
+    handle.onmousedown=dragMouseDown;
+    function dragMouseDown(e){
+      e.preventDefault();
+      pos3=e.clientX; pos4=e.clientY;
+      document.onmouseup=closeDragElement;
+      document.onmousemove=elementDrag;
+    }
+    function elementDrag(e){
+      e.preventDefault();
+      pos1=pos3-e.clientX; pos2=pos4-e.clientY;
+      pos3=e.clientX; pos4=e.clientY;
+      elmnt.style.top=(elmnt.offsetTop-pos2)+'px';
+      elmnt.style.left=(elmnt.offsetLeft-pos1)+'px';
+    }
+    function closeDragElement(){document.onmouseup=null;document.onmousemove=null;}
+  }
 </script>
 </body>
 </html>
