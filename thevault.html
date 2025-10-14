@@ -1,287 +1,654 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Windows Web Edition</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Windows Basic Web Edition - Final</title>
 <style>
-:root{
-  --title-blue:#0078D7;
-  --bg:#0b0b0b;
-  --muted:#9ca3af;
-  --window-bg:#fff;
-}
-html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(#0b0b0b,#111);color:#e6e6e6;overflow:hidden;}
-#desktop{position:relative;width:100%;height:100%;}
+  :root{
+    --title-blue:#0078D7;
+    --bg:#0b0b0b;
+    --muted:#9ca3af;
+  }
+  html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(#0b0b0b,#111);color:#e6e6e6;overflow:hidden;}
+  #desktop{position:relative;width:100%;height:100%;}
 
-/* Taskbar */
-#taskbar{position:absolute;left:0;right:0;bottom:0;height:42px;background:#111;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:0 8px;box-shadow:0 -6px 20px rgba(0,0,0,0.6);z-index:1200;}
-#startBtn{height:34px;width:42px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-#startBtn:hover{background:rgba(255,255,255,0.03);}
-.win-logo{width:20px;height:20px;fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,0.5));}
-#taskbarApps{display:flex;gap:6px;align-items:center;margin-left:8px;}
-.start-item{background:transparent;color:var(--muted);border:none;padding:6px 10px;text-align:center;border-radius:4px;cursor:pointer;font-size:13px;}
-.start-item:hover{background:rgba(255,255,255,0.02);color:#fff;}
+  /* Taskbar & Start */
+  #taskbar{position:absolute;left:0;right:0;bottom:0;height:42px;background:#111;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:0 8px;box-shadow:0 -6px 20px rgba(0,0,0,0.6);z-index:1200;}
+  #startBtn{height:34px;width:42px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  #startBtn:hover{background:rgba(255,255,255,0.03);}
+  .win-logo{width:20px;height:20px;fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,0.5));}
+  #startMenu{position:absolute;left:8px;bottom:50px;width:220px;background:#0f0f0f;border:1px solid rgba(255,255,255,0.06);display:none;flex-direction:column;padding:8px;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.7);z-index:1300;}
+  .start-item{background:transparent;color:var(--muted);border:none;padding:10px 8px;text-align:left;border-radius:4px;cursor:pointer;font-size:14px;}
+  .start-item:hover{background:rgba(255,255,255,0.02);color:#fff;}
+  #taskbarApps{display:flex;gap:6px;align-items:center;margin-left:8px;}
 
-/* Context menu */
-#ctxMenu{position:absolute;display:none;background:#202020;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px;border-radius:6px;z-index:1600;min-width:170px;box-shadow:0 8px 20px rgba(0,0,0,0.6)}
-#ctxMenu button{display:block;width:100%;text-align:left;background:transparent;border:none;padding:8px 10px;color:#ddd;cursor:pointer;border-radius:4px}
-#ctxMenu button:hover{background:rgba(255,255,255,0.03);color:#fff}
+  /* Context menu */
+  #ctxMenu{position:absolute;display:none;background:#202020;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px;border-radius:6px;z-index:1600;min-width:170px;box-shadow:0 8px 20px rgba(0,0,0,0.6)}
+  #ctxMenu button{display:block;width:100%;text-align:left;background:transparent;border:none;padding:8px 10px;color:#ddd;cursor:pointer;border-radius:4px}
+  #ctxMenu button:hover{background:rgba(255,255,255,0.03);color:#fff}
 
-/* Desktop icons */
-.icon{width:100px;text-align:center;color:var(--muted);position:absolute;cursor:pointer;user-select:none;}
-.icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:6px;}
-.icon span{display:block;margin-top:6px;font-size:12px;color:var(--muted);}
+  /* Desktop icons */
+  .icon{width:100px;text-align:center;color:var(--muted);position:absolute;cursor:pointer;user-select:none;}
+  .icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:6px;}
+  .icon span{display:block;margin-top:6px;font-size:12px;color:var(--muted);}
 
-/* Windows */
-.window{position:absolute;width:800px;height:560px;background:var(--window-bg);color:#111;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,0.7);overflow:hidden;display:none;flex-direction:column;z-index:1000;}
-.titlebar{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:move;user-select:none;}
-.title{font-weight:600;font-size:13px;display:flex;gap:10px;align-items:center}
-.controls{display:flex;gap:6px;align-items:center}
-.tb-btn{width:34px;height:26px;border-radius:4px;border:none;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.tb-btn:hover{background:rgba(255,255,255,0.06)}
-.window-body{flex:1;background:var(--window-bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+  /* Windows */
+  .window{position:absolute;width:800px;height:560px;background:#fff;color:#111;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,0.7);overflow:hidden;display:none;flex-direction:column;z-index:1000;}
+  .titlebar{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:move;user-select:none;}
+  .title{font-weight:600;font-size:13px;display:flex;gap:10px;align-items:center}
+  .controls{display:flex;gap:6px;align-items:center}
+  .tb-btn{width:34px;height:26px;border-radius:4px;border:none;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .tb-btn:hover{background:rgba(255,255,255,0.06)}
+  .window-body{flex:1;background:#fff;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+  .min-icon{font-size:15px} .max-icon{font-size:13px} .close-icon{font-size:16px}
 
-/* Properties smaller */
-#propertiesWindow{width:300px;height:150px;}
-#propertiesBody{font-size:13px;}
+  .mc-message{text-align:center;font-family:"Segoe UI",sans-serif;color:#222}
+  .mc-message h1{font-size:22px;margin:16px 0;color:#222}
+  .mc-message p{font-size:16px;color:#444}
 
-/* Factory fullscreen */
-.factory-full{position:fixed;left:0;top:0;width:100%;height:100%;background:#fff;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;color:#111}
-.progress-wrap{width:70%;max-width:900px;height:18px;background:#eee;border-radius:9px;overflow:hidden;border:1px solid #ddd}
-.progress-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--title-blue),#005a9e)}
+  .request-iframe{width:100%;height:100%;border:0}
+
+  /* Popups */
+  .popup{position:absolute;width:360px;background:#f3f3f3;border-radius:6px;border:1px solid rgba(0,0,0,0.12);box-shadow:0 12px 30px rgba(0,0,0,0.6);display:none;z-index:1400;flex-direction:column;}
+  .p-head{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;border-top-left-radius:6px;border-top-right-radius:6px;cursor:move;}
+  .p-body{padding:18px;color:#111;font-size:14px;text-align:center}
+  .p-body input{width:86%;padding:8px;margin-top:8px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+  .p-actions{display:flex;justify-content:center;padding:12px;background:transparent}
+  .btn{padding:6px 12px;border-radius:4px;border:none;background:var(--title-blue);color:#fff;cursor:pointer}
+  .btn:hover{background:#005a9e}
+
+  /* Factory reset fullscreen window + progress */
+  .factory-full{position:fixed;left:0;top:0;width:100%;height:100%;background:#fff;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center}
+  .factory-full h1{color:#111;margin:0 0 10px 0}
+  .factory-full p{color:#222;margin:0 0 18px 0}
+  .progress-wrap{width:70%;max-width:900px;height:18px;background:#eee;border-radius:9px;overflow:hidden;border:1px solid #ddd}
+  .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--title-blue),#005a9e)}
+
+  /* small non-deletable badge */
+  .no-delete{opacity:0.95}
+
+  @media (max-width:900px){ .window{width:92%;height:80%} .popup{width:86%} .factory-full .progress-wrap{width:86%} }
 </style>
 </head>
 <body>
-<div id="desktop">
+  <div id="desktop" aria-label="Desktop">
 
-  <!-- Taskbar -->
-  <div id="taskbar">
-    <button id="startBtn"><svg class="win-logo" viewBox="0 0 24 24"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg></button>
-    <div id="taskbarApps"></div>
-  </div>
-
-  <!-- Context menu -->
-  <div id="ctxMenu">
-    <button id="ctxOpen">Open</button>
-    <button id="ctxProperties">Properties</button>
-    <button id="ctxDelete">Delete</button>
-  </div>
-
-  <!-- Desktop icons -->
-  <div class="icon" id="iconMinecraft" data-app="minecraft">
-    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_cover.png" alt="Minecraft"/>
-    <span>Minecraft</span>
-  </div>
-  <div class="icon" id="iconRequest" data-app="request">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/65/Apps-icon.png" alt="Request App"/>
-    <span>Request App</span>
-  </div>
-  <div class="icon" id="iconFortnite" data-app="fortnite">
-    <img src="https://upload.wikimedia.org/wikipedia/en/e/eb/Fortnite_logo.svg" alt="Fortnite"/>
-    <span>Fortnite</span>
-  </div>
-  <div class="icon" id="iconFactory" data-app="factory">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Red_Delete_icon.svg/1024px-Red_Delete_icon.svg.png" alt="Factory Reset"/>
-    <span>Factory Reset</span>
-  </div>
-
-  <!-- Minecraft window -->
-  <div class="window" id="mcWindow">
-    <div class="titlebar"><div class="title">Minecraft</div>
-      <div class="controls"><button class="tb-btn" data-action="close">✕</button></div>
+    <!-- Taskbar & Start -->
+    <div id="taskbar" role="toolbar" aria-label="Taskbar">
+      <button id="startBtn" title="Start">
+        <svg class="win-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg>
+      </button>
+      <div id="startMenu" role="menu" aria-hidden="true">
+        <button class="start-item" id="returnBasic">Return to Basic Web</button>
+      </div>
+      <div id="taskbarApps" aria-hidden="false"></div>
     </div>
-    <div class="window-body">
-      <p>This app has recently been blocked, please wait while I try to find another unblocked copy.</p>
-    </div>
-  </div>
 
-  <!-- Request window -->
-  <div class="window" id="reqWindow">
-    <div class="titlebar"><div class="title">Request an App</div>
-      <div class="controls"><button class="tb-btn" data-action="close">✕</button></div>
+    <!-- Context menu -->
+    <div id="ctxMenu" role="menu" aria-hidden="true">
+      <button id="ctxOpen">Open</button>
+      <button id="ctxProperties">Properties</button>
+      <button id="ctxDelete">Delete</button>
     </div>
-    <iframe src="request.html" style="width:100%;height:100%;border:0;"></iframe>
-  </div>
 
-  <!-- Fortnite window -->
-  <div class="window" id="fnWindow">
-    <div class="titlebar"><div class="title">Fortnite Launcher</div>
-      <div class="controls"><button class="tb-btn" data-action="close">✕</button></div>
+    <!-- Desktop icons -->
+    <div class="icon" id="iconMinecraft" data-app="minecraft" style="left:20px;top:20px;" title="Minecraft 1.8.8">
+      <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250" alt="Minecraft Block"/>
+      <span>Minecraft 1.8.8</span>
     </div>
-    <div class="window-body" style="flex-direction:column;gap:12px;align-items:center;">
-      <p>You need to be signed in to Amazon Prime and link Epic Games.</p>
-      <button id="fnContinue" class="tb-btn" style="background:var(--title-blue);color:#fff;">Continue Anyway</button>
+
+    <div class="icon" id="iconRequest" data-app="request" style="left:20px;top:140px;" title="Request an App">
+      <img alt="Request App" src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%230078d7"/><path d="M4 7c.01-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm1.5.5L12 12l6.5-4.5" stroke="%23fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' />
+      <span>Request an App</span>
     </div>
-  </div>
 
-  <!-- Properties window -->
-  <div class="window" id="propertiesWindow">
-    <div class="titlebar"><div class="title">Properties</div>
-      <div class="controls"><button class="tb-btn" data-action="close">✕</button></div>
+    <div class="icon" id="iconFortnite" data-app="fortnite" style="left:20px;top:260px;" title="Fortnite Launcher">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s" alt="Fortnite Icon" />
+      <span>Fortnite Launcher</span>
     </div>
-    <div class="window-body" id="propertiesBody" style="text-align:center;"></div>
-  </div>
 
-  <!-- Factory fullscreen -->
-  <div class="factory-full" id="factoryFull" style="display:none;">
-    <h1>Windows has been factory reset</h1>
-    <p>Returning in <span id="factoryCountdown">10</span> seconds...</p>
-    <div class="progress-wrap"><div id="factoryProgress" class="progress-inner"></div></div>
-  </div>
+    <!-- Factory icon is created dynamically when needed -->
 
-</div>
+    <!-- Minecraft window -->
+    <div class="window" id="mcWindow" role="dialog" aria-hidden="true">
+      <div class="titlebar" data-window="mcWindow">
+        <div class="title"><strong>Make Sure To Pick Javascript Instead</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="mc-message">
+          <h1>This App Is Unavailable</h1>
+          <p>Please Wait While I Find Another Unblocked Version!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request window -->
+    <div class="window" id="reqWindow" role="dialog" aria-hidden="true" style="width:700px;height:500px;">
+      <div class="titlebar" data-window="reqWindow">
+        <div class="title"><strong>Request an App</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body" style="padding:0;">
+        <iframe class="request-iframe" id="reqIframe" src="request.html" title="Request an App"></iframe>
+      </div>
+    </div>
+
+    <!-- Fortnite window (fullscreen when opened) -->
+    <div class="window" id="fnWindow" role="dialog" aria-hidden="true" style="width:100%;height:100%;left:0;top:0;border-radius:0;">
+      <div class="titlebar" data-window="fnWindow" style="cursor:move;">
+        <div class="title"><strong>Fortnite Launcher</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Restore"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body" style="flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:30px;">
+        <div style="max-width:920px;text-align:center;">
+          <h1>Disclaimer!</h1>
+          <p style="font-size:16px;color:#333;line-height:1.4">
+            You need to be signed in to an Amazon account with Prime to use this service!<br>
+            Also, link your Epic Games account to your Amazon account on <strong>luna.amazon.co.uk</strong><br><br>
+            <strong>OTHERWISE THIS WILL NOT WORK!</strong>
+          </p>
+          <div style="margin-top:18px;">
+            <button id="launchFortniteBtn" class="btn">Launch Anyway</button>
+            <button id="closeFortniteBtn" class="btn" style="background:#777;margin-left:10px">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password popup -->
+    <div class="popup" id="passwordPopup" role="dialog" aria-hidden="true" style="left:50%;top:40%;transform:translate(-50%,-50%);">
+      <div class="p-head">Enter Password <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('passwordPopup')">✕</button></div>
+      <div class="p-body">
+        <p style="margin:0 0 8px 0;color:#111">Please enter the password to launch Minecraft:</p>
+        <input id="pwInput" type="password" placeholder="Password" />
+      </div>
+      <div class="p-actions">
+        <button class="btn" id="pwSubmit">OK</button>
+      </div>
+    </div>
+
+    <!-- Incorrect password popup -->
+    <div class="popup" id="incorrectPopup" role="dialog" aria-hidden="true" style="left:50%;top:42%;transform:translate(-50%,-50%);width:320px">
+      <div class="p-head">Error <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('incorrectPopup')">✕</button></div>
+      <div class="p-body">
+        <p style="margin:0;color:#111">Password is incorrect</p>
+      </div>
+      <div class="p-actions">
+        <button class="btn" onclick="closePopup('incorrectPopup')">OK</button>
+      </div>
+    </div>
+
+    <!-- Properties popup -->
+    <div class="popup" id="propertiesPopup" role="dialog" aria-hidden="true" style="width:360px">
+      <div class="p-head">Properties <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('propertiesPopup')">✕</button></div>
+      <div class="p-body" id="propertiesBody"></div>
+      <div class="p-actions">
+        <button class="btn" onclick="closePopup('propertiesPopup')">OK</button>
+      </div>
+    </div>
+
+    <!-- Factory fullscreen window (unclosable) -->
+    <div class="factory-full" id="factoryFull">
+      <h1>Windows has been factory reset</h1>
+      <p>All apps will reappear. Returning in <span id="factoryCountdown">10</span> seconds...</p>
+      <div class="progress-wrap"><div id="factoryProgress" class="progress-inner" style="width:0%"></div></div>
+    </div>
+
+  </div>
 
 <script>
-const icons=document.querySelectorAll('.icon');
-const windows={
-  minecraft:document.getElementById('mcWindow'),
-  request:document.getElementById('reqWindow'),
-  fortnite:document.getElementById('fnWindow'),
-  properties:document.getElementById('propertiesWindow')
-};
-const taskbarApps=document.getElementById('taskbarApps');
-const ctxMenu=document.getElementById('ctxMenu');
-let ctxTarget=null;
+/* -------------------------------------------
+   Vault verification (from your vault page)
+--------------------------------------------*/
+(function(){
+  const SESSION_KEY='vaultAccess';
+  const data = sessionStorage.getItem(SESSION_KEY);
+  if(!data){ window.location.href='index.html'; return; }
+  try {
+    const {expiry} = JSON.parse(data);
+    if(Date.now() > expiry){ sessionStorage.removeItem(SESSION_KEY); window.location.href='index.html'; return; }
+  } catch(e){ window.location.href='index.html'; return; }
+  sessionStorage.removeItem(SESSION_KEY);
+})();
 
-// Store deleted apps to restore on factory reset
-let deletedApps=[];
+/* ---------- References ---------- */
+const startBtn = document.getElementById('startBtn');
+const startMenu = document.getElementById('startMenu');
+const returnBasic = document.getElementById('returnBasic');
+const taskbarApps = document.getElementById('taskbarApps');
 
-// Open windows
-icons.forEach(ic=>{
-  ic.addEventListener('dblclick',()=>{
-    const app=ic.dataset.app;
-    if(deletedApps.includes(app)) return;
-    if(app==='minecraft') openWindow(windows.minecraft);
-    else if(app==='request') openWindow(windows.request);
-    else if(app==='fortnite') openWindow(windows.fortnite);
-    else if(app==='factory') openFactory();
+const ctxMenu = document.getElementById('ctxMenu');
+const ctxOpen = document.getElementById('ctxOpen');
+const ctxProperties = document.getElementById('ctxProperties');
+const ctxDelete = document.getElementById('ctxDelete');
+
+const iconMinecraft = document.getElementById('iconMinecraft');
+const iconRequest = document.getElementById('iconRequest');
+const iconFortnite = document.getElementById('iconFortnite');
+
+const mcWindow = document.getElementById('mcWindow');
+const reqWindow = document.getElementById('reqWindow');
+const fnWindow = document.getElementById('fnWindow');
+
+const passwordPopup = document.getElementById('passwordPopup');
+const incorrectPopup = document.getElementById('incorrectPopup');
+const propertiesPopup = document.getElementById('propertiesPopup');
+const propertiesBody = document.getElementById('propertiesBody');
+
+const factoryFull = document.getElementById('factoryFull');
+const factoryProgress = document.getElementById('factoryProgress');
+const factoryCountdownEl = document.getElementById('factoryCountdown');
+
+const pwInput = document.getElementById('pwInput');
+const pwSubmit = document.getElementById('pwSubmit');
+
+const launchFortniteBtn = document.getElementById('launchFortniteBtn');
+const closeFortniteBtn = document.getElementById('closeFortniteBtn');
+
+let zIndexCounter = 1000;
+
+/* ---------- localStorage for deleted apps ---------- */
+const DELETED_KEY = 'deletedAppsList';
+function getDeletedList(){ try { return JSON.parse(localStorage.getItem(DELETED_KEY)||'[]'); }catch{return [];} }
+function saveDeletedList(list){ localStorage.setItem(DELETED_KEY, JSON.stringify(list)); }
+
+/* ---------- Apply deleted state on load ---------- */
+(function applyDeletedState(){
+  const deleted = getDeletedList();
+  if(deleted.includes('minecraft')) iconMinecraft.style.display='none';
+  if(deleted.includes('request')) iconRequest.style.display='none';
+  if(deleted.includes('fortnite')) iconFortnite.style.display='none';
+  if(deleted.includes('factory')) ensureFactoryIcon();
+})();
+
+/* ---------- Start menu ---------- */
+startBtn.addEventListener('click',(e)=>{
+  startMenu.style.display = startMenu.style.display==='flex' ? 'none' : 'flex';
+  startMenu.style.flexDirection='column';
+});
+returnBasic.addEventListener('click', ()=>{ window.location.href='index.html'; });
+document.addEventListener('click', (e)=>{ if(!startMenu.contains(e.target) && e.target!==startBtn) startMenu.style.display='none'; });
+
+/* ---------- Context menu handling ---------- */
+let currentCtxTarget = null;
+function showContextMenu(e, targetIcon){
+  e.preventDefault();
+  currentCtxTarget = targetIcon;
+  ctxMenu.style.left = e.pageX + 'px';
+  ctxMenu.style.top = e.pageY + 'px';
+  const app = targetIcon.dataset.app;
+  ctxDelete.style.display = (app==='factory') ? 'none' : 'block';
+  ctxMenu.style.display='block';
+  setTimeout(()=>{ document.addEventListener('click', hideCtxMenuOnce); }, 0);
+}
+function hideCtxMenuOnce(){ ctxMenu.style.display='none'; document.removeEventListener('click', hideCtxMenuOnce); }
+
+/* apply context handlers to icons */
+[iconMinecraft, iconRequest, iconFortnite].forEach(ic=>{
+  // right click
+  ic.addEventListener('contextmenu',(ev)=>{ ev.preventDefault(); showContextMenu(ev, ic); });
+  // double click
+  bindDoubleClick(ic, ()=>{
+    const app = ic.dataset.app;
+    if(app==='minecraft') openPasswordPopup();
+    else if(app==='request') openRequestWindow();
+    else if(app==='fortnite') openFortniteWindow();
   });
-  ic.addEventListener('contextmenu',(e)=>{
-    e.preventDefault();
-    if(deletedApps.includes(ic.dataset.app)) return;
-    ctxTarget=ic;
-    ctxMenu.style.display='block';
-    ctxMenu.style.left=e.pageX+'px';
-    ctxMenu.style.top=e.pageY+'px';
+});
+
+/* ---------- Context menu actions ---------- */
+ctxOpen.addEventListener('click', ()=>{
+  if(!currentCtxTarget) return;
+  const app = currentCtxTarget.dataset.app;
+  if(app==='minecraft') openPasswordPopup();
+  else if(app==='request') openRequestWindow();
+  else if(app==='fortnite') openFortniteWindow();
+  else if(app==='factory') openFactory();
+  ctxMenu.style.display='none';
+});
+ctxProperties.addEventListener('click', ()=>{
+  if(!currentCtxTarget) return;
+  showProperties(currentCtxTarget.dataset.app);
+  ctxMenu.style.display='none';
+});
+ctxDelete.addEventListener('click', ()=>{
+  if(!currentCtxTarget) return;
+  deleteApp(currentCtxTarget.dataset.app);
+  ctxMenu.style.display='none';
+});
+
+/* ---------- Double-click helper ---------- */
+function bindDoubleClick(elem, handler){
+  let last = 0;
+  elem.addEventListener('click', ()=>{
+    const now = Date.now();
+    if(now - last < 350) handler();
+    last = now;
   });
-});
-
-// Context menu actions
-document.getElementById('ctxOpen').addEventListener('click',()=>{
-  if(!ctxTarget) return;
-  ctxTarget.dispatchEvent(new Event('dblclick'));
-  ctxMenu.style.display='none';
-});
-document.getElementById('ctxProperties').addEventListener('click',()=>{
-  if(!ctxTarget) return;
-  let app=ctxTarget.dataset.app;
-  let text='';
-  switch(app){
-    case 'minecraft': text='Minecraft in your web browser!'; break;
-    case 'request': text='Suggest an app!'; break;
-    case 'fortnite': text='Fortnite, in your web browser!'; break;
-    case 'factory': text='Factory Reset (non-deletable)'; break;
-  }
-  document.getElementById('propertiesBody').textContent=text;
-  openWindow(windows.properties);
-  ctxMenu.style.display='none';
-});
-document.getElementById('ctxDelete').addEventListener('click',()=>{
-  if(!ctxTarget) return;
-  let app=ctxTarget.dataset.app;
-  if(app!=='factory'){
-    ctxTarget.style.display='none';
-    deletedApps.push(app);
-  }
-  ctxMenu.style.display='none';
-});
-
-// Fortnite continue button
-document.getElementById('fnContinue').addEventListener('click',()=>{
-  window.open('https://luna.amazon.co.uk/game/fortnite?lang=en-US&ref=tmp_ext_epic&autoplay=1','_blank');
-});
-
-// Open window helper
-function openWindow(win){
-  win.style.display='flex';
-  addTaskbarButton(win);
-  bringToFront(win);
 }
 
-// Taskbar buttons
-function addTaskbarButton(win){
-  if(document.querySelector('[data-win="'+win.id+'"]')) return;
-  let btn=document.createElement('button');
-  btn.className='start-item';
-  btn.dataset.win=win.id;
-  btn.textContent=win.querySelector('.title').textContent;
-  btn.onclick=()=>{win.style.display=(win.style.display==='none')?'flex':'none';bringToFront(win);}
+/* ---------- Password flow ---------- */
+function openPasswordPopup(){
+  showPopup(passwordPopup);
+  pwInput.value='';
+  setTimeout(()=>pwInput.focus(),50);
+}
+pwSubmit.addEventListener('click', checkPassword);
+pwInput.addEventListener('keydown',(e)=>{ if(e.key==='Enter') checkPassword(); });
+function checkPassword(){
+  const val = pwInput.value || '';
+  if(val === 'secret123'){ closePopup('passwordPopup'); openMinecraftWindow(); }
+  else{ closePopup('passwordPopup'); showPopup(incorrectPopup); }
+}
+
+/* ---------- Popups ---------- */
+function showPopup(el){
+  el.style.display='flex';
+  el.style.flexDirection='column';
+  el.style.left = (window.innerWidth/2) + 'px';
+  el.style.top = (window.innerHeight/2 - 40) + 'px';
+  el.style.transform = 'translate(-50%,-50%)';
+  bringToFront(el);
+  const head = el.querySelector('.p-head');
+  if(head) makeDraggable(el, head);
+}
+function closePopup(id){ document.getElementById(id).style.display='none'; }
+window.closePopup = closePopup;
+
+/* ---------- Properties ---------- */
+function showProperties(app){
+  if(app==='minecraft'){
+    propertiesBody.innerHTML = `<p style="margin:0 0 10px 0;color:#111"><strong>Made:</strong> 13 Oct 2025</p><p style="margin:0;color:#111">Unblocked Minecraft in your browser!</p>`;
+  } else if(app==='request'){
+    propertiesBody.innerHTML = `<p style="margin:0 0 10px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Suggest an app to be added!</p>`;
+  } else if(app==='fortnite'){
+    propertiesBody.innerHTML = `<p style="margin:0 0 10px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Play fortnite!</p>`;
+  } else if(app==='factory'){
+    propertiesBody.innerHTML = `<p style="margin:0 0 10px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Factory Reset (non-deletable)</p>`;
+  } else {
+    propertiesBody.innerHTML = `<p style="margin:0;color:#111">No properties available</p>`;
+  }
+  showPopup(propertiesPopup);
+}
+
+/* ---------- Delete app ---------- */
+function deleteApp(app){
+  if(app==='factory') return;
+  // close windows & remove taskbar btns
+  if(app==='minecraft'){ mcWindow.style.display='none'; removeTaskbarButton('mcWindow'); }
+  if(app==='request'){ reqWindow.style.display='none'; removeTaskbarButton('reqWindow'); }
+  if(app==='fortnite'){ fnWindow.style.display='none'; removeTaskbarButton('fnWindow'); }
+
+  // hide icon
+  if(app==='minecraft') iconMinecraft.style.display='none';
+  if(app==='request') iconRequest.style.display='none';
+  if(app==='fortnite') iconFortnite.style.display='none';
+
+  // persist deletion
+  const deleted = getDeletedList();
+  if(!deleted.includes(app)) deleted.push(app);
+  // ensure factory appears
+  if(!deleted.includes('factory')) deleted.push('factory');
+  saveDeletedList(deleted);
+
+  // create factory icon if not present
+  ensureFactoryIcon();
+}
+
+/* ---------- Factory icon ---------- */
+function ensureFactoryIcon(){
+  if(document.getElementById('iconFactory')) return;
+  const factory = document.createElement('div');
+  factory.className = 'icon no-delete';
+  factory.id = 'iconFactory';
+  factory.dataset.app = 'factory';
+  factory.style.left = '20px';
+  factory.style.top = '380px';
+  factory.title = 'Factory Reset';
+  factory.innerHTML = `<img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%23a00"/><path d="M7 12h10v2H7z" fill="%23fff"/></svg>' alt="Factory" /><span>Factory Reset</span>`;
+  document.getElementById('desktop').appendChild(factory);
+  factory.addEventListener('contextmenu',(e)=>{ e.preventDefault(); showContextMenu(e, factory); });
+  bindDoubleClick(factory, ()=>{ openFactory(); });
+}
+
+/* ---------- Factory window behavior ---------- */
+let factoryInterval = null;
+function openFactory(){
+  // show fullscreen unclosable factory window
+  factoryFull.style.display = 'flex';
+  bringToFront(factoryFull);
+  let seconds = 10;
+  factoryCountdownEl.textContent = seconds;
+  factoryProgress.style.width = '0%';
+  clearInterval(factoryInterval);
+  const start = Date.now();
+  factoryInterval = setInterval(()=>{
+    const passed = Math.floor((Date.now() - start) / 1000);
+    const remain = Math.max(0, 10 - passed);
+    const percent = Math.min(100, ((10 - remain) / 10) * 100);
+    factoryProgress.style.width = percent + '%';
+    factoryCountdownEl.textContent = remain;
+    if(remain <= 0){
+      clearInterval(factoryInterval);
+      // clear deleted list so apps reappear
+      saveDeletedList([]);
+      // navigate to index.html
+      window.location.href = 'index.html';
+    }
+  }, 200);
+}
+
+/* ---------- Open windows ---------- */
+function openMinecraftWindow(){
+  mcWindow.style.display = 'flex';
+  centerIfFirst(mcWindow,880,560);
+  attachWindowControls(mcWindow, 'mcWindow');
+  bringToFront(mcWindow);
+}
+function openRequestWindow(){
+  reqWindow.style.display = 'flex';
+  centerIfFirst(reqWindow,700,500);
+  attachWindowControls(reqWindow, 'reqWindow');
+  bringToFront(reqWindow);
+}
+function openFortniteWindow(){
+  // make it full screen
+  fnWindow.style.display = 'flex';
+  fnWindow.style.left = '0';
+  fnWindow.style.top = '0';
+  fnWindow.style.width = window.innerWidth + 'px';
+  fnWindow.style.height = (window.innerHeight - 42) + 'px';
+  attachWindowControls(fnWindow, 'fnWindow');
+  bringToFront(fnWindow);
+}
+
+/* Fortnite button handlers */
+launchFortniteBtn.addEventListener('click', ()=>{
+  window.open('https://luna.amazon.co.uk/game/fortnite?lang=en-US&ref=tmp_ext_epic&autoplay=1','_blank');
+});
+closeFortniteBtn.addEventListener('click', ()=>{
+  fnWindow.style.display = 'none';
+});
+
+/* ---------- Center helper ---------- */
+function centerIfFirst(el,w,h){
+  if(!el.dataset.positioned){
+    centerElement(el,w,h);
+    el.dataset.positioned = '1';
+  }
+}
+function centerElement(el,w,h){
+  const vw = Math.max(480, window.innerWidth);
+  const vh = Math.max(320, window.innerHeight);
+  el.style.width = (w > vw ? Math.floor(vw*0.92) : w) + 'px';
+  el.style.height = (h > vh ? Math.floor(vh*0.78) : h) + 'px';
+  el.style.left = Math.floor((window.innerWidth - el.offsetWidth)/2) + 'px';
+  el.style.top = Math.floor((window.innerHeight - el.offsetHeight)/2) + 'px';
+}
+
+/* ---------- Window controls ---------- */
+function attachWindowControls(winEl, id){
+  if(winEl.dataset.controlsAttached) return;
+  winEl.dataset.controlsAttached = '1';
+  const tb = winEl.querySelector('.titlebar');
+  const btns = winEl.querySelectorAll('.tb-btn');
+
+  // dragging
+  makeDraggable(winEl, tb);
+
+  btns.forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const act = btn.getAttribute('data-action');
+      if(act==='minimize') minimizeWindow(winEl, id);
+      else if(act==='maximize') toggleMaximize(winEl, btn);
+      else if(act==='close') closeWindow(winEl, id);
+    });
+  });
+
+  winEl.addEventListener('mousedown', ()=>bringToFront(winEl));
+}
+
+/* minimize -> hide and add taskbar button */
+function minimizeWindow(winEl, id){
+  winEl.style.display = 'none';
+  const btnId = 'taskBtn-' + (id || winEl.id);
+  if(document.getElementById(btnId)) return;
+  const btn = document.createElement('button');
+  btn.className = 'start-item';
+  btn.id = btnId;
+  btn.textContent = winEl.querySelector('.title').textContent;
+  btn.style.fontSize='13px';
+  btn.style.padding='6px 10px';
+  btn.onclick = ()=>{
+    winEl.style.display='flex';
+    bringToFront(winEl);
+    btn.remove();
+  };
   taskbarApps.appendChild(btn);
 }
 
-// Close buttons
-document.querySelectorAll('.tb-btn[data-action="close"]').forEach(btn=>{
-  btn.addEventListener('click',()=>btn.closest('.window').style.display='none');
-});
-
-// Bring to front
-let zIndex=1000;
-function bringToFront(el){ zIndex++; el.style.zIndex=zIndex; }
-
-// Factory reset
-const factoryFull=document.getElementById('factoryFull');
-const factoryCountdown=document.getElementById('factoryCountdown');
-const factoryProgress=document.getElementById('factoryProgress');
-function openFactory(){
-  factoryFull.style.display='flex';
-  deletedApps=[];
-  icons.forEach(ic=>ic.style.display='block');
-  let sec=10;
-  factoryCountdown.textContent=sec;
-  factoryProgress.style.width='0%';
-  const start=Date.now();
-  const interval=setInterval(()=>{
-    let passed=Math.floor((Date.now()-start)/1000);
-    let remain=Math.max(0,sec-passed);
-    factoryCountdown.textContent=remain;
-    factoryProgress.style.width=((sec-remain)/sec*100)+'%';
-    if(remain<=0){clearInterval(interval); factoryFull.style.display='none';}
-  },200);
+/* toggle maximize/restore */
+function toggleMaximize(winEl, btn){
+  if(winEl.dataset.maximized === '1'){
+    winEl.style.width = winEl.dataset.prevW;
+    winEl.style.height = winEl.dataset.prevH;
+    winEl.style.left = winEl.dataset.prevL;
+    winEl.style.top = winEl.dataset.prevT;
+    winEl.dataset.maximized = '0';
+    btn.title = 'Maximize';
+  } else {
+    winEl.dataset.prevW = winEl.style.width || winEl.offsetWidth + 'px';
+    winEl.dataset.prevH = winEl.style.height || winEl.offsetHeight + 'px';
+    winEl.dataset.prevL = winEl.style.left || winEl.offsetLeft + 'px';
+    winEl.dataset.prevT = winEl.style.top || winEl.offsetTop + 'px';
+    winEl.style.left = '8px';
+    winEl.style.top = '8px';
+    winEl.style.width = (window.innerWidth - 16) + 'px';
+    winEl.style.height = (window.innerHeight - 56) + 'px';
+    winEl.dataset.maximized = '1';
+    btn.title = 'Restore';
+  }
+  bringToFront(winEl);
 }
 
-// Auto-arrange icons (Windows style)
-function arrangeIcons(){
-  const cols=4;
-  icons.forEach((ic,i)=>{
-    let row=Math.floor(i/cols),col=i%cols;
-    ic.style.left=(20+120*col)+'px';
-    ic.style.top=(20+120*row)+'px';
+/* close window */
+function closeWindow(winEl, id){
+  const btnId = 'taskBtn-' + (id || winEl.id);
+  const tbtn = document.getElementById(btnId);
+  if(tbtn) tbtn.remove();
+  winEl.style.display = 'none';
+  if(winEl.id === 'reqWindow'){
+    const ifr = document.getElementById('reqIframe');
+    if(ifr) ifr.src = 'request.html';
+  }
+}
+
+/* remove taskbar button helper */
+function removeTaskbarButton(winId){
+  const btn = document.getElementById('taskBtn-'+winId);
+  if(btn) btn.remove();
+}
+
+/* ---------- Drag helper ---------- */
+function makeDraggable(winEl, handle){
+  let dragging=false, offsetX=0, offsetY=0;
+  handle.addEventListener('mousedown', (e)=>{
+    // if factory-full or other unclosable fulls, prevent dragging if not allowed
+    dragging=true;
+    bringToFront(winEl);
+    offsetX = e.clientX - winEl.offsetLeft;
+    offsetY = e.clientY - winEl.offsetTop;
+    document.body.style.userSelect='none';
   });
+  document.addEventListener('mousemove', (e)=>{
+    if(!dragging) return;
+    let nx = e.clientX - offsetX;
+    let ny = e.clientY - offsetY;
+    nx = Math.max(6, Math.min(nx, window.innerWidth - winEl.offsetWidth - 6));
+    ny = Math.max(6, Math.min(ny, window.innerHeight - winEl.offsetHeight - 48));
+    winEl.style.left = nx + 'px';
+    winEl.style.top = ny + 'px';
+  });
+  document.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect='auto'; });
 }
-arrangeIcons();
 
-// Hide context menu on click outside
-document.addEventListener('click',e=>{
-  if(!ctxMenu.contains(e.target)) ctxMenu.style.display='none';
-});
+/* ---------- Icons draggable ---------- */
+(function makeIconsDraggable(){
+  const icons = document.querySelectorAll('.icon');
+  icons.forEach(ic=>{
+    let dragging=false, ox=0, oy=0;
+    ic.addEventListener('mousedown', (e)=>{
+      if(e.button !== 0) return;
+      dragging=true;
+      ox = e.clientX - ic.offsetLeft;
+      oy = e.clientY - ic.offsetTop;
+      document.body.style.userSelect='none';
+    });
+    document.addEventListener('mousemove', (e)=>{
+      if(!dragging) return;
+      ic.style.left = Math.max(6, Math.min(e.clientX-ox, window.innerWidth-110)) + 'px';
+      ic.style.top = Math.max(6, Math.min(e.clientY-oy, window.innerHeight-160)) + 'px';
+    });
+    document.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect='auto'; });
+  });
+})();
 
-// Draggable icons
-icons.forEach(icon=>{
-  icon.onmousedown=function(e){
-    if(deletedApps.includes(icon.dataset.app)) return;
-    let shiftX = e.clientX - icon.getBoundingClientRect().left;
-    let shiftY = e.clientY - icon.getBoundingClientRect().top;
-    function moveAt(pageX,pageY){icon.style.left=pageX-shiftX+'px';icon.style.top=pageY-shiftY+'px';}
-    function onMouseMove(e){moveAt(e.pageX,e.pageY);}
-    document.addEventListener('mousemove',onMouseMove);
-    document.onmouseup=function(){
-      document.removeEventListener('mousemove',onMouseMove);
-      document.onmouseup=null;
-    };
-  };
-  icon.ondragstart=function(){return false;}
-});
+/* ---------- Accessibility & misc ---------- */
+document.addEventListener('keydown',(e)=>{ if(e.key === 'Escape'){ closePopup('passwordPopup'); closePopup('incorrectPopup'); closePopup('propertiesPopup'); ctxMenu.style.display='none'; }});
+document.addEventListener('mousedown',(e)=>{ if(e.detail>1) e.preventDefault(); }); // avoid text select on double click
+
+/* ---------- Utility: bringToFront ---------- */
+function bringToFront(el){
+  zIndexCounter += 2;
+  el.style.zIndex = zIndexCounter;
+}
+
+/* ---------- On load, ensure factory icon if needed ---------- */
+(function ensureFactoryOnLoad(){
+  const deleted = getDeletedList();
+  if(deleted.includes('factory')) ensureFactoryIcon();
+})();
+
+/* ---------- expose some functions for inline handlers ---------- */
+window.openFortniteWindow = openFortniteWindow;
+window.openFactory = openFactory;
+window.closePopup = closePopup;
+
+/* ---------- End ---------- */
 </script>
 </body>
 </html>
