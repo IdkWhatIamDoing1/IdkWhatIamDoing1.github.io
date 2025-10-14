@@ -129,34 +129,34 @@
     <!-- Factory icon created dynamically but ensure placeholder present -->
     <div id="factoryPlaceholder" style="display:none"></div>
 
-<!-- Game Launcher fullscreen iframe -->
-<div class="window fullscreen-modal" id="game-launcher-modal" role="dialog" aria-hidden="true" 
-     style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;margin:0;padding:0;z-index:9999;background:#000;">
-  <iframe id="game-launcher-iframe" src="launcher.html" frameborder="0" allowfullscreen
-          style="width:100%;height:100%;border:0;"></iframe>
+<!-- Game Launcher window (like Fortnite) -->
+<div class="window" id="mcWindow" role="dialog" aria-hidden="true" style="display:none;">
+  <div class="titlebar" data-window="mcWindow">
+    <div class="title"><strong>game launcher</strong></div>
+    <div class="controls">
+      <button class="tb-btn" data-action="close" title="Close" onclick="closeGameLauncher()"><span class="close-icon">✕</span></button>
+    </div>
+  </div>
+  <div class="window-body">
+    <iframe id="game-launcher-iframe" src="launcher.html" frameborder="0" allowfullscreen
+            style="width:100%;height:100%;border:0;"></iframe>
+  </div>
 </div>
 
 <script>
 function openGameLauncher() {
-  const modal = document.getElementById('game-launcher-modal');
+  const win = document.getElementById('mcWindow');
   const iframe = document.getElementById('game-launcher-iframe');
-  if (!modal || !iframe) return;
-
-  // Show the fullscreen iframe
-  modal.style.display = 'block';
-
-  // Reload iframe each time it's opened
+  if (!win || !iframe) return;
+  win.style.display = 'block';
   iframe.src = '';
   setTimeout(() => { iframe.src = 'launcher.html'; }, 20);
 }
 
-// Optional: add a way to close by clicking anywhere outside or pressing ESC
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const modal = document.getElementById('game-launcher-modal');
-    if (modal) modal.style.display = 'none';
-  }
-});
+function closeGameLauncher() {
+  const win = document.getElementById('mcWindow');
+  if (win) win.style.display = 'none';
+}
 </script>
 
 
