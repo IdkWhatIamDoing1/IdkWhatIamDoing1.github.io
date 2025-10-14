@@ -187,12 +187,12 @@ function closeGameLauncher() {
       </div>
       <div class="window-body" style="flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:30px;">
         <div style="max-width:920px;text-align:center;">
-          <h1>Disclaimer!</h1>
-          <p style="font-size:16px;color:#333;line-height:1.4">
-            You need to be signed in to an Amazon account with Prime to use this service!<br>
-            Also, link your Epic Games account to your Amazon account on <strong>luna.amazon.co.uk</strong><br><br>
-            <strong>OTHERWISE THIS WILL NOT WORK!</strong>
-          </p>
+       <!-- REPLACED: disclaimer -> launcher iframe -->
+<iframe src="launcher.html"
+        class="launcher-iframe"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+        style="width:100%; height:100%; border:0; display:block;"></iframe>
+
           <div style="margin-top:18px;">
             <button id="launchFortniteBtn" class="btn">Launch Anyway</button>
             <button id="closeFortniteBtn" class="btn" style="background:#777;margin-left:10px">Close</button>
