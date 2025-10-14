@@ -1,256 +1,511 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Custom Desktop</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Windows Basic Web Edition - Desktop</title>
 <style>
-body {
-  margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #1e1e1e;
-  overflow: hidden;
-}
+  /* --- Reset & base --- */
+  :root{
+    --title-blue:#0078D7;
+    --bg:#0b0b0b;
+    --muted:#9ca3af;
+    --panel:#f3f3f3;
+    --glass:#ffffffcc;
+  }
+  html,body{height:100%;margin:0;font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;background:linear-gradient(#0b0b0b,#111);color:#e6e6e6;overflow:hidden;}
+  #desktop{position:relative;width:100%;height:100%;}
 
-.desktop { width: 100vw; height: 100vh; position: relative; }
+  /* --- Taskbar & Start --- */
+  #taskbar{position:absolute;left:0;right:0;bottom:0;height:42px;background:#111;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:0 8px;box-shadow:0 -6px 20px rgba(0,0,0,0.6);z-index:1200;}
+  #startBtn{height:34px;width:42px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  #startBtn:hover{background:rgba(255,255,255,0.03);}
+  .win-logo{width:20px;height:20px;fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,0.5));}
+  #startMenu{position:absolute;left:8px;bottom:50px;width:220px;background:#0f0f0f;border:1px solid rgba(255,255,255,0.06);display:none;flex-direction:column;padding:8px;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.7);z-index:1300;}
+  .start-item{background:transparent;color:var(--muted);border:none;padding:10px 8px;text-align:left;border-radius:4px;cursor:pointer;font-size:14px;}
+  .start-item:hover{background:rgba(255,255,255,0.02);color:#fff;}
 
-/* Desktop Icon */
-.icon {
-  width: 80px;
-  text-align: center;
-  color: white;
-  cursor: pointer;
-  position: absolute;
-}
-.icon img { width: 64px; height: 64px; display: block; margin: 0 auto; }
-.icon span { display: block; margin-top: 5px; font-size: 12px; }
+  /* area in the taskbar to hold minimized app buttons */
+  #taskbarApps{display:flex;gap:6px;align-items:center;margin-left:8px;}
 
-/* Window */
-.window {
-  position: absolute;
-  top: 50px;
-  left: 50px;
-  width: 80%;
-  height: 80%;
-  background: #fff;
-  border: 1px solid #555;
-  display: none;
-  flex-direction: column;
-  z-index: 10;
-  box-shadow: 0 0 20px rgba(0,0,0,0.8);
-}
-.window-header {
-  background: #0078D7;
-  color: white;
-  padding: 6px 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 500;
-  cursor: move;
-}
-.window-content {
-  flex: 1;
-  overflow: auto;
-  position: relative;
-}
+  /* --- Desktop icons --- */
+  .icon{width:92px;text-align:center;color:var(--muted);position:absolute;cursor:pointer;user-select:none;}
+  .icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:6px;}
+  .icon span{display:block;margin-top:6px;font-size:12px;color:var(--muted);}
 
-/* Close button */
-.close-btn { cursor: pointer; font-weight: bold; }
+  /* --- Window common --- */
+  .window{
+    position:absolute;
+    width:800px;
+    height:560px;
+    background:#fff;
+    color:#111;
+    border-radius:6px;
+    box-shadow:0 12px 40px rgba(0,0,0,0.7);
+    overflow:hidden;
+    display:none;
+    flex-direction:column;
+    z-index:1000;
+  }
+  .titlebar{
+    height:36px;
+    background:linear-gradient(180deg,var(--title-blue),#0062b0);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 10px;
+    cursor:move;
+    user-select:none;
+  }
+  .titlebar .title{font-weight:600;font-size:13px;display:flex;gap:10px;align-items:center}
+  .titlebar .controls{display:flex;gap:6px;align-items:center}
+  .tb-btn{width:34px;height:26px;border-radius:4px;border:none;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .tb-btn:hover{background:rgba(255,255,255,0.06)}
+  .window-body{flex:1;background:#fff;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
 
-/* Loading spinner */
-.spinner {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #0078D7;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-}
-@keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+  /* Realistic small control icons */
+  .min-icon{font-size:15px}
+  .max-icon{font-size:13px}
+  .close-icon{font-size:16px}
 
-/* Windows-style Popup */
-.popup {
-  position: absolute;
-  top: 40%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 320px;
-  background: #f0f0f0;
-  border: 1px solid #555;
-  z-index: 20;
-  display: none;
-  flex-direction: column;
-  box-shadow: 0 0 10px rgba(0,0,0,0.7);
-  border-radius: 4px;
-}
-.popup-header {
-  background: #0078D7;
-  color: white;
-  padding: 6px 10px;
-  font-weight: 500;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: move;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-}
-.popup-content {
-  padding: 20px;
-  text-align: center;
-}
-.popup input {
-  width: 90%;
-  padding: 6px;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  font-size: 14px;
-}
-.popup button {
-  margin-top: 15px;
-  padding: 6px 15px;
-  cursor: pointer;
-  border: none;
-  border-radius: 2px;
-  background-color: #0078D7;
-  color: white;
-  font-size: 14px;
-}
-.popup button:hover { background-color: #005a9e; }
+  /* Minecraft message content */
+  .mc-message{text-align:center;font-family:"Segoe UI",sans-serif;color:#222}
+  .mc-message h1{font-size:22px;margin:16px 0;color:#222}
+  .mc-message p{font-size:16px;color:#444}
+
+  /* Request app iframe size */
+  .request-iframe{width:100%;height:100%;border:0}
+
+  /* Popups (Windows-style) */
+  .popup{
+    position:absolute;
+    width:360px;
+    background:#f3f3f3;
+    border-radius:6px;
+    border:1px solid rgba(0,0,0,0.12);
+    box-shadow:0 12px 30px rgba(0,0,0,0.6);
+    display:none;
+    z-index:1400;
+    flex-direction:column;
+  }
+  .popup .p-head{
+    height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;border-top-left-radius:6px;border-top-right-radius:6px;cursor:move;
+  }
+  .popup .p-body{padding:18px;color:#111;font-size:14px;text-align:center}
+  .popup input{width:86%;padding:8px;margin-top:8px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+  .popup .p-actions{display:flex;justify-content:center;padding:12px;background:transparent}
+  .btn{padding:6px 12px;border-radius:4px;border:none;background:var(--title-blue);color:#fff;cursor:pointer}
+  .btn:hover{background:#005a9e}
+
+  /* responsive */
+  @media (max-width:900px){ .window{width:92%;height:80%} }
 </style>
 </head>
 <body>
-<div class="desktop">
-  <!-- Minecraft 1.8.8 Icon -->
-  <div class="icon" style="top:20px; left:20px;" data-app="minecraft">
-    <img src="data:image/webp;base64,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" alt="Minecraft Icon" />
-    <span>Minecraft 1.8.8</span>
-  </div>
+  <div id="desktop">
+    <!-- Start + Taskbar -->
+    <div id="taskbar">
+      <button id="startBtn" title="Start">
+        <!-- simple Windows logo icon (SVG) -->
+        <svg class="win-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg>
+      </button>
 
-  <!-- Minecraft Window -->
-  <div class="window" id="minecraftWindow">
-    <div class="window-header">
+      <div id="startMenu" role="menu" aria-hidden="true">
+        <button class="start-item" id="returnBasic">Return to Basic Web</button>
+      </div>
+
+      <div id="taskbarApps" aria-hidden="false"></div>
+    </div>
+
+    <!-- Desktop icons -->
+    <div class="icon" id="iconMinecraft" style="left:20px;top:20px;" title="Minecraft 1.8.8">
+      <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250" alt="Minecraft Block" />
       <span>Minecraft 1.8.8</span>
-      <span class="close-btn" onclick="closeWindow()">✖</span>
     </div>
-    <div class="window-content">
-      <div class="spinner" id="spinner"></div>
-      <iframe id="minecraftIframe" style="width:100%; height:100%; border:none; display:none;"></iframe>
-    </div>
-  </div>
 
-  <!-- Password Popup -->
-  <div class="popup" id="passwordPopup">
-    <div class="popup-header">
-      <span>Enter Password</span>
-      <span class="close-btn" onclick="closePopup('passwordPopup')">✖</span>
+    <div class="icon" id="iconRequest" style="left:20px;top:120px;" title="Request an App">
+      <!-- inline envelope SVG as app icon -->
+      <img alt="Request App" src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%230078d7"/><path d="M4 7c.01-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm1.5.5L12 12l6.5-4.5" stroke="%23fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' />
+      <span>Request an App</span>
     </div>
-    <div class="popup-content">
-      <p>Please enter the password to launch Minecraft:</p>
-      <input type="password" id="passwordInput" placeholder="Password" />
-      <button onclick="checkPassword()">OK</button>
-    </div>
-  </div>
 
-  <!-- Incorrect Password Popup -->
-  <div class="popup" id="incorrectPopup">
-    <div class="popup-header">
-      <span>Error</span>
-      <span class="close-btn" onclick="closePopup('incorrectPopup')">✖</span>
+    <!-- Minecraft app window (realistic) -->
+    <div class="window" id="mcWindow" aria-hidden="true" role="dialog">
+      <div class="titlebar" data-window="mcWindow">
+        <div class="title"><strong>Make Sure To Pick Javascript Instead</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="mc-message">
+          <h1>This App Is Unavailable</h1>
+          <p>Please Wait While I Find Another Unblocked Version!</p>
+        </div>
+      </div>
     </div>
-    <div class="popup-content">
-      <p>Password is incorrect</p>
-      <button onclick="closePopup('incorrectPopup')">OK</button>
+
+    <!-- Request app window (medium: 700x500) -->
+    <div class="window" id="reqWindow" aria-hidden="true" role="dialog" style="width:700px;height:500px;">
+      <div class="titlebar" data-window="reqWindow">
+        <div class="title"><strong>Request an App</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body" style="padding:0;">
+        <iframe class="request-iframe" id="reqIframe" src="request.html" title="Request an App"></iframe>
+      </div>
     </div>
+
+    <!-- Password popup -->
+    <div class="popup" id="passwordPopup" role="dialog" aria-hidden="true" style="left:50%;top:40%;transform:translate(-50%,-50%);">
+      <div class="p-head">Enter Password <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('passwordPopup')">✕</button></div>
+      <div class="p-body">
+        <p style="margin:0 0 8px 0;color:#111">Please enter the password to launch Minecraft:</p>
+        <input id="pwInput" type="password" placeholder="Password" />
+      </div>
+      <div class="p-actions">
+        <button class="btn" id="pwSubmit">OK</button>
+      </div>
+    </div>
+
+    <!-- Incorrect password popup -->
+    <div class="popup" id="incorrectPopup" role="dialog" aria-hidden="true" style="left:50%;top:42%;transform:translate(-50%,-50%);width:320px">
+      <div class="p-head">Error <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('incorrectPopup')">✕</button></div>
+      <div class="p-body">
+        <p style="margin:0;color:#111">Password is incorrect</p>
+      </div>
+      <div class="p-actions">
+        <button class="btn" onclick="closePopup('incorrectPopup')">OK</button>
+      </div>
+    </div>
+
   </div>
-</div>
 
 <script>
-const icon = document.querySelector('.icon[data-app="minecraft"]');
-const windowEl = document.getElementById('minecraftWindow');
-const iframe = document.getElementById('minecraftIframe');
-const spinner = document.getElementById('spinner');
+/* -----------------------
+   Vault verification (keeps intel from your old thevault.html)
+   ----------------------- */
+(function(){
+  const SESSION_KEY='vaultAccess';
+  const data = sessionStorage.getItem(SESSION_KEY);
+  if(!data){ window.location.href='index.html'; return; }
+  try {
+    const {expiry} = JSON.parse(data);
+    if(Date.now() > expiry){ sessionStorage.removeItem(SESSION_KEY); window.location.href='index.html'; return; }
+  } catch(e){ window.location.href='index.html'; return; }
+  // remove token after verification so it can't be reused
+  sessionStorage.removeItem(SESSION_KEY);
+})();
+
+/* -----------------------
+   UI references
+   ----------------------- */
+const startBtn = document.getElementById('startBtn');
+const startMenu = document.getElementById('startMenu');
+const returnBasic = document.getElementById('returnBasic');
+const taskbarApps = document.getElementById('taskbarApps');
+
+const iconMinecraft = document.getElementById('iconMinecraft');
+const iconRequest = document.getElementById('iconRequest');
+
+const mcWindow = document.getElementById('mcWindow');
+const reqWindow = document.getElementById('reqWindow');
 
 const passwordPopup = document.getElementById('passwordPopup');
 const incorrectPopup = document.getElementById('incorrectPopup');
-const passwordInput = document.getElementById('passwordInput');
+const pwInput = document.getElementById('pwInput');
+const pwSubmit = document.getElementById('pwSubmit');
 
-icon.addEventListener('dblclick', () => {
-  passwordPopup.style.display = 'flex';
-  passwordInput.value = '';
-  passwordInput.focus();
+let zIndexCounter = 1000;
+
+/* -----------------------
+   Start menu behavior
+   ----------------------- */
+startBtn.addEventListener('click', (e)=>{
+  startMenu.style.display = startMenu.style.display==='flex' ? 'none' : 'flex';
+  startMenu.style.flexDirection='column';
+});
+returnBasic.addEventListener('click', ()=> { window.location.href='index.html'; });
+
+/* close start menu on outside click */
+document.addEventListener('click', (e)=>{
+  if(!startMenu.contains(e.target) && e.target !== startBtn) startMenu.style.display='none';
 });
 
-function checkPassword() {
-  if(passwordInput.value === 'secret123') {
-    passwordPopup.style.display = 'none';
-    launchMinecraft();
+/* -----------------------
+   Desktop icons: double-click detection
+   ----------------------- */
+function bindDoubleClick(elem, handler){
+  let last = 0;
+  elem.addEventListener('click', ()=>{
+    const now = Date.now();
+    if(now - last < 400){ handler(); }
+    last = now;
+  });
+}
+
+/* -----------------------
+   Password popup flow for Minecraft
+   ----------------------- */
+bindDoubleClick(iconMinecraft, ()=>{
+  // open password popup
+  showPopup(passwordPopup);
+  pwInput.value='';
+  setTimeout(()=>pwInput.focus(),50);
+});
+
+pwSubmit.addEventListener('click', checkPassword);
+pwInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkPassword(); });
+
+function checkPassword(){
+  const val = pwInput.value || '';
+  if(val === 'secret123'){
+    closePopup('passwordPopup');
+    launchMinecraftWindow();
   } else {
-    passwordPopup.style.display = 'none';
-    incorrectPopup.style.display = 'flex';
+    closePopup('passwordPopup');
+    showPopup(incorrectPopup);
+  }
+}
+function closePopup(id){ document.getElementById(id).style.display='none'; }
+
+/* -----------------------
+   Launch Minecraft window (shows the unavailable message)
+   Includes realistic window controls (min/max/close & taskbar minimize)
+   ----------------------- */
+function launchMinecraftWindow(){
+  showWindow(mcWindow);
+  // center if first open
+  if(!mcWindow.dataset.positioned){
+    centerElement(mcWindow, 880, 560);
+    mcWindow.dataset.positioned = '1';
   }
 }
 
-function closePopup(id) {
-  document.getElementById(id).style.display = 'none';
-}
-
-async function launchMinecraft() {
-  windowEl.style.display = 'flex';
-  spinner.style.display = 'block';
-  iframe.style.display = 'none';
-
-  let mcHTML = localStorage.getItem('MinecraftHTMLload');
-  if (!mcHTML) {
-    try {
-      const response = await fetch('https://eaglercraft.com/mc/1.8.8');
-      mcHTML = await response.text();
-      localStorage.setItem('MinecraftHTMLload', mcHTML);
-    } catch (err) {
-      mcHTML = '<h2>Failed to load Minecraft HTML</h2>';
-    }
+/* -----------------------
+   Request App behavior: medium window with iframe to request.html
+   ----------------------- */
+bindDoubleClick(iconRequest, ()=>{
+  showWindow(reqWindow);
+  if(!reqWindow.dataset.positioned){
+    centerElement(reqWindow, 700, 500);
+    reqWindow.dataset.positioned = '1';
   }
+  // ensure iframe has correct src (use local file request.html)
+  const iframe = document.getElementById('reqIframe');
+  if(iframe && iframe.src.indexOf('request.html')===-1){
+    iframe.src = 'request.html';
+  }
+});
 
-  const blob = new Blob([mcHTML], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  iframe.src = url;
-
-  iframe.onload = () => {
-    spinner.style.display = 'none';
-    iframe.style.display = 'block';
-  };
+/* -----------------------
+   Generic window show/hide + focus + controls
+   ----------------------- */
+function showWindow(winEl){
+  winEl.style.display = 'flex';
+  bringToFront(winEl);
+  attachWindowControls(winEl);
 }
 
-function closeWindow() {
-  windowEl.style.display = 'none';
-  iframe.src = '';
+function bringToFront(el){
+  zIndexCounter += 2;
+  el.style.zIndex = zIndexCounter;
 }
 
-// Make windows draggable
-function makeDraggable(el) {
-  let isDragging = false, offsetX, offsetY;
-  const header = el.querySelector('.window-header, .popup-header');
-  header.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    offsetX = e.clientX - el.offsetLeft;
-    offsetY = e.clientY - el.offsetTop;
+/* center helper */
+function centerElement(el, w, h){
+  const vw = Math.max(480, window.innerWidth);
+  const vh = Math.max(320, window.innerHeight);
+  el.style.width = (w > vw ? Math.floor(vw*0.92) : w) + 'px';
+  el.style.height = (h > vh ? Math.floor(vh*0.78) : h) + 'px';
+  el.style.left = Math.floor((window.innerWidth - el.offsetWidth)/2) + 'px';
+  el.style.top = Math.floor((window.innerHeight - el.offsetHeight)/2) + 'px';
+}
+
+/* attach one-time controls for minimize/max/max/close + dragging */
+function attachWindowControls(winEl){
+  if(winEl.dataset.controlsAttached) return;
+  winEl.dataset.controlsAttached = '1';
+  const tb = winEl.querySelector('.titlebar');
+  const btns = winEl.querySelectorAll('.tb-btn');
+
+  // dragging
+  makeDraggable(winEl, tb);
+
+  btns.forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const act = btn.getAttribute('data-action');
+      if(act==='minimize'){
+        minimizeWindow(winEl);
+      } else if(act==='maximize'){
+        toggleMaximize(winEl, btn);
+      } else if(act==='close'){
+        closeWindow(winEl);
+      }
+    });
   });
-  document.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      el.style.left = (e.clientX - offsetX) + 'px';
-      el.style.top = (e.clientY - offsetY) + 'px';
-    }
-  });
-  document.addEventListener('mouseup', () => { isDragging = false; });
+
+  // click to focus
+  winEl.addEventListener('mousedown', ()=>bringToFront(winEl));
 }
 
-makeDraggable(windowEl);
-makeDraggable(passwordPopup);
-makeDraggable(incorrectPopup);
+/* minimize -> hide and add taskbar button */
+function minimizeWindow(winEl){
+  winEl.style.display = 'none';
+  const id = winEl.id;
+  // create a taskbar button if not exists
+  if(!document.getElementById('taskBtn-'+id)){
+    const btn = document.createElement('button');
+    btn.className = 'start-item';
+    btn.id = 'taskBtn-'+id;
+    btn.textContent = winEl.querySelector('.title .titleText') ? winEl.querySelector('.title .titleText').textContent : winEl.querySelector('.title strong') ? winEl.querySelector('.title strong').textContent : winEl.querySelector('.title').textContent;
+    btn.style.fontSize='13px';
+    btn.style.padding='6px 10px';
+    btn.onclick = ()=>{
+      showWindow(winEl);
+      // remove taskbar button
+      btn.remove();
+    };
+    taskbarApps.appendChild(btn);
+  }
+}
+
+/* toggle maximize / restore */
+function toggleMaximize(winEl, btn){
+  if(winEl.dataset.maximized === '1'){
+    // restore
+    winEl.style.width = winEl.dataset.prevW;
+    winEl.style.height = winEl.dataset.prevH;
+    winEl.style.left = winEl.dataset.prevL;
+    winEl.style.top = winEl.dataset.prevT;
+    winEl.dataset.maximized = '0';
+    btn.title = 'Maximize';
+  } else {
+    // store previous geometry
+    winEl.dataset.prevW = winEl.style.width || winEl.offsetWidth + 'px';
+    winEl.dataset.prevH = winEl.style.height || winEl.offsetHeight + 'px';
+    winEl.dataset.prevL = winEl.style.left || winEl.offsetLeft + 'px';
+    winEl.dataset.prevT = winEl.style.top || winEl.offsetTop + 'px';
+    // maximize (fill desktop area with small margin)
+    winEl.style.left = '8px';
+    winEl.style.top = '8px';
+    winEl.style.width = (window.innerWidth - 16) + 'px';
+    winEl.style.height = (window.innerHeight - 56) + 'px';
+    winEl.dataset.maximized = '1';
+    btn.title = 'Restore';
+  }
+  bringToFront(winEl);
+}
+
+/* close window */
+function closeWindow(winEl){
+  // remove any taskbar button
+  const tbtn = document.getElementById('taskBtn-'+winEl.id);
+  if(tbtn) tbtn.remove();
+  // hide
+  winEl.style.display = 'none';
+  // if request window, clear iframe optionally
+  if(winEl.id === 'reqWindow'){
+    const ifr = document.getElementById('reqIframe');
+    if(ifr) ifr.src = 'request.html'; // keep it loaded for convenience
+  }
+}
+
+/* -----------------------
+   Draggable helper (titlebar dragging)
+   ----------------------- */
+function makeDraggable(winEl, handle){
+  let dragging=false, offsetX=0, offsetY=0;
+  handle.addEventListener('mousedown', (e)=>{
+    dragging=true;
+    bringToFront(winEl);
+    offsetX = e.clientX - winEl.offsetLeft;
+    offsetY = e.clientY - winEl.offsetTop;
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', (e)=>{
+    if(!dragging) return;
+    let nx = e.clientX - offsetX;
+    let ny = e.clientY - offsetY;
+    // simple bounds
+    nx = Math.max(6, Math.min(nx, window.innerWidth - winEl.offsetWidth - 6));
+    ny = Math.max(6, Math.min(ny, window.innerHeight - winEl.offsetHeight - 48));
+    winEl.style.left = nx + 'px';
+    winEl.style.top = ny + 'px';
+  });
+  document.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect='auto'; });
+}
+
+/* -----------------------
+   Popups show/hide & dragging
+   ----------------------- */
+function showPopup(p){
+  p.style.display = 'flex';
+  p.style.flexDirection = 'column';
+  p.style.left = (window.innerWidth/2) + 'px';
+  p.style.top = (window.innerHeight/2 - 40) + 'px';
+  p.style.transform = 'translate(-50%,-50%)';
+  bringToFront(p);
+  // make draggable
+  const head = p.querySelector('.p-head');
+  makeDraggable(p, head);
+}
+function closePopup(id){ document.getElementById(id).style.display='none'; }
+
+/* hook popup close helpers referenced inline in markup */
+window.closePopup = closePopup;
+
+/* -----------------------
+   Accessibility: close popups with Esc
+   ----------------------- */
+document.addEventListener('keydown',(e)=>{
+  if(e.key === 'Escape'){
+    closePopup('passwordPopup');
+    closePopup('incorrectPopup');
+  }
+});
+
+/* -----------------------
+   Prevent accidental text-selection double-click behaviour
+   ----------------------- */
+document.addEventListener('mousedown',(e)=>{ if(e.detail>1) e.preventDefault(); });
+
+/* -----------------------
+   Make icons draggable (optional)
+   ----------------------- */
+(function makeIconsDraggable(){
+  const icons = document.querySelectorAll('.icon');
+  icons.forEach(ic=>{
+    let dragging=false, ox=0, oy=0;
+    ic.addEventListener('mousedown', (e)=>{
+      dragging=true;
+      ox = e.clientX - ic.offsetLeft;
+      oy = e.clientY - ic.offsetTop;
+      document.body.style.userSelect='none';
+    });
+    document.addEventListener('mousemove', (e)=>{
+      if(!dragging) return;
+      ic.style.left = Math.max(6, Math.min(e.clientX-ox, window.innerWidth-110)) + 'px';
+      ic.style.top = Math.max(6, Math.min(e.clientY-oy, window.innerHeight-160)) + 'px';
+    });
+    document.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect='auto'; });
+  });
+})();
+
+/* -----------------------
+   Click outside popups to close start menu (already above)
+   ----------------------- */
+
+/* -----------------------
+   Done
+   ----------------------- */
 </script>
 </body>
 </html>
