@@ -3,25 +3,29 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Windows Basic Web Edition - Final</title>
+<title>Windows Basic Web Edition - Fixed</title>
 <style>
   :root{
     --title-blue:#0078D7;
     --bg:#0b0b0b;
     --muted:#9ca3af;
   }
-  html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(#0b0b0b,#111);color:#e6e6e6;overflow:hidden;}
-  #desktop{position:relative;width:100%;height:100%;}
+  html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:#e6e6e6;overflow:hidden;}
+  #desktop{position:relative;width:100%;height:100%;background-size:cover;background-position:center;transition:background-image .3s linear;}
 
   /* Taskbar & Start */
   #taskbar{position:absolute;left:0;right:0;bottom:0;height:42px;background:#111;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:0 8px;box-shadow:0 -6px 20px rgba(0,0,0,0.6);z-index:1200;}
-  #startBtn{height:34px;width:42px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer; margin-left:6px;}
+  #startBtn{height:34px;width:42px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
   #startBtn:hover{background:rgba(255,255,255,0.03);}
   .win-logo{width:20px;height:20px;fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,0.5));}
-  #startMenu{position:absolute;left:8px;bottom:50px;width:260px;background:#0f0f0f;border:1px solid rgba(255,255,255,0.06);display:none;flex-direction:column;padding:8px;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.7);z-index:1300;}
-  .start-item{background:transparent;color:var(--muted);border:none;padding:10px 8px;text-align:left;border-radius:4px;cursor:pointer;font-size:14px;display:flex;justify-content:space-between;align-items:center;}
+  #startMenu{position:absolute;left:8px;bottom:50px;width:220px;background:#0f0f0f;border:1px solid rgba(255,255,255,0.06);display:none;flex-direction:column;padding:8px;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.7);z-index:1300;}
+  .start-item{background:transparent;color:var(--muted);border:none;padding:10px 8px;text-align:left;border-radius:4px;cursor:pointer;font-size:14px;}
   .start-item:hover{background:rgba(255,255,255,0.02);color:#fff;}
   #taskbarApps{display:flex;gap:6px;align-items:center;margin-left:8px;}
+
+  /* App Store icon in start */
+  .start-shortcut{display:flex;align-items:center;gap:8px;padding:6px;border-radius:4px;cursor:pointer;}
+  .start-shortcut img{width:20px;height:20px;border-radius:4px}
 
   /* Context menu */
   #ctxMenu{position:absolute;display:none;background:#202020;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px;border-radius:6px;z-index:1600;min-width:170px;box-shadow:0 8px 20px rgba(0,0,0,0.6)}
@@ -29,9 +33,10 @@
   #ctxMenu button:hover{background:rgba(255,255,255,0.03);color:#fff}
 
   /* Desktop icons */
-  .icon{width:100px;text-align:center;color:var(--muted);position:absolute;cursor:pointer;user-select:none;}
-  .icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:8px;background:#fff;}
+  .icon{width:100px;text-align:center;color:var(--muted);position:absolute;cursor:pointer;user-select:none;transition:left .12s, top .12s, opacity .12s;}
+  .icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:8px;background:rgba(255,255,255,0.02);object-fit:cover}
   .icon span{display:block;margin-top:6px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .icon.hidden{opacity:0;pointer-events:none;transform:scale(0.95);}
 
   /* Windows */
   .window{position:absolute;width:800px;height:560px;background:#fff;color:#111;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,0.7);overflow:hidden;display:none;flex-direction:column;z-index:1000;}
@@ -44,273 +49,287 @@
   .min-icon{font-size:15px} .max-icon{font-size:13px} .close-icon{font-size:16px}
 
   .mc-message{text-align:center;font-family:"Segoe UI",sans-serif;color:#222}
-  .mc-message h1{font-size:22px;margin:16px 0;color:#222}
-  .mc-message p{font-size:16px;color:#444;line-height:1.4}
+  .mc-message h1{font-size:20px;margin:16px 0;color:#222}
+  .mc-message p{font-size:15px;color:#444}
 
   .request-iframe{width:100%;height:100%;border:0}
 
-  /* App Store */
-  #appStore{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;height:420px;background:#0f0f0f;border-radius:8px;padding:12px;box-shadow:0 20px 50px rgba(0,0,0,0.7);display:none;flex-direction:column;z-index:1500}
-  #appStore h3{margin:6px 0 12px 0;color:#fff}
-  #appList{flex:1;overflow:auto;padding-right:6px}
-  .appRow{display:flex;align-items:center;gap:10px;padding:8px;border-radius:6px;margin-bottom:6px;background:linear-gradient(#0b0b0b,#0f0f0f);border:1px solid rgba(255,255,255,0.03)}
-  .appRow img{width:44px;height:44px;border-radius:6px;background:#fff}
-  .appMeta{flex:1}
-  .appMeta b{display:block;color:#fff}
-  .appActions button{padding:6px 10px;border-radius:6px;border:none;background:var(--title-blue);color:#fff;cursor:pointer}
-  .small{font-size:12px;color:var(--muted)}
-
   /* Popups */
-  .popup{position:absolute;width:300px;background:#f3f3f3;border-radius:6px;border:1px solid rgba(0,0,0,0.12);box-shadow:0 12px 30px rgba(0,0,0,0.6);display:none;z-index:1400;flex-direction:column;}
+  .popup{position:absolute;width:320px;background:#f3f3f3;border-radius:6px;border:1px solid rgba(0,0,0,0.12);box-shadow:0 12px 30px rgba(0,0,0,0.6);display:none;z-index:1400;flex-direction:column;}
   .p-head{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;border-top-left-radius:6px;border-top-right-radius:6px;cursor:move;}
-  .p-body{padding:12px;color:#111;font-size:13px;text-align:left}
-  .p-body input{width:92%;padding:8px;margin-top:8px;border:1px solid #ccc;border-radius:4px;font-size:14px}
-  .p-actions{display:flex;justify-content:center;padding:10px;background:transparent}
+  .p-body{padding:12px;color:#111;font-size:14px;text-align:center}
+  .p-body input{width:86%;padding:8px;margin-top:8px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+  .p-actions{display:flex;justify-content:center;padding:12px;background:transparent}
   .btn{padding:6px 12px;border-radius:4px;border:none;background:var(--title-blue);color:#fff;cursor:pointer}
   .btn:hover{background:#005a9e}
+  .btn.secondary{background:#777}
+  .properties-small .p-body{font-size:13px;padding:10px}
 
-  /* Factory reset fullscreen window + progress (bold UI) */
+  /* App Store */
+  #appStoreList{max-height:420px;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:8px}
+  .store-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:6px;background:#fbfbfb;border:1px solid #e6e6e6;color:#111}
+  .store-item img{width:48px;height:48px;border-radius:6px;object-fit:cover}
+  .store-item .meta{flex:1}
+  .store-item button{padding:6px 10px;border-radius:6px;border:none;cursor:pointer;background:var(--title-blue);color:#fff}
+
+  /* Factory reset fullscreen window + progress (bold) */
   .factory-full{position:fixed;left:0;top:0;width:100%;height:100%;background:#fff;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;font-weight:700}
   .factory-full h1{color:#111;margin:0 0 10px 0;font-size:34px}
-  .factory-full p{color:#222;margin:0 0 18px 0;font-size:18px}
-  .progress-wrap{width:70%;max-width:900px;height:22px;background:#eee;border-radius:11px;overflow:hidden;border:1px solid #ddd}
+  .factory-full p{color:#222;margin:0 0 18px 0;font-size:20px}
+  .progress-wrap{width:70%;max-width:900px;height:20px;background:#eee;border-radius:9px;overflow:hidden;border:1px solid #ddd}
   .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--title-blue),#005a9e)}
 
-  /* small non-deletable badge */
   .no-delete{opacity:0.95}
 
   @media (max-width:900px){ .window{width:92%;height:80%} .popup{width:86%} .factory-full .progress-wrap{width:86%} }
 </style>
 </head>
 <body>
-  <div id="desktop" aria-label="Desktop">
+  <div id="desktop" aria-label="Desktop"></div>
 
-    <!-- Taskbar & Start -->
-    <div id="taskbar" role="toolbar" aria-label="Taskbar">
-      <button id="startBtn" title="Start" aria-haspopup="true" aria-expanded="false">
-        <svg class="win-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg>
-      </button>
-      <div id="startMenu" role="menu" aria-hidden="true">
-        <button class="start-item" id="returnBasic">Return to Basic Web</button>
-        <button class="start-item" id="openStore">App Store <span class="small">install apps</span></button>
-        <button class="start-item" id="autoArrange">Auto-arrange icons</button>
+  <!-- Taskbar -->
+  <div id="taskbar" role="toolbar" aria-label="Taskbar">
+    <button id="startBtn" title="Start" aria-haspopup="true" aria-expanded="false">
+      <svg class="win-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg>
+    </button>
+
+    <div id="startMenu" role="menu" aria-hidden="true">
+      <button class="start-item" id="returnBasic">Return to Basic Web</button>
+      <div style="height:8px"></div>
+      <div class="start-shortcut" id="openStoreStart" style="padding:6px 4px;">
+        <img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%230078d7"/><path d="M6 7h12v2H6zM6 11h12v2H6zM6 15h8v2H6z" fill="%23fff"/></svg>' alt="Store" />
+        <button class="start-item" style="border:none;background:transparent;text-align:left;padding:0;margin-left:8px;" id="openAppStore">Open App Store</button>
       </div>
-      <div id="taskbarApps" aria-hidden="false"></div>
     </div>
 
-    <!-- Context menu -->
-    <div id="ctxMenu" role="menu" aria-hidden="true">
-      <button id="ctxOpen">Open</button>
-      <button id="ctxProperties">Properties</button>
-      <button id="ctxDelete">Delete</button>
+    <div id="taskbarApps" aria-hidden="false"></div>
+  </div>
+
+  <!-- Context menu -->
+  <div id="ctxMenu" role="menu" aria-hidden="true">
+    <button id="ctxOpen">Open</button>
+    <button id="ctxProperties">Properties</button>
+    <button id="ctxDelete">Delete</button>
+  </div>
+
+  <!-- Windows (app windows + popups) -->
+  <!-- Minecraft window -->
+  <div class="window" id="mcWindow" role="dialog" aria-hidden="true">
+    <div class="titlebar" data-window="mcWindow">
+      <div class="title"><strong>Make Sure To Pick Javascript Instead</strong></div>
+      <div class="controls">
+        <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+        <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+        <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+      </div>
     </div>
-
-    <!-- Desktop icons (hidden by default unless installed) -->
-    <div class="icon" id="iconMinecraft" data-app="minecraft" style="left:20px;top:20px;display:none" title="Minecraft 1.8.8">
-      <img id="iconMinecraftImg" src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250" alt="Minecraft Block"/>
-      <span>Minecraft 1.8.8</span>
+    <div class="window-body">
+      <div class="mc-message">
+        <h1>This app has recently been blocked</h1>
+        <p>Please wait while I try to find another unblocked copy.</p>
+      </div>
     </div>
+  </div>
 
-    <div class="icon" id="iconRequest" data-app="request" style="left:20px;top:140px;display:none" title="Request an App">
-      <img alt="Request App" src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%230078d7"/><path d="M4 7c.01-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm1.5.5L12 12l6.5-4.5" stroke="%23fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' />
-      <span>Request an App</span>
+  <!-- Request window -->
+  <div class="window" id="reqWindow" role="dialog" aria-hidden="true" style="width:700px;height:500px;">
+    <div class="titlebar" data-window="reqWindow">
+      <div class="title"><strong>Request an App</strong></div>
+      <div class="controls">
+        <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+        <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+        <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+      </div>
     </div>
-
-    <div class="icon" id="iconFortnite" data-app="fortnite" style="left:20px;top:260px;display:none" title="Fortnite Launcher">
-      <img id="iconFortniteImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s" alt="Fortnite Icon" />
-      <span>Fortnite Launcher</span>
+    <div class="window-body" style="padding:0;">
+      <iframe class="request-iframe" id="reqIframe" src="request.html" title="Request an App"></iframe>
     </div>
+  </div>
 
-    <div class="icon" id="iconWallpaper" data-app="wallpaper" style="left:140px;top:20px;display:none" title="Wallpaper Engine">
-      <img id="iconWallpaperImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24'><rect rx='4' width='24' height='24' fill='%230078d7'/><path d='M3 16c2-3 4-5 7-5s5 2 8 5H3z' fill='%23fff'/></svg>" alt="Wallpaper" />
-      <span>Wallpaper Engine</span>
+  <!-- Fortnite window -->
+  <div class="window" id="fnWindow" role="dialog" aria-hidden="true" style="width:100%;height:100%;left:0;top:0;border-radius:0;">
+    <div class="titlebar" data-window="fnWindow" style="cursor:move;">
+      <div class="title"><strong>Fortnite Launcher</strong></div>
+      <div class="controls">
+        <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+        <button class="tb-btn" data-action="maximize" title="Restore"><span class="max-icon">▢</span></button>
+        <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+      </div>
     </div>
-
-    <!-- Factory icon created dynamically -->
-
-    <!-- Windows -->
-    <div class="window" id="mcWindow" role="dialog" aria-hidden="true">
-      <div class="titlebar" data-window="mcWindow">
-        <div class="title"><strong>Make Sure To Pick Javascript Instead</strong></div>
-        <div class="controls">
-          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
-          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
-          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+    <div class="window-body" style="flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:30px;">
+      <div style="max-width:920px;text-align:center;">
+        <h1>Disclaimer!</h1>
+        <p style="font-size:16px;color:#333;line-height:1.4">
+          You need to be signed in to an Amazon account with Prime to use this service!<br>
+          Also, link your Epic Games account to your Amazon account on <strong>luna.amazon.co.uk</strong><br><br>
+          <strong>OTHERWISE THIS WILL NOT WORK!</strong>
+        </p>
+        <div style="margin-top:18px;">
+          <button id="launchFortniteBtn" class="btn">Launch Anyway</button>
+          <button id="closeFortniteBtn" class="btn secondary" style="margin-left:10px">Close</button>
         </div>
       </div>
-      <div class="window-body">
-        <div class="mc-message">
-          <h1>This app has recently been blocked</h1>
-          <p>Please wait while I try to find another unblocked copy.</p>
-        </div>
+    </div>
+  </div>
+
+  <!-- Wallpaper Engine window -->
+  <div class="window" id="wallWindow" role="dialog" aria-hidden="true" style="width:620px;height:420px;">
+    <div class="titlebar" data-window="wallWindow">
+      <div class="title"><strong>Wallpaper Engine</strong></div>
+      <div class="controls">
+        <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+        <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+        <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
       </div>
     </div>
-
-    <div class="window" id="reqWindow" role="dialog" aria-hidden="true" style="width:700px;height:500px;">
-      <div class="titlebar" data-window="reqWindow">
-        <div class="title"><strong>Request an App</strong></div>
-        <div class="controls">
-          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
-          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
-          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
-        </div>
-      </div>
-      <div class="window-body" style="padding:0;">
-        <iframe class="request-iframe" id="reqIframe" src="request.html" title="Request an App"></iframe>
-      </div>
-    </div>
-
-    <div class="window" id="fnWindow" role="dialog" aria-hidden="true" style="width:100%;height:100%;left:0;top:0;border-radius:0;">
-      <div class="titlebar" data-window="fnWindow" style="cursor:move;">
-        <div class="title"><strong>Fortnite Launcher</strong></div>
-        <div class="controls">
-          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
-          <button class="tb-btn" data-action="maximize" title="Restore"><span class="max-icon">▢</span></button>
-          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
-        </div>
-      </div>
-      <div class="window-body" style="flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:30px;">
-        <div style="max-width:920px;text-align:center;">
-          <h1>Disclaimer!</h1>
-          <p style="font-size:16px;color:#333;line-height:1.4">
-            You need to be signed in to an Amazon account with Prime to use this service!<br>
-            Also, link your Epic Games account to your Amazon account on <strong>luna.amazon.co.uk</strong><br><br>
-            <strong>OTHERWISE THIS WILL NOT WORK!</strong>
-          </p>
-          <div style="margin-top:18px;">
-            <button id="launchFortniteBtn" class="btn">Launch Anyway</button>
-            <button id="closeFortniteBtn" class="btn" style="background:#777;margin-left:10px">Close</button>
+    <div class="window-body" style="flex-direction:column;gap:12px;align-items:flex-start;padding:18px;">
+      <div style="width:100%;display:flex;gap:12px;align-items:center;">
+        <div style="flex:1">
+          <p style="margin:0 0 8px 0;color:#222;font-weight:600">Choose a wallpaper</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <img class="wall-thumb" data-url="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=160&q=60" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=160&q=60" style="width:120px;height:80px;border-radius:6px;cursor:pointer;object-fit:cover" />
+            <img class="wall-thumb" data-url="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=160&q=60" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=160&q=60" style="width:120px;height:80px;border-radius:6px;cursor:pointer;object-fit:cover" />
+            <img class="wall-thumb" data-url="https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=160&q=60" src="https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=160&q=60" style="width:120px;height:80px;border-radius:6px;cursor:pointer;object-fit:cover" />
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Wallpaper window -->
-    <div class="window" id="wallpaperWindow" role="dialog" aria-hidden="true" style="width:640px;height:420px;">
-      <div class="titlebar" data-window="wallpaperWindow">
-        <div class="title"><strong>Wallpaper Engine</strong></div>
-        <div class="controls">
-          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
-          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
-          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        <div style="flex-basis:220px">
+          <p style="margin:0 0 8px 0;color:#222;font-weight:600">Or upload your own</p>
+          <input type="file" id="wallFile" accept="image/*" />
         </div>
       </div>
-      <div class="window-body" style="flex-direction:column;gap:12px;align-items:stretch;justify-content:flex-start;padding:14px;">
-        <div style="display:flex;gap:12px;align-items:center">
-          <div style="flex:1">
-            <div style="font-weight:700;margin-bottom:8px">Defaults</div>
-            <div id="defaultThumbs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-          </div>
-          <div style="width:220px">
-            <div style="font-weight:700;margin-bottom:8px">Custom</div>
-            <input id="wallFile" type="file" accept="image/*" />
-            <div style="margin-top:10px">
-              <button id="setFileBtn" class="btn">Use Selected File</button>
-              <button id="setBlackBtn" class="btn" style="background:#777;margin-left:6px">Set Black</button>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:8px;text-align:center;color:#444;font-size:13px">Your selected wallpaper will be saved and persist until factory reset.</div>
+      <div style="margin-top:auto;width:100%;display:flex;justify-content:flex-end;">
+        <button id="wallApplyBtn" class="btn">Apply</button>
       </div>
     </div>
+  </div>
 
-    <!-- App Store -->
-    <div id="appStore" role="dialog" aria-hidden="true">
-      <h3>App Store</h3>
-      <div id="appList"></div>
-      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
-        <button id="closeStore" class="btn">Close</button>
-        <button id="arrangeBtn" class="btn" style="background:#444">Auto-arrange icons</button>
+  <!-- App Store window -->
+  <div class="window" id="storeWindow" role="dialog" aria-hidden="true" style="width:560px;height:520px;">
+    <div class="titlebar" data-window="storeWindow">
+      <div class="title"><strong>App Store</strong></div>
+      <div class="controls">
+        <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+        <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+        <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
       </div>
     </div>
-
-    <!-- Password popup -->
-    <div class="popup" id="passwordPopup" role="dialog" aria-hidden="true" style="left:50%;top:40%;transform:translate(-50%,-50%);">
-      <div class="p-head">Enter Password <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('passwordPopup')">✕</button></div>
-      <div class="p-body">
-        <p style="margin:0 0 8px 0;color:#111">Please enter the password to launch Minecraft:</p>
-        <input id="pwInput" type="password" placeholder="Password" />
-      </div>
-      <div class="p-actions">
-        <button class="btn" id="pwSubmit">OK</button>
-      </div>
+    <div class="window-body" style="padding:12px;flex-direction:column;align-items:stretch;">
+      <div id="appStoreList"></div>
     </div>
+  </div>
 
-    <!-- Incorrect password popup -->
-    <div class="popup" id="incorrectPopup" role="dialog" aria-hidden="true" style="left:50%;top:42%;transform:translate(-50%,-50%);width:280px">
-      <div class="p-head">Error <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('incorrectPopup')">✕</button></div>
-      <div class="p-body">
-        <p style="margin:0;color:#111">Password is incorrect</p>
-      </div>
-      <div class="p-actions">
-        <button class="btn" onclick="closePopup('incorrectPopup')">OK</button>
-      </div>
+  <!-- Password popup -->
+  <div class="popup" id="passwordPopup" role="dialog" aria-hidden="true">
+    <div class="p-head">Enter Password <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('passwordPopup')">✕</button></div>
+    <div class="p-body">
+      <p style="margin:0 0 8px 0;color:#111">Please enter the password to launch Minecraft:</p>
+      <input id="pwInput" type="password" placeholder="Password" />
     </div>
-
-    <!-- Properties popup -->
-    <div class="popup" id="propertiesPopup" role="dialog" aria-hidden="true" style="width:300px">
-      <div class="p-head">Properties <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('propertiesPopup')">✕</button></div>
-      <div class="p-body" id="propertiesBody"></div>
-      <div class="p-actions">
-        <button class="btn" onclick="closePopup('propertiesPopup')">OK</button>
-      </div>
+    <div class="p-actions">
+      <button class="btn" id="pwSubmit">OK</button>
     </div>
+  </div>
 
-    <!-- Factory fullscreen window (unclosable) -->
-    <div class="factory-full" id="factoryFull" role="alert" aria-hidden="true">
-      <h1>Windows has been factory reset</h1>
-      <p>All installed apps will be removed. Returning in <span id="factoryCountdown">10</span> seconds...</p>
-      <div class="progress-wrap"><div id="factoryProgress" class="progress-inner" style="width:0%"></div></div>
+  <!-- Incorrect password popup -->
+  <div class="popup" id="incorrectPopup" role="dialog" aria-hidden="true" style="width:280px">
+    <div class="p-head">Error <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('incorrectPopup')">✕</button></div>
+    <div class="p-body">
+      <p style="margin:0;color:#111">Password is incorrect</p>
     </div>
+    <div class="p-actions">
+      <button class="btn" onclick="closePopup('incorrectPopup')">OK</button>
+    </div>
+  </div>
 
+  <!-- Properties popup (smaller) -->
+  <div class="popup properties-small" id="propertiesPopup" role="dialog" aria-hidden="true" style="width:300px">
+    <div class="p-head">Properties <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('propertiesPopup')">✕</button></div>
+    <div class="p-body" id="propertiesBody"></div>
+    <div class="p-actions">
+      <button class="btn" onclick="closePopup('propertiesPopup')">OK</button>
+    </div>
+  </div>
+
+  <!-- Factory fullscreen window (unclosable) -->
+  <div class="factory-full" id="factoryFull" role="dialog" aria-hidden="true">
+    <h1>Windows has been factory reset</h1>
+    <p>All apps will reappear. Returning in <span id="factoryCountdown">10</span> seconds...</p>
+    <div class="progress-wrap"><div id="factoryProgress" class="progress-inner" style="width:0%"></div></div>
   </div>
 
 <script>
-/* -------------------------------------------
-   App Store + Wallpaper Engine integration
---------------------------------------------*/
-
-/* ---------- Keys, app list ---------- */
-const SHOW_KEY = 'installedApps';   // installed/shown apps
-const DELETED_KEY = 'deletedAppsList';
-const WALL_KEY = 'currentWallpaper';
-const ALL_APPS = [
-  { id:'minecraft', name:'Minecraft 1.8.8', icon:'https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250', properties: 'Minecraft in your web browser!' },
-  { id:'request', name:'Request an App', icon:'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width=\"64\" height=\"64\" viewBox=\"0 0 24 24\"><rect width=\"24\" height=\"24\" rx=\"4\" fill=\"%230078d7\"/><path d=\"M4 7c.01-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm1.5.5L12 12l6.5-4.5\" stroke=\"%23fff\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' , properties: 'Suggest a app!' },
-  { id:'fortnite', name:'Fortnite Launcher', icon:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s', properties: 'Fortnite, in your web browser!' },
-  { id:'wallpaper', name:'Wallpaper Engine', icon:'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"64\" height=\"64\" viewBox=\"0 0 24 24\"><rect rx=\"4\" width=\"24\" height=\"24\" fill=\"%230078d7\"/><path d=\"M3 16c2-3 4-5 7-5s5 2 8 5H3z\" fill=\"%23fff\"/></svg>', properties: 'Change wallpaper: choose default or a file.' }
+/* -----------------------------
+   App definitions & persistence
+   ----------------------------- */
+const APPS = [
+  {
+    id: 'minecraft',
+    name: 'Minecraft 1.8.8',
+    icon: 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250',
+    propsHtml: '<p style="margin:0;"><strong>Made:</strong> 13 Oct 2025</p><p style="margin:8px 0 0 0">Minecraft in your web browser!</p>',
+    open: () => openPasswordPopup()
+  },
+  {
+    id: 'request',
+    name: 'Request an App',
+    icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%230078d7"/><path d="M4 7c.01-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm1.5.5L12 12l6.5-4.5" stroke="%23fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    propsHtml: '<p style="margin:0;"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:8px 0 0 0">Suggest a app to be added!</p>',
+    open: () => openRequestWindow()
+  },
+  {
+    id: 'fortnite',
+    name: 'Fortnite Launcher',
+    icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s',
+    propsHtml: '<p style="margin:0;"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:8px 0 0 0">Fortnite, in your web browser!</p>',
+    open: () => openFortniteWindow()
+  },
+  {
+    id: 'wallpaper',
+    name: 'Wallpaper Engine',
+    icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%2300a050"/><path d="M5 7h14v10H5z" fill="%23fff"/></svg>',
+    propsHtml: '<p style="margin:0;"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:8px 0 0 0">Change your desktop wallpaper.</p>',
+    open: () => openWallpaperWindow()
+  },
+  {
+    id: 'deviceinfo',
+    name: 'Device Info',
+    icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%230078d7"/><path d="M6 7h12v10H6z" fill="%23fff"/></svg>',
+    propsHtml: '<p style="margin:0;"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:8px 0 0 0">Device info app.</p>',
+    open: () => { window.open('deviceinfo.html','_blank'); }
+  }
 ];
-const FACTORY_ID = 'factory';
 
-/* ---------- DOM refs ---------- */
-const startBtn = document.getElementById('startBtn');
-const startMenu = document.getElementById('startMenu');
-const returnBasic = document.getElementById('returnBasic');
-const openStoreBtn = document.getElementById('openStore');
-const autoArrangeBtn = document.getElementById('autoArrange');
-const taskbarApps = document.getElementById('taskbarApps');
+const INSTALLED_KEY = 'installedApps_v1';
+const WALLPAPER_KEY = 'wallpaper_v1';
+const FACTORY_MARKER = 'factoryPresent_v1';
 
+function getInstalled(){ try{ return JSON.parse(localStorage.getItem(INSTALLED_KEY)||'[]'); }catch{return [];} }
+function saveInstalled(arr){ localStorage.setItem(INSTALLED_KEY, JSON.stringify(arr)); }
+
+function isInstalled(id){ return getInstalled().includes(id); }
+
+/* -----------------------------
+   Desktop & UI references
+   ----------------------------- */
+const desktop = document.getElementById('desktop');
 const ctxMenu = document.getElementById('ctxMenu');
 const ctxOpen = document.getElementById('ctxOpen');
 const ctxProperties = document.getElementById('ctxProperties');
 const ctxDelete = document.getElementById('ctxDelete');
 
-const iconMinecraft = document.getElementById('iconMinecraft');
-const iconRequest = document.getElementById('iconRequest');
-const iconFortnite = document.getElementById('iconFortnite');
-const iconWallpaper = document.getElementById('iconWallpaper');
+const startBtn = document.getElementById('startBtn');
+const startMenu = document.getElementById('startMenu');
+const returnBasic = document.getElementById('returnBasic');
+const openAppStore = document.getElementById('openAppStore');
+const openStoreStart = document.getElementById('openStoreStart');
 
 const mcWindow = document.getElementById('mcWindow');
 const reqWindow = document.getElementById('reqWindow');
 const fnWindow = document.getElementById('fnWindow');
-const wallpaperWindow = document.getElementById('wallpaperWindow');
+const wallWindow = document.getElementById('wallWindow');
+const storeWindow = document.getElementById('storeWindow');
 
-const appStore = document.getElementById('appStore');
-const appList = document.getElementById('appList');
-const closeStore = document.getElementById('closeStore');
-const arrangeBtn = document.getElementById('arrangeBtn');
-
-const passwordPopup = document.getElementById('passwordPopup');
+const pwPopup = document.getElementById('passwordPopup');
 const incorrectPopup = document.getElementById('incorrectPopup');
 const propertiesPopup = document.getElementById('propertiesPopup');
 const propertiesBody = document.getElementById('propertiesBody');
@@ -325,283 +344,211 @@ const pwSubmit = document.getElementById('pwSubmit');
 const launchFortniteBtn = document.getElementById('launchFortniteBtn');
 const closeFortniteBtn = document.getElementById('closeFortniteBtn');
 
+const appStoreList = document.getElementById('appStoreList');
+const wallThumbs = document.querySelectorAll('.wall-thumb');
 const wallFile = document.getElementById('wallFile');
-const setFileBtn = document.getElementById('setFileBtn');
-const setBlackBtn = document.getElementById('setBlackBtn');
-const defaultThumbs = document.getElementById('defaultThumbs');
+const wallApplyBtn = document.getElementById('wallApplyBtn');
+
+const taskbarApps = document.getElementById('taskbarApps');
 
 let zIndexCounter = 1000;
 let currentCtxTarget = null;
 
-/* ---------- storage helpers ---------- */
-function getInstalled(){ try { return JSON.parse(localStorage.getItem(SHOW_KEY)||'[]'); } catch { return []; } }
-function saveInstalled(arr){ localStorage.setItem(SHOW_KEY, JSON.stringify(arr)); }
-function isInstalled(id){ return getInstalled().includes(id); }
-
-function getDeletedList(){ try { return JSON.parse(localStorage.getItem(DELETED_KEY)||'[]'); } catch { return []; } }
-function saveDeletedList(list){ localStorage.setItem(DELETED_KEY, JSON.stringify(list)); }
-
-function setWallpaperValue(val){ // val = 'black' or URL/dataurl
-  if(val === null) localStorage.removeItem(WALL_KEY);
-  else localStorage.setItem(WALL_KEY, val);
-  applyWallpaper();
+/* -----------------------------
+   Setup default wallpaper (persisted)
+   ----------------------------- */
+function applyWallpaperFromStorage(){
+  const w = localStorage.getItem(WALLPAPER_KEY);
+  if(!w) {
+    document.getElementById('desktop').style.backgroundImage = 'none';
+    document.getElementById('desktop').style.backgroundColor = '#0b0b0b';
+    return;
+  }
+  document.getElementById('desktop').style.backgroundImage = `url('${w}')`;
+  document.getElementById('desktop').style.backgroundColor = 'transparent';
 }
-function getWallpaperValue(){ return localStorage.getItem(WALL_KEY); }
+applyWallpaperFromStorage();
 
-/* ---------- Ensure factory icon always present ---------- */
+/* -----------------------------
+   Create icons on desktop for installed apps only
+   Factory icon always visible (non-deletable)
+   ----------------------------- */
+const ICON_START_X = 20;
+const ICON_START_Y = 20;
+const ICON_GAP_Y = 120;
+const ICON_GAP_X = 120;
+
+const ICON_DEFS = {}; // map by id for easy access
+APPS.forEach(a => ICON_DEFS[a.id] = a);
+
+function createIconElement(app, left = ICON_START_X, top = ICON_START_Y){
+  const el = document.createElement('div');
+  el.className = 'icon';
+  el.id = 'icon_' + app.id;
+  el.dataset.app = app.id;
+  el.style.left = left + 'px';
+  el.style.top = top + 'px';
+  el.title = app.name;
+  el.innerHTML = `<img src="${app.icon}" alt="${app.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'64\\' height=\\'64\\' viewBox=\\'0 0 24 24\\'><rect width=\\'24\\' height=\\'24\\' rx=\\'4\\' fill=\\'%230078d7\\'/></svg>'" /><span>${app.name}</span>`;
+  desktop.appendChild(el);
+
+  // drag
+  makeIconDraggable(el);
+
+  // events
+  el.addEventListener('contextmenu', (e) => { e.preventDefault(); showContextMenu(e, el); });
+  bindDoubleClick(el, () => { launchAppById(app.id); });
+
+  return el;
+}
+
 function ensureFactoryIcon(){
-  if(document.getElementById('iconFactory')) return;
+  if(document.getElementById('icon_factory')) return;
   const factory = document.createElement('div');
   factory.className = 'icon no-delete';
-  factory.id = 'iconFactory';
-  factory.dataset.app = FACTORY_ID;
-  factory.style.left = '20px';
-  factory.style.top = '380px';
+  factory.id = 'icon_factory';
+  factory.dataset.app = 'factory';
+  factory.style.left = ICON_START_X + 'px';
+  factory.style.top = (ICON_START_Y + 3*ICON_GAP_Y) + 'px';
   factory.title = 'Factory Reset';
   factory.innerHTML = `<img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%23a00"/><path d="M7 12h10v2H7z" fill="%23fff"/></svg>' alt="Factory" /><span>Factory Reset</span>`;
-  document.getElementById('desktop').appendChild(factory);
-  factory.addEventListener('contextmenu',(e)=>{ e.preventDefault(); showContextMenu(e, factory); });
-  bindDoubleClick(factory, ()=>{ openFactory(); });
+  desktop.appendChild(factory);
+  factory.addEventListener('contextmenu', (e) => { e.preventDefault(); showContextMenu(e, factory); });
+  bindDoubleClick(factory, () => { openFactory(); });
 }
 
-/* ---------- Apply visible state for icons (installed & not deleted) ---------- */
-function refreshIcons(){
-  const installed = getInstalled();
-  const deleted = getDeletedList();
-  iconMinecraft.style.display = (installed.includes('minecraft') && !deleted.includes('minecraft')) ? 'block' : 'none';
-  iconRequest.style.display = (installed.includes('request') && !deleted.includes('request')) ? 'block' : 'none';
-  iconFortnite.style.display = (installed.includes('fortnite') && !deleted.includes('fortnite')) ? 'block' : 'none';
-  iconWallpaper.style.display = (installed.includes('wallpaper') && !deleted.includes('wallpaper')) ? 'block' : 'none';
+/* Build the desktop layout: auto-arrange left aligned for visible icons */
+function arrangeIcons(){
+  // gather visible icons excluding factory (factory is positioned separately)
+  const icons = Array.from(document.querySelectorAll('.icon')).filter(ic => ic.style.display !== 'none' && !ic.classList.contains('no-delete') && !ic.id.includes('icon_factory'));
+  const cols = Math.floor((window.innerHeight - 100) / ICON_GAP_Y) || 1;
+  let col = 0, row = 0;
+  icons.forEach((ic, idx) => {
+    row = idx % cols;
+    col = Math.floor(idx / cols);
+    const left = ICON_START_X + col * ICON_GAP_X;
+    const top = ICON_START_Y + row * ICON_GAP_Y;
+    ic.style.left = left + 'px';
+    ic.style.top = top + 'px';
+  });
+
+  // ensure factory icon present and left aligned at bottom-left
   ensureFactoryIcon();
+  const fac = document.getElementById('icon_factory');
+  fac.style.left = ICON_START_X + 'px';
+  fac.style.top = Math.min(window.innerHeight - 140, ICON_START_Y + (cols-1) * ICON_GAP_Y + (cols * 20)) + 'px';
 }
 
-/* ---------- Apply wallpaper on load or change ---------- */
-function applyWallpaper(){
-  const value = getWallpaperValue();
-  if(!value || value === 'black'){
-    // black default
-    document.body.style.background = '#000';
-    document.body.style.backgroundSize = '';
-    document.body.style.backgroundRepeat = '';
-    document.body.style.backgroundPosition = '';
-  } else {
-    // treat value as URL / data URL string
-    document.body.style.background = `url("${value}") center / cover no-repeat fixed`;
+/* -----------------------------
+   Load icons based on installed apps
+   ----------------------------- */
+function rebuildDesktopIcons(){
+  // remove any existing non-factory icons
+  document.querySelectorAll('.icon').forEach(ic => {
+    if(ic.id === 'icon_factory') return;
+    ic.remove();
+  });
+
+  // create icons for installed apps
+  const installed = getInstalled();
+  let yIndex = 0;
+  installed.forEach((id, i) => {
+    const def = ICON_DEFS[id];
+    if(!def) return;
+    createIconElement(def);
+  });
+
+  // ensure factory present
+  ensureFactoryIcon();
+  arrangeIcons();
+}
+
+/* -----------------------------
+   App store listing & install/uninstall
+   ----------------------------- */
+function buildAppStore(){
+  appStoreList.innerHTML = '';
+  APPS.forEach(app => {
+    const item = document.createElement('div');
+    item.className = 'store-item';
+    item.innerHTML = `<img src="${app.icon}" alt="${app.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'64\\' height=\\'64\\' viewBox=\\'0 0 24 24\\'><rect width=\\'24\\' height=\\'24\\' rx=\\'4\\' fill=\\'%230078d7\\'/></svg>'" />
+      <div class="meta"><strong>${app.name}</strong><div style="font-size:12px;color:#666;margin-top:6px">Click to install this app</div></div>
+      <div><button data-id="${app.id}">${isInstalled(app.id)? 'Uninstall' : 'Install'}</button></div>`;
+    appStoreList.appendChild(item);
+    const btn = item.querySelector('button');
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      if(isInstalled(id)){
+        uninstallApp(id);
+        btn.textContent = 'Install';
+      } else {
+        installApp(id);
+        btn.textContent = 'Uninstall';
+      }
+    });
+  });
+}
+
+/* Install / Uninstall */
+function installApp(id){
+  const installed = getInstalled();
+  if(!installed.includes(id)){
+    installed.push(id);
+    saveInstalled(installed);
   }
+  rebuildDesktopIcons();
+  buildAppStore();
+}
+function uninstallApp(id){
+  let installed = getInstalled();
+  installed = installed.filter(x => x !== id);
+  saveInstalled(installed);
+  // remove icon element
+  const el = document.getElementById('icon_' + id);
+  if(el) el.remove();
+  buildAppStore();
+  arrangeIcons();
 }
 
-/* ---------- Start menu (FIXED) ---------- */
-startBtn.addEventListener('click',(e)=>{
-  e.stopPropagation();
-  const isOpen = startMenu.style.display === 'flex';
-  if(isOpen) closeStartMenu(); else openStartMenu();
-});
-function openStartMenu(){
-  startMenu.style.display = 'flex';
-  startMenu.style.flexDirection='column';
-  startMenu.setAttribute('aria-hidden','false');
-  startBtn.setAttribute('aria-expanded','true');
-}
-function closeStartMenu(){
-  startMenu.style.display = 'none';
-  startMenu.setAttribute('aria-hidden','true');
-  startBtn.setAttribute('aria-expanded','false');
-}
-returnBasic.addEventListener('click',(e)=>{ e.stopPropagation(); window.location.href='index.html'; });
-openStoreBtn.addEventListener('click',(e)=>{ e.stopPropagation(); openAppStore(); closeStartMenu(); });
-autoArrangeBtn.addEventListener('click',(e)=>{ e.stopPropagation(); autoArrangeIcons(); closeStartMenu(); });
-document.addEventListener('click', (e)=>{ if(!startMenu.contains(e.target) && e.target !== startBtn) closeStartMenu(); });
-document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeStartMenu(); });
-
-/* ---------- Context menu handling ---------- */
+/* -----------------------------
+   Context menu functions
+   ----------------------------- */
 function showContextMenu(e, targetIcon){
-  e.preventDefault();
   currentCtxTarget = targetIcon;
+  const app = targetIcon.dataset.app;
   ctxMenu.style.left = e.pageX + 'px';
   ctxMenu.style.top = e.pageY + 'px';
-  const app = targetIcon.dataset.app;
-  ctxDelete.style.display = (app===FACTORY_ID) ? 'none' : 'block';
-  ctxMenu.style.display='block';
-  setTimeout(()=>{ document.addEventListener('click', hideCtxMenuOnce); }, 0);
+  ctxDelete.style.display = (app === 'factory') ? 'none' : 'block';
+  ctxMenu.style.display = 'block';
+  setTimeout(()=>document.addEventListener('click', hideCtxMenuOnce), 0);
 }
 function hideCtxMenuOnce(){ ctxMenu.style.display='none'; document.removeEventListener('click', hideCtxMenuOnce); }
 
-/* attach context handlers to all icons present */
-function attachIconHandlers(iconEl){
-  iconEl.addEventListener('contextmenu',(ev)=>{ ev.preventDefault(); showContextMenu(ev, iconEl); });
-  bindDoubleClick(iconEl, ()=>{
-    const app = iconEl.dataset.app;
-    if(app==='minecraft') openPasswordPopup();
-    else if(app==='request') openRequestWindow();
-    else if(app==='fortnite') openFortniteWindow();
-    else if(app==='wallpaper') openWallpaperWindow();
-    else if(app===FACTORY_ID) openFactory();
-  });
-}
-document.querySelectorAll('.icon').forEach(attachIconHandlers);
-
-/* context menu actions */
+/* Context menu actions */
 ctxOpen.addEventListener('click', ()=>{
   if(!currentCtxTarget) return;
   const app = currentCtxTarget.dataset.app;
-  if(app==='minecraft') openPasswordPopup();
-  else if(app==='request') openRequestWindow();
-  else if(app==='fortnite') openFortniteWindow();
-  else if(app==='wallpaper') openWallpaperWindow();
-  else if(app===FACTORY_ID) openFactory();
+  launchAppById(app);
   ctxMenu.style.display='none';
 });
 ctxProperties.addEventListener('click', ()=>{
   if(!currentCtxTarget) return;
-  showProperties(currentCtxTarget.dataset.app);
+  const app = currentCtxTarget.dataset.app;
+  showProperties(app);
   ctxMenu.style.display='none';
 });
 ctxDelete.addEventListener('click', ()=>{
   if(!currentCtxTarget) return;
-  deleteApp(currentCtxTarget.dataset.app);
+  const app = currentCtxTarget.dataset.app;
+  if(app === 'factory') return;
+  // uninstall (delete) the app
+  uninstallApp(app);
   ctxMenu.style.display='none';
 });
 
-/* ---------- Double-click helper ---------- */
-function bindDoubleClick(elem, handler){
-  let last = 0;
-  elem.addEventListener('click', ()=>{
-    const now = Date.now();
-    if(now - last < 350) handler();
-    last = now;
-  });
-}
-
-/* ---------- Password flow ---------- */
-function openPasswordPopup(){
-  showPopup(passwordPopup);
-  pwInput.value='';
-  setTimeout(()=>pwInput.focus(),50);
-}
-pwSubmit.addEventListener('click', checkPassword);
-pwInput.addEventListener('keydown',(e)=>{ if(e.key==='Enter') checkPassword(); });
-function checkPassword(){
-  const val = pwInput.value || '';
-  if(val === 'secret123'){ closePopup('passwordPopup'); openMinecraftWindow(); }
-  else{ closePopup('passwordPopup'); showPopup(incorrectPopup); }
-}
-
-/* ---------- Popups ---------- */
-function showPopup(el){
-  el.style.display='flex';
-  el.style.flexDirection='column';
-  el.style.left = (window.innerWidth/2) + 'px';
-  el.style.top = (window.innerHeight/2 - 40) + 'px';
-  el.style.transform = 'translate(-50%,-50%)';
-  bringToFront(el);
-  const head = el.querySelector('.p-head');
-  if(head) makeDraggable(el, head);
-}
-function closePopup(id){ const el=document.getElementById(id); if(el) el.style.display='none'; }
-window.closePopup = closePopup;
-
-/* ---------- Properties ---------- */
-function showProperties(app){
-  if(app==='minecraft'){
-    propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 13 Oct 2025</p><p style="margin:0;color:#111">Minecraft in your web browser!</p>`;
-  } else if(app==='request'){
-    propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Suggest a app!</p>`;
-  } else if(app==='fortnite'){
-    propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Fortnite, in your web browser!</p>`;
-  } else if(app==='wallpaper'){
-    propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 15 Oct 2025</p><p style="margin:0;color:#111">Change wallpaper: choose defaults or upload a file.</p>`;
-  } else if(app===FACTORY_ID){
-    propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Factory Reset (non-deletable)</p>`;
-  } else {
-    propertiesBody.innerHTML = `<p style="margin:0;color:#111">No properties available</p>`;
-  }
-  showPopup(propertiesPopup);
-}
-
-/* ---------- Delete app ---------- */
-function deleteApp(app){
-  if(app===FACTORY_ID) return;
-  // close windows & remove taskbar btns
-  if(app==='minecraft'){ mcWindow.style.display='none'; removeTaskbarButton('mcWindow'); }
-  if(app==='request'){ reqWindow.style.display='none'; removeTaskbarButton('reqWindow'); }
-  if(app==='fortnite'){ fnWindow.style.display='none'; removeTaskbarButton('fnWindow'); }
-  if(app==='wallpaper'){ wallpaperWindow.style.display='none'; removeTaskbarButton('wallpaperWindow'); }
-
-  // hide icon: remove from installed and mark deleted
-  let installed = getInstalled().filter(x=>x!==app);
-  saveInstalled(installed);
-  let deleted = getDeletedList();
-  if(!deleted.includes(app)) deleted.push(app);
-  saveDeletedList(deleted);
-
-  refreshIcons();
-}
-
-/* ---------- Factory icon & behavior ---------- */
-ensureFactoryIcon(); // ensure it exists on load
-
-let factoryInterval = null;
-function openFactory(){
-  // show fullscreen unclosable factory window
-  factoryFull.style.display = 'flex';
-  bringToFront(factoryFull);
-  let seconds = 10;
-  factoryCountdownEl.textContent = seconds;
-  factoryProgress.style.width = '0%';
-  clearInterval(factoryInterval);
-  const start = Date.now();
-  factoryInterval = setInterval(()=>{
-    const passed = Math.floor((Date.now() - start) / 1000);
-    const remain = Math.max(0, 10 - passed);
-    const percent = Math.min(100, ((10 - remain) / 10) * 100);
-    factoryProgress.style.width = percent + '%';
-    factoryCountdownEl.textContent = remain;
-    if(remain <= 0){
-      clearInterval(factoryInterval);
-      // clear installed & deleted so apps are hidden by default after reset
-      saveInstalled([]);
-      saveDeletedList([]);
-      // reset wallpaper to black
-      setWallpaperValue('black');
-      // reload the page to apply
-      window.location.reload();
-    }
-  }, 200);
-}
-
-/* ---------- Open windows ---------- */
-function openMinecraftWindow(){
-  mcWindow.style.display = 'flex';
-  centerIfFirst(mcWindow,880,560);
-  attachWindowControls(mcWindow, 'mcWindow');
-  bringToFront(mcWindow);
-}
-function openRequestWindow(){
-  reqWindow.style.display = 'flex';
-  centerIfFirst(reqWindow,700,500);
-  attachWindowControls(reqWindow, 'reqWindow');
-  bringToFront(reqWindow);
-}
-function openFortniteWindow(){
-  fnWindow.style.display = 'flex';
-  fnWindow.style.left = '0';
-  fnWindow.style.top = '0';
-  fnWindow.style.width = window.innerWidth + 'px';
-  fnWindow.style.height = (window.innerHeight - 42) + 'px';
-  attachWindowControls(fnWindow, 'fnWindow');
-  bringToFront(fnWindow);
-}
-function openWallpaperWindow(){
-  wallpaperWindow.style.display = 'flex';
-  centerIfFirst(wallpaperWindow,640,420);
-  attachWindowControls(wallpaperWindow, 'wallpaperWindow');
-  bringToFront(wallpaperWindow);
-}
-
-/* Fortnite button handlers */
-launchFortniteBtn.addEventListener('click', ()=>{
-  window.open('https://luna.amazon.co.uk/game/fortnite?lang=en-US&ref=tmp_ext_epic&autoplay=1','_blank');
-});
-closeFortniteBtn.addEventListener('click', ()=>{ fnWindow.style.display = 'none'; });
-
-/* ---------- Taskbar/minimize/maximize/close helpers
+/* -----------------------------
+   Launch apps by ID
+   ----------------------------- */
+function launchAppById(id){
+  // If factory icon clicked
+  if(id === 'factory'){
