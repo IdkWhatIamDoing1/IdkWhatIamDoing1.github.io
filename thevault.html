@@ -5,47 +5,51 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Windows Web Edition</title>
 <style>
-  :root{
-    --title-blue:#0078D7;
-    --bg:#0b0b0b;
-    --muted:#9ca3af;
-    --window-bg:#fff;
-  }
-  html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(#0b0b0b,#111);color:#e6e6e6;overflow:hidden;}
-  #desktop{position:relative;width:100%;height:100%;}
+:root{
+  --title-blue:#0078D7;
+  --bg:#0b0b0b;
+  --muted:#9ca3af;
+  --window-bg:#fff;
+}
+html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(#0b0b0b,#111);color:#e6e6e6;overflow:hidden;}
+#desktop{position:relative;width:100%;height:100%;}
 
-  /* Taskbar */
-  #taskbar{position:absolute;left:0;right:0;bottom:0;height:42px;background:#111;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:0 8px;box-shadow:0 -6px 20px rgba(0,0,0,0.6);z-index:1200;}
-  #startBtn{height:34px;width:42px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-  #startBtn:hover{background:rgba(255,255,255,0.03);}
-  .win-logo{width:20px;height:20px;fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,0.5));}
-  #taskbarApps{display:flex;gap:6px;align-items:center;margin-left:8px;}
-  .start-item{background:transparent;color:var(--muted);border:none;padding:6px 10px;text-align:center;border-radius:4px;cursor:pointer;font-size:13px;}
-  .start-item:hover{background:rgba(255,255,255,0.02);color:#fff;}
+/* Taskbar */
+#taskbar{position:absolute;left:0;right:0;bottom:0;height:42px;background:#111;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:0 8px;box-shadow:0 -6px 20px rgba(0,0,0,0.6);z-index:1200;}
+#startBtn{height:34px;width:42px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+#startBtn:hover{background:rgba(255,255,255,0.03);}
+.win-logo{width:20px;height:20px;fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,0.5));}
+#taskbarApps{display:flex;gap:6px;align-items:center;margin-left:8px;}
+.start-item{background:transparent;color:var(--muted);border:none;padding:6px 10px;text-align:center;border-radius:4px;cursor:pointer;font-size:13px;}
+.start-item:hover{background:rgba(255,255,255,0.02);color:#fff;}
 
-  /* Context menu */
-  #ctxMenu{position:absolute;display:none;background:#202020;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px;border-radius:6px;z-index:1600;min-width:170px;box-shadow:0 8px 20px rgba(0,0,0,0.6)}
-  #ctxMenu button{display:block;width:100%;text-align:left;background:transparent;border:none;padding:8px 10px;color:#ddd;cursor:pointer;border-radius:4px}
-  #ctxMenu button:hover{background:rgba(255,255,255,0.03);color:#fff}
+/* Context menu */
+#ctxMenu{position:absolute;display:none;background:#202020;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px;border-radius:6px;z-index:1600;min-width:170px;box-shadow:0 8px 20px rgba(0,0,0,0.6)}
+#ctxMenu button{display:block;width:100%;text-align:left;background:transparent;border:none;padding:8px 10px;color:#ddd;cursor:pointer;border-radius:4px}
+#ctxMenu button:hover{background:rgba(255,255,255,0.03);color:#fff}
 
-  /* Desktop icons */
-  .icon{width:100px;text-align:center;color:var(--muted);position:absolute;cursor:pointer;user-select:none;}
-  .icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:6px;}
-  .icon span{display:block;margin-top:6px;font-size:12px;color:var(--muted);}
+/* Desktop icons */
+.icon{width:100px;text-align:center;color:var(--muted);position:absolute;cursor:pointer;user-select:none;}
+.icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:6px;}
+.icon span{display:block;margin-top:6px;font-size:12px;color:var(--muted);}
 
-  /* Windows */
-  .window{position:absolute;width:800px;height:560px;background:var(--window-bg);color:#111;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,0.7);overflow:hidden;display:none;flex-direction:column;z-index:1000;}
-  .titlebar{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:move;user-select:none;}
-  .title{font-weight:600;font-size:13px;display:flex;gap:10px;align-items:center}
-  .controls{display:flex;gap:6px;align-items:center}
-  .tb-btn{width:34px;height:26px;border-radius:4px;border:none;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
-  .tb-btn:hover{background:rgba(255,255,255,0.06)}
-  .window-body{flex:1;background:var(--window-bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+/* Windows */
+.window{position:absolute;width:800px;height:560px;background:var(--window-bg);color:#111;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,0.7);overflow:hidden;display:none;flex-direction:column;z-index:1000;}
+.titlebar{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:move;user-select:none;}
+.title{font-weight:600;font-size:13px;display:flex;gap:10px;align-items:center}
+.controls{display:flex;gap:6px;align-items:center}
+.tb-btn{width:34px;height:26px;border-radius:4px;border:none;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.tb-btn:hover{background:rgba(255,255,255,0.06)}
+.window-body{flex:1;background:var(--window-bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
 
-  /* Popups & factory fullscreen */
-  .factory-full{position:fixed;left:0;top:0;width:100%;height:100%;background:#fff;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .progress-wrap{width:70%;max-width:900px;height:18px;background:#eee;border-radius:9px;overflow:hidden;border:1px solid #ddd}
-  .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--title-blue),#005a9e)}
+/* Properties smaller */
+#propertiesWindow{width:300px;height:150px;}
+#propertiesBody{font-size:13px;}
+
+/* Factory fullscreen */
+.factory-full{position:fixed;left:0;top:0;width:100%;height:100%;background:#fff;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;color:#111}
+.progress-wrap{width:70%;max-width:900px;height:18px;background:#eee;border-radius:9px;overflow:hidden;border:1px solid #ddd}
+.progress-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--title-blue),#005a9e)}
 </style>
 </head>
 <body>
@@ -65,19 +69,19 @@
   </div>
 
   <!-- Desktop icons -->
-  <div class="icon" id="iconMinecraft" data-app="minecraft" style="left:20px;top:20px;">
-    <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png" alt="Minecraft"/>
+  <div class="icon" id="iconMinecraft" data-app="minecraft">
+    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_cover.png" alt="Minecraft"/>
     <span>Minecraft</span>
   </div>
-  <div class="icon" id="iconRequest" data-app="request" style="left:140px;top:20px;">
+  <div class="icon" id="iconRequest" data-app="request">
     <img src="https://upload.wikimedia.org/wikipedia/commons/6/65/Apps-icon.png" alt="Request App"/>
     <span>Request App</span>
   </div>
-  <div class="icon" id="iconFortnite" data-app="fortnite" style="left:260px;top:20px;">
-    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Fortnite_logo.svg/1200px-Fortnite_logo.svg.png" alt="Fortnite"/>
+  <div class="icon" id="iconFortnite" data-app="fortnite">
+    <img src="https://upload.wikimedia.org/wikipedia/en/e/eb/Fortnite_logo.svg" alt="Fortnite"/>
     <span>Fortnite</span>
   </div>
-  <div class="icon" id="iconFactory" data-app="factory" style="left:380px;top:20px;">
+  <div class="icon" id="iconFactory" data-app="factory">
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Red_Delete_icon.svg/1024px-Red_Delete_icon.svg.png" alt="Factory Reset"/>
     <span>Factory Reset</span>
   </div>
@@ -97,7 +101,7 @@
     <div class="titlebar"><div class="title">Request an App</div>
       <div class="controls"><button class="tb-btn" data-action="close">✕</button></div>
     </div>
-    <iframe src="suggest.html" style="width:100%;height:100%;border:0;"></iframe>
+    <iframe src="request.html" style="width:100%;height:100%;border:0;"></iframe>
   </div>
 
   <!-- Fortnite window -->
@@ -140,10 +144,14 @@ const taskbarApps=document.getElementById('taskbarApps');
 const ctxMenu=document.getElementById('ctxMenu');
 let ctxTarget=null;
 
+// Store deleted apps to restore on factory reset
+let deletedApps=[];
+
 // Open windows
 icons.forEach(ic=>{
   ic.addEventListener('dblclick',()=>{
     const app=ic.dataset.app;
+    if(deletedApps.includes(app)) return;
     if(app==='minecraft') openWindow(windows.minecraft);
     else if(app==='request') openWindow(windows.request);
     else if(app==='fortnite') openWindow(windows.fortnite);
@@ -151,6 +159,7 @@ icons.forEach(ic=>{
   });
   ic.addEventListener('contextmenu',(e)=>{
     e.preventDefault();
+    if(deletedApps.includes(ic.dataset.app)) return;
     ctxTarget=ic;
     ctxMenu.style.display='block';
     ctxMenu.style.left=e.pageX+'px';
@@ -180,7 +189,11 @@ document.getElementById('ctxProperties').addEventListener('click',()=>{
 });
 document.getElementById('ctxDelete').addEventListener('click',()=>{
   if(!ctxTarget) return;
-  if(ctxTarget.dataset.app!=='factory') ctxTarget.style.display='none';
+  let app=ctxTarget.dataset.app;
+  if(app!=='factory'){
+    ctxTarget.style.display='none';
+    deletedApps.push(app);
+  }
   ctxMenu.style.display='none';
 });
 
@@ -204,7 +217,6 @@ function addTaskbarButton(win){
   btn.dataset.win=win.id;
   btn.textContent=win.querySelector('.title').textContent;
   btn.onclick=()=>{win.style.display=(win.style.display==='none')?'flex':'none';bringToFront(win);}
-  btn.dataset.win=win.id;
   taskbarApps.appendChild(btn);
 }
 
@@ -223,6 +235,8 @@ const factoryCountdown=document.getElementById('factoryCountdown');
 const factoryProgress=document.getElementById('factoryProgress');
 function openFactory(){
   factoryFull.style.display='flex';
+  deletedApps=[];
+  icons.forEach(ic=>ic.style.display='block');
   let sec=10;
   factoryCountdown.textContent=sec;
   factoryProgress.style.width='0%';
@@ -232,20 +246,41 @@ function openFactory(){
     let remain=Math.max(0,sec-passed);
     factoryCountdown.textContent=remain;
     factoryProgress.style.width=((sec-remain)/sec*100)+'%';
-    if(remain<=0){clearInterval(interval); location.reload();}
+    if(remain<=0){clearInterval(interval); factoryFull.style.display='none';}
   },200);
 }
 
-// Auto-arrange icons
-icons.forEach((ic,i)=>{
-  let col=Math.floor(i/4),row=i%4;
-  ic.style.left=(20+120*row)+'px';
-  ic.style.top=(20+120*col)+'px';
-});
+// Auto-arrange icons (Windows style)
+function arrangeIcons(){
+  const cols=4;
+  icons.forEach((ic,i)=>{
+    let row=Math.floor(i/cols),col=i%cols;
+    ic.style.left=(20+120*col)+'px';
+    ic.style.top=(20+120*row)+'px';
+  });
+}
+arrangeIcons();
 
 // Hide context menu on click outside
 document.addEventListener('click',e=>{
   if(!ctxMenu.contains(e.target)) ctxMenu.style.display='none';
+});
+
+// Draggable icons
+icons.forEach(icon=>{
+  icon.onmousedown=function(e){
+    if(deletedApps.includes(icon.dataset.app)) return;
+    let shiftX = e.clientX - icon.getBoundingClientRect().left;
+    let shiftY = e.clientY - icon.getBoundingClientRect().top;
+    function moveAt(pageX,pageY){icon.style.left=pageX-shiftX+'px';icon.style.top=pageY-shiftY+'px';}
+    function onMouseMove(e){moveAt(e.pageX,e.pageY);}
+    document.addEventListener('mousemove',onMouseMove);
+    document.onmouseup=function(){
+      document.removeEventListener('mousemove',onMouseMove);
+      document.onmouseup=null;
+    };
+  };
+  icon.ondragstart=function(){return false;}
 });
 </script>
 </body>
