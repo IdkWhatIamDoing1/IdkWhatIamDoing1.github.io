@@ -129,36 +129,23 @@
     <!-- Factory icon created dynamically but ensure placeholder present -->
     <div id="factoryPlaceholder" style="display:none"></div>
 
-<!-- Game Launcher window (like Fortnite) -->
-<div class="window" id="mcWindow" role="dialog" aria-hidden="true" style="display:none;">
-  <div class="titlebar" data-window="mcWindow">
-    <div class="title"><strong>game launcher</strong></div>
-    <div class="controls">
-      <button class="tb-btn" data-action="close" title="Close" onclick="closeGameLauncher()"><span class="close-icon">✕</span></button>
+    <!-- Minecraft window -->
+    <div class="window" id="mcWindow" role="dialog" aria-hidden="true">
+      <div class="titlebar" data-window="mcWindow">
+        <div class="title"><strong>Make Sure To Pick Javascript Instead</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="mc-message">
+          <h1>This App Has Recently Been Blocked</h1>
+          <p>Please wait while I try to find another unblocked copy.</p>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="window-body">
-    <iframe id="game-launcher-iframe" src="launcher.html" frameborder="0" allowfullscreen
-            style="width:100%;height:100%;border:0;"></iframe>
-  </div>
-</div>
-
-<script>
-function openGameLauncher() {
-  const win = document.getElementById('mcWindow');
-  const iframe = document.getElementById('game-launcher-iframe');
-  if (!win || !iframe) return;
-  win.style.display = 'block';
-  iframe.src = '';
-  setTimeout(() => { iframe.src = 'launcher.html'; }, 20);
-}
-
-function closeGameLauncher() {
-  const win = document.getElementById('mcWindow');
-  if (win) win.style.display = 'none';
-}
-</script>
-
 
     <!-- Request window -->
     <div class="window" id="reqWindow" role="dialog" aria-hidden="true" style="width:700px;height:500px;">
@@ -187,12 +174,12 @@ function closeGameLauncher() {
       </div>
       <div class="window-body" style="flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:30px;">
         <div style="max-width:920px;text-align:center;">
-       <!-- REPLACED: disclaimer -> launcher iframe -->
-<iframe src="launcher.html"
-        class="launcher-iframe"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-        style="width:100%; height:100%; border:0; display:block;"></iframe>
-
+          <h1>Disclaimer!</h1>
+          <p style="font-size:16px;color:#333;line-height:1.4">
+            You need to be signed in to an Amazon account with Prime to use this service!<br>
+            Also, link your Epic Games account to your Amazon account on <strong>luna.amazon.co.uk</strong><br><br>
+            <strong>OTHERWISE THIS WILL NOT WORK!</strong>
+          </p>
           <div style="margin-top:18px;">
             <button id="launchFortniteBtn" class="btn">Launch Anyway</button>
             <button id="closeFortniteBtn" class="btn" style="background:#777;margin-left:10px">Close</button>
@@ -311,6 +298,7 @@ const AVAILABLE_APPS = [
   { id:'fortnite', name:'Fortnite Launcher', icon: document.getElementById('iconFortniteImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Fortnite, in your web browser!' },
   { id:'request', name:'Request an App', icon: document.getElementById('iconRequestImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Suggest a app!' },
   { id:'wallpaper', name:'Wallpaper Engine', icon: document.getElementById('iconWallpaperImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Change desktop wallpaper' }
+  { id:'GameLauncher', name:'Game Launcher', icon: document.getElementById('iconRequestImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Suggest a app!' },
 ];
 
 const INSTALLED_KEY = 'installedAppsList'; // array of app ids
@@ -553,7 +541,7 @@ pwSubmit.addEventListener('click', checkPassword);
 pwInput.addEventListener('keydown',(e)=>{ if(e.key==='Enter') checkPassword(); });
 function checkPassword(){
   const val = pwInput.value || '';
-  if(val === 'secret123'){ closePopup('passwordPopup'); openGameLauncher(); }
+  if(val === 'secret123'){ closePopup('passwordPopup'); openMinecraftWindow(); }
   else{ closePopup('passwordPopup'); showPopup(incorrectPopup); }
 }
 
@@ -927,5 +915,179 @@ window.openMinecraftWindow = openMinecraftWindow;
 
 /* ---------- End of script ---------- */
 </script>
+
+<!-- START: Add Game Launcher app (paste before </body>) -->
+<style>
+/* Minimal styles for the new app tile and iframe overlay */
+._gw_app_tile {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  margin:6px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  cursor:pointer;
+  user-select:none;
+  background:rgba(255,255,255,0.03);
+  font-family:inherit;
+  font-size:14px;
+}
+
+/* overlay */
+._gw_overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+._gw_modal {
+  width: 90%;
+  max-width: 980px;
+  height: 80vh;
+  background: #111;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  display:flex;
+  flex-direction:column;
+}
+._gw_modal header {
+  height:38px;
+  display:flex;
+  align-items:center;
+  padding:6px 12px;
+  gap:8px;
+  background: #0f0f0f;
+  color:#fff;
+}
+._gw_modal iframe {
+  flex:1 1 auto;
+  width:100%;
+  height:100%;
+  border:0;
+  display:block;
+}
+._gw_close_btn {
+  margin-left:auto;
+  background:transparent;
+  border:0;
+  color:#fff;
+  font-size:14px;
+  cursor:pointer;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Create the tile element
+  function createGameLauncherTile() {
+    const tile = document.createElement('div');
+    tile.className = '_gw_app_tile';
+    tile.setAttribute('data-gw-app', 'game-launcher');
+
+    // You can change the innerHTML below if you want an icon or image
+    tile.innerHTML = '▁ ▢ ✕ &nbsp; <strong>Game Launcher</strong>';
+    tile.title = 'Open Game Launcher (opens Launcher.html)';
+
+    tile.addEventListener('click', () => openGameLauncherModal());
+    return tile;
+  }
+
+  // Create and show overlay modal with iframe
+  function openGameLauncherModal() {
+    // prevent multiple overlays
+    if (document.querySelector('._gw_overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = '_gw_overlay';
+
+    const modal = document.createElement('div');
+    modal.className = '_gw_modal';
+
+    // header
+    const hdr = document.createElement('header');
+    hdr.innerHTML = '<span>Game Launcher</span>';
+    const closeBtn = document.createElement('button');
+    closeBtn.className = '_gw_close_btn';
+    closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', () => overlay.remove());
+    hdr.appendChild(closeBtn);
+
+    // iframe — note the filename requested: Launcher.html
+    const iframe = document.createElement('iframe');
+    iframe.src = 'Launcher.html';
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+
+    modal.appendChild(hdr);
+    modal.appendChild(iframe);
+    overlay.appendChild(modal);
+
+    // close when clicking outside modal
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.remove();
+    });
+
+    document.body.appendChild(overlay);
+  }
+
+  // Try to find the App Store area to append the tile under it.
+  function findAppStoreContainer() {
+    // find element that contains the exact words "App Store" or includes them
+    const elements = Array.from(document.querySelectorAll('div, section, main, aside, nav'));
+    const heading = elements.find(el => el.textContent && el.textContent.trim().includes('App Store'));
+    if (!heading) return null;
+
+    // prefer the next sibling or the heading's parent as container
+    if (heading.nextElementSibling) return heading.nextElementSibling;
+    return heading.parentElement || heading;
+  }
+
+  const container = findAppStoreContainer() || document.body; // fallback to body
+  const tile = createGameLauncherTile();
+
+  // Insert tile: try to place near other app tiles if present
+  // If the page already has clickable app entries, we add ours after them
+  let inserted = false;
+  // Try to find an existing element that looks like app entries (contains "Request an App" label)
+  const existingEntry = Array.from(container.querySelectorAll('*'))
+    .find(n => n.textContent && n.textContent.trim().includes('Request an App') || n.textContent && n.textContent.trim().includes('Request an App'));
+  if (existingEntry && existingEntry.parentElement) {
+    existingEntry.parentElement.insertBefore(tile, existingEntry.nextSibling);
+    inserted = true;
+  }
+
+  if (!inserted) {
+    // otherwise just append to container
+    container.appendChild(tile);
+  }
+
+  // Ensure the app is discoverable in any simple list by also appending a text entry if a plain-text list exists
+  try {
+    const textNodes = Array.from(document.querySelectorAll('body *'))
+      .filter(n => n.children.length === 0 && n.textContent && n.textContent.trim().length > 0);
+    // If there's a visible plain-text list that contains "Minecraft" or "Fortnite Launcher", try to append a plain text entry
+    const listNode = textNodes.find(n => /Minecraft|Fortnite Launcher|Wallpaper Engine/i.test(n.textContent));
+    if (listNode) {
+      const txt = document.createElement('div');
+      txt.textContent = 'Game Launcher';
+      txt.style.marginTop = '6px';
+      txt.style.cursor = 'pointer';
+      txt.addEventListener('click', () => openGameLauncherModal());
+      listNode.parentElement.insertBefore(txt, listNode.nextSibling);
+    }
+  } catch (e) {
+    // ignore
+  }
+
+});
+</script>
+<!-- END: Add Game Launcher app -->
+
+  
 </body>
 </html>
