@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -18,76 +17,26 @@
   .user-icon{width:96px;height:96px;border-radius:50%;background:linear-gradient(180deg,#fff 0,#e6e6e6 100%);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#0078d7;font-weight:700}
   .username{font-size:18px;margin-bottom:18px}
   .login-input{width:86%;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);font-size:15px}
-  .login-btn{margin-top:14px;padding:8px 14px;border-radius:6px;border:none;background:var(--title-blue);color:#fff;cursor:pointer}
+  .login-btn{margin-top:14px;padding:8px 14px;border-radius:6px;border:none;background:var(--title-blue);color:#fff;cursor:pointer}/* Desktop */ #desktop{position:relative;width:100%;height:100%;background-size:cover;background-position:center;transition:background-image .3s ease} #wallpaper-overlay{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,0.12),rgba(0,0,0,0.12));pointer-events:none}
 
-  /* Desktop */
-  #desktop{position:relative;width:100%;height:100%;background-size:cover;background-position:center;transition:background-image .3s ease}
-  #wallpaper-overlay{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,0.12),rgba(0,0,0,0.12));pointer-events:none}
+/* Taskbar & Start */ #taskbar{position:absolute;left:0;right:0;bottom:0;height:48px;background:linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.5));border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:6px 10px;box-shadow:0 -8px 30px rgba(0,0,0,0.6);z-index:1200} #startBtn{height:36px;width:44px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer} #startBtn:hover{background:var(--glass)} .win-logo{width:20px;height:20px;fill:#fff} #startMenu{position:absolute;left:10px;bottom:58px;width:260px;background:#0f0f0f;border:1px solid rgba(255,255,255,0.06);display:none;flex-direction:column;padding:8px;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,0.7);z-index:1300} .start-item{background:transparent;color:var(--muted);border:none;padding:10px 12px;text-align:left;border-radius:6px;cursor:pointer;font-size:14px} .start-item:hover{background:rgba(255,255,255,0.02);color:#fff}
 
-  /* Taskbar & Start */
-  #taskbar{position:absolute;left:0;right:0;bottom:0;height:48px;background:linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.5));border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:6px 10px;box-shadow:0 -8px 30px rgba(0,0,0,0.6);z-index:1200}
-  #startBtn{height:36px;width:44px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-  #startBtn:hover{background:var(--glass)}
-  .win-logo{width:20px;height:20px;fill:#fff}
-  #startMenu{position:absolute;left:10px;bottom:58px;width:260px;background:#0f0f0f;border:1px solid rgba(255,255,255,0.06);display:none;flex-direction:column;padding:8px;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,0.7);z-index:1300}
-  .start-item{background:transparent;color:var(--muted);border:none;padding:10px 12px;text-align:left;border-radius:6px;cursor:pointer;font-size:14px}
-  .start-item:hover{background:rgba(255,255,255,0.02);color:#fff}
+/* Taskbar apps */ #taskbarApps{display:flex;gap:6px;align-items:center;margin-left:8px} .task-app{padding:6px 8px;border-radius:6px;background:transparent;border:none;color:var(--muted);cursor:pointer} .task-app:hover{background:var(--glass);color:#fff}
 
-  /* Taskbar apps */
-  #taskbarApps{display:flex;gap:6px;align-items:center;margin-left:8px}
-  .task-app{padding:6px 8px;border-radius:6px;background:transparent;border:none;color:var(--muted);cursor:pointer}
-  .task-app:hover{background:var(--glass);color:#fff}
+/* Context menu */ #ctxMenu{position:absolute;display:none;background:#202020;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px;border-radius:8px;z-index:1600;min-width:200px;box-shadow:0 8px 20px rgba(0,0,0,0.6)} #ctxMenu button{display:block;width:100%;text-align:left;background:transparent;border:none;padding:8px 12px;color:#ddd;cursor:pointer;border-radius:6px} #ctxMenu button:hover{background:rgba(255,255,255,0.03);color:#fff}
 
-  /* Context menu */
-  #ctxMenu{position:absolute;display:none;background:#202020;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px;border-radius:8px;z-index:1600;min-width:200px;box-shadow:0 8px 20px rgba(0,0,0,0.6)}
-  #ctxMenu button{display:block;width:100%;text-align:left;background:transparent;border:none;padding:8px 12px;color:#ddd;cursor:pointer;border-radius:6px}
-  #ctxMenu button:hover{background:rgba(255,255,255,0.03);color:#fff}
+/* Icons grid */ .icons-wrap{position:absolute;left:18px;top:18px;right:120px;bottom:72px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:18px;padding:8px;overflow:hidden} .icon{width:92px;text-align:center;color:var(--muted);position:relative;cursor:pointer;user-select:none} .icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.45)} .icon span{display:block;margin-top:6px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-  /* Icons grid */
-  .icons-wrap{position:absolute;left:18px;top:18px;right:120px;bottom:72px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:18px;padding:8px;overflow:hidden}
-  .icon{width:92px;text-align:center;color:var(--muted);position:relative;cursor:pointer;user-select:none}
-  .icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.45)}
-  .icon span{display:block;margin-top:6px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Windows */ .window{position:absolute;width:820px;height:540px;background:#fff;color:#111;border-radius:8px;box-shadow:0 24px 60px rgba(0,0,0,0.7);overflow:hidden;display:none;flex-direction:column;z-index:1000;animation:winOpen .18s ease} @keyframes winOpen{from{transform:translateY(10px) scale(.995);opacity:0}to{transform:none;opacity:1}} .titlebar{height:42px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;cursor:move} .title{font-weight:600;font-size:14px;display:flex;gap:10px;align-items:center} .controls{display:flex;gap:6px;align-items:center} .tb-btn{width:36px;height:28px;border-radius:6px;border:none;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer} .tb-btn:hover{background:rgba(255,255,255,0.06)} .window-body{flex:1;background:#fff;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
 
-  /* Windows */
-  .window{position:absolute;width:820px;height:540px;background:#fff;color:#111;border-radius:8px;box-shadow:0 24px 60px rgba(0,0,0,0.7);overflow:hidden;display:none;flex-direction:column;z-index:1000;animation:winOpen .18s ease}
-  @keyframes winOpen{from{transform:translateY(10px) scale(.995);opacity:0}to{transform:none;opacity:1}}
-  .titlebar{height:42px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;cursor:move}
-  .title{font-weight:600;font-size:14px;display:flex;gap:10px;align-items:center}
-  .controls{display:flex;gap:6px;align-items:center}
-  .tb-btn{width:36px;height:28px;border-radius:6px;border:none;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
-  .tb-btn:hover{background:rgba(255,255,255,0.06)}
-  .window-body{flex:1;background:#fff;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+/* Popup small */ .popup{position:absolute;width:300px;background:#f3f3f3;border-radius:8px;border:1px solid rgba(0,0,0,0.12);box-shadow:0 12px 30px rgba(0,0,0,0.6);display:none;z-index:1400;flex-direction:column} .p-head{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;border-top-left-radius:8px;border-top-right-radius:8px;cursor:move} .p-body{padding:14px;color:#111;font-size:13px;text-align:center} .p-actions{display:flex;justify-content:center;padding:10px;background:transparent} .btn{padding:8px 12px;border-radius:6px;border:none;background:var(--title-blue);color:#fff;cursor:pointer} .btn.gray{background:#777}
 
-  /* Popup small */
-  .popup{position:absolute;width:300px;background:#f3f3f3;border-radius:8px;border:1px solid rgba(0,0,0,0.12);box-shadow:0 12px 30px rgba(0,0,0,0.6);display:none;z-index:1400;flex-direction:column}
-  .p-head{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;border-top-left-radius:8px;border-top-right-radius:8px;cursor:move}
-  .p-body{padding:14px;color:#111;font-size:13px;text-align:center}
-  .p-actions{display:flex;justify-content:center;padding:10px;background:transparent}
-  .btn{padding:8px 12px;border-radius:6px;border:none;background:var(--title-blue);color:#fff;cursor:pointer}
-  .btn.gray{background:#777}
+/* Factory fullscreen */ .factory-full{position:fixed;left:0;top:0;width:100%;height:100%;background:#fff;z-index:2500;display:none;flex-direction:column;align-items:center;justify-content:center} .factory-full h1{color:#111;margin:0;font-weight:800} .factory-full p{color:#222;margin:6px 0 18px 0} .progress-wrap{width:60%;max-width:900px;height:20px;background:#eee;border-radius:11px;overflow:hidden;border:1px solid #ddd} .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--title-blue),#005a9e)}
 
-  /* Factory fullscreen */
-  .factory-full{position:fixed;left:0;top:0;width:100%;height:100%;background:#fff;z-index:2500;display:none;flex-direction:column;align-items:center;justify-content:center}
-  .factory-full h1{color:#111;margin:0;font-weight:800}
-  .factory-full p{color:#222;margin:6px 0 18px 0}
-  .progress-wrap{width:60%;max-width:900px;height:20px;background:#eee;border-radius:11px;overflow:hidden;border:1px solid #ddd}
-  .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--title-blue),#005a9e)}
+/* App Store */ #appStore{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:900px;height:620px;background:#fff;border-radius:12px;box-shadow:0 30px 80px rgba(0,0,0,0.7);display:none;flex-direction:column;z-index:1800;overflow:hidden} .store-header{height:72px;background:linear-gradient(180deg,#f7f7f7,#fff);display:flex;align-items:center;gap:16px;padding:14px 20px} .store-search{flex:1} .store-grid{padding:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;overflow:auto} .store-card{background:#fafafa;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;border:1px solid rgba(0,0,0,0.04)} .store-card img{width:72px;height:72px;border-radius:10px} .store-card h3{margin:0;font-size:15px;color:#111} .store-card p{margin:0;color:#555;font-size:13px} .store-actions{margin-top:auto;width:100%;display:flex;gap:8px}
 
-  /* App Store */
-  #appStore{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:900px;height:620px;background:#fff;border-radius:12px;box-shadow:0 30px 80px rgba(0,0,0,0.7);display:none;flex-direction:column;z-index:1800;overflow:hidden}
-  .store-header{height:72px;background:linear-gradient(180deg,#f7f7f7,#fff);display:flex;align-items:center;gap:16px;padding:14px 20px}
-  .store-search{flex:1}
-  .store-grid{padding:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;overflow:auto}
-  .store-card{background:#fafafa;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;border:1px solid rgba(0,0,0,0.04)}
-  .store-card img{width:72px;height:72px;border-radius:10px}
-  .store-card h3{margin:0;font-size:15px;color:#111}
-  .store-card p{margin:0;color:#555;font-size:13px}
-  .store-actions{margin-top:auto;width:100%;display:flex;gap:8px}
+/* responsive */ @media (max-width:900px){ .store-grid{grid-template-columns:repeat(2,1fr)} .window{width:92%;height:80%} } </style>
 
-  /* responsive */
-  @media (max-width:900px){ .store-grid{grid-template-columns:repeat(2,1fr)} .window{width:92%;height:80%} }
-</style>
 </head>
 <body>
   <!-- Login -->
@@ -98,67 +47,60 @@
       <input id="loginPw" class="login-input" type="password" placeholder="Password" />
       <div><button id="loginBtn" class="login-btn">Sign in</button></div>
     </div>
+  </div>  <!-- Desktop -->  <div id="desktop">
+    <div id="wallpaper-overlay"></div><!-- icons wrap -->
+<div class="icons-wrap" id="iconsWrap"></div>
+
+<!-- Taskbar -->
+<div id="taskbar">
+  <button id="startBtn" title="Start"><svg class="win-logo" viewBox="0 0 24 24"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg></button>
+  <div id="startMenu">
+    <button class="start-item" id="openStoreBtn">Open App Store</button>
+    <button class="start-item" id="returnBasic">Return to Basic Web</button>
   </div>
+  <div id="taskbarApps"></div>
+</div>
 
-  <!-- Desktop -->
-  <div id="desktop">
-    <div id="wallpaper-overlay"></div>
+<!-- Context menu -->
+<div id="ctxMenu"><button id="ctxOpen">Open</button><button id="ctxProperties">Properties</button><button id="ctxDelete">Delete</button></div>
 
-    <!-- icons wrap -->
-    <div class="icons-wrap" id="iconsWrap"></div>
+<!-- Windows -->
+<div class="window" id="mcWindow">
+  <div class="titlebar"><div class="title"><strong>Minecraft 1.8.8</strong></div><div class="controls"><button class="tb-btn" data-action="minimize">▁</button><button class="tb-btn" data-action="maximize">▢</button><button class="tb-btn" data-action="close">✕</button></div></div>
+  <div class="window-body"><div style="text-align:center"><h2>This app has recently been blocked</h2><p>Please wait while I try to find another unblocked copy.</p></div></div>
+</div>
 
-    <!-- Taskbar -->
-    <div id="taskbar">
-      <button id="startBtn" title="Start"><svg class="win-logo" viewBox="0 0 24 24"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg></button>
-      <div id="startMenu">
-        <button class="start-item" id="openStoreBtn">Open App Store</button>
-        <button class="start-item" id="returnBasic">Return to Basic Web</button>
-      </div>
-      <div id="taskbarApps"></div>
-    </div>
+<div class="window" id="reqWindow" style="width:760px;height:520px">
+  <div class="titlebar"><div class="title"><strong>Request an App</strong></div><div class="controls"><button class="tb-btn" data-action="minimize">▁</button><button class="tb-btn" data-action="maximize">▢</button><button class="tb-btn" data-action="close">✕</button></div></div>
+  <div class="window-body" style="padding:0"><iframe id="reqIframe" src="request.html" style="width:100%;height:100%;border:0"></iframe></div>
+</div>
 
-    <!-- Context menu -->
-    <div id="ctxMenu"><button id="ctxOpen">Open</button><button id="ctxProperties">Properties</button><button id="ctxDelete">Delete</button></div>
-
-    <!-- Windows -->
-    <div class="window" id="mcWindow">
-      <div class="titlebar"><div class="title"><strong>Minecraft 1.8.8</strong></div><div class="controls"><button class="tb-btn" data-action="minimize">▁</button><button class="tb-btn" data-action="maximize">▢</button><button class="tb-btn" data-action="close">✕</button></div></div>
-      <div class="window-body"><div style="text-align:center"><h2>This app has recently been blocked</h2><p>Please wait while I try to find another unblocked copy.</p></div></div>
-    </div>
-
-    <div class="window" id="reqWindow" style="width:760px;height:520px">
-      <div class="titlebar"><div class="title"><strong>Request an App</strong></div><div class="controls"><button class="tb-btn" data-action="minimize">▁</button><button class="tb-btn" data-action="maximize">▢</button><button class="tb-btn" data-action="close">✕</button></div></div>
-      <div class="window-body" style="padding:0"><iframe id="reqIframe" src="request.html" style="width:100%;height:100%;border:0"></iframe></div>
-    </div>
-
-    <div class="window" id="fnWindow" style="width:100%;height:100%;left:0;top:0;border-radius:0">
-      <div class="titlebar"><div class="title"><strong>Fortnite Launcher</strong></div><div class="controls"><button class="tb-btn" data-action="minimize">▁</button><button class="tb-btn" data-action="maximize">▢</button><button class="tb-btn" data-action="close">✕</button></div></div>
-      <div class="window-body" style="flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:30px;color:#222;text-align:center">
-        <h1>Disclaimer!</h1>
-        <p>You need to be signed in to an Amazon account with Prime to use this service. Link your Epic Games account to your Amazon account on <strong>luna.amazon.co.uk</strong>. OTHERWISE THIS WILL NOT WORK!</p>
-        <div style="margin-top:18px"><button id="launchFortniteBtn" class="btn">Launch Anyway</button><button id="closeFortniteBtn" class="btn gray" style="margin-left:10px">Close</button></div>
-      </div>
-    </div>
-
-    <!-- Popups -->
-    <div class="popup" id="passwordPopup"><div class="p-head">Enter Password <button onclick="closePopup('passwordPopup')" style="background:transparent;border:none;color:#fff">✕</button></div><div class="p-body">Please enter the password to launch Minecraft:<div style="margin-top:8px"><input id="pwInput" type="password" style="width:86%;padding:8px;border-radius:6px;border:1px solid #ccc"></div></div><div class="p-actions"><button id="pwSubmit" class="btn">OK</button></div></div>
-
-    <div class="popup" id="incorrectPopup"><div class="p-head">Error <button onclick="closePopup('incorrectPopup')" style="background:transparent;border:none;color:#fff">✕</button></div><div class="p-body">Password is incorrect</div><div class="p-actions"><button class="btn" onclick="closePopup('incorrectPopup')">OK</button></div></div>
-
-    <div class="popup" id="propertiesPopup"><div class="p-head">Properties <button onclick="closePopup('propertiesPopup')" style="background:transparent;border:none;color:#fff">✕</button></div><div class="p-body" id="propertiesBody"></div><div class="p-actions"><button class="btn" onclick="closePopup('propertiesPopup')">OK</button></div></div>
-
-    <!-- Factory fullscreen -->
-    <div class="factory-full" id="factoryFull"><h1>Windows has been factory reset</h1><p>All apps will be reset. Returning in <span id="factoryCountdown">10</span> seconds...</p><div class="progress-wrap"><div id="factoryProgress" class="progress-inner"></div></div></div>
-
-    <!-- App Store -->
-    <div id="appStore">
-      <div class="store-header"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><rect width='48' height='48' rx='10' fill='%230078d7'/><path d='M10 14h28v6H10zM10 24h28v6H10z' fill='%23fff'/></svg>" alt="store" style="width:56px;height:56px;border-radius:8px"><div style="flex:1"><h2 style="margin:0;color:#111">App Store</h2><div style="color:#666;font-size:13px">Install apps to show them on the desktop</div></div><button id="closeStore" class="btn gray">Close</button></div>
-      <div class="store-grid" id="storeGrid"></div>
-    </div>
-
+<div class="window" id="fnWindow" style="width:100%;height:100%;left:0;top:0;border-radius:0">
+  <div class="titlebar"><div class="title"><strong>Fortnite Launcher</strong></div><div class="controls"><button class="tb-btn" data-action="minimize">▁</button><button class="tb-btn" data-action="maximize">▢</button><button class="tb-btn" data-action="close">✕</button></div></div>
+  <div class="window-body" style="flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:30px;color:#222;text-align:center">
+    <h1>Disclaimer!</h1>
+    <p>You need to be signed in to an Amazon account with Prime to use this service. Link your Epic Games account to your Amazon account on <strong>luna.amazon.co.uk</strong>. OTHERWISE THIS WILL NOT WORK!</p>
+    <div style="margin-top:18px"><button id="launchFortniteBtn" class="btn">Launch Anyway</button><button id="closeFortniteBtn" class="btn gray" style="margin-left:10px">Close</button></div>
   </div>
+</div>
 
-<script>
+<!-- Popups -->
+<div class="popup" id="passwordPopup"><div class="p-head">Enter Password <button onclick="closePopup('passwordPopup')" style="background:transparent;border:none;color:#fff">✕</button></div><div class="p-body">Please enter the password to launch Minecraft:<div style="margin-top:8px"><input id="pwInput" type="password" style="width:86%;padding:8px;border-radius:6px;border:1px solid #ccc"></div></div><div class="p-actions"><button id="pwSubmit" class="btn">OK</button></div></div>
+
+<div class="popup" id="incorrectPopup"><div class="p-head">Error <button onclick="closePopup('incorrectPopup')" style="background:transparent;border:none;color:#fff">✕</button></div><div class="p-body">Password is incorrect</div><div class="p-actions"><button class="btn" onclick="closePopup('incorrectPopup')">OK</button></div></div>
+
+<div class="popup" id="propertiesPopup"><div class="p-head">Properties <button onclick="closePopup('propertiesPopup')" style="background:transparent;border:none;color:#fff">✕</button></div><div class="p-body" id="propertiesBody"></div><div class="p-actions"><button class="btn" onclick="closePopup('propertiesPopup')">OK</button></div></div>
+
+<!-- Factory fullscreen -->
+<div class="factory-full" id="factoryFull"><h1>Windows has been factory reset</h1><p>All apps will be reset. Returning in <span id="factoryCountdown">10</span> seconds...</p><div class="progress-wrap"><div id="factoryProgress" class="progress-inner"></div></div></div>
+
+<!-- App Store -->
+<div id="appStore">
+  <div class="store-header"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><rect width='48' height='48' rx='10' fill='%230078d7'/><path d='M10 14h28v6H10zM10 24h28v6H10z' fill='%23fff'/></svg>" alt="store" style="width:56px;height:56px;border-radius:8px"><div style="flex:1"><h2 style="margin:0;color:#111">App Store</h2><div style="color:#666;font-size:13px">Install apps to show them on the desktop</div></div><button id="closeStore" class="btn gray">Close</button></div>
+  <div class="store-grid" id="storeGrid"></div>
+</div>
+
+  </div><script>
 /* ---------------------------
    Data & base64 icons (local)
    ---------------------------*/
@@ -312,138 +254,4 @@ window.addEventListener('resize', autoArrangeIcons);
    ---------------------------*/
 function setupStart(){
   startBtn.addEventListener('click', ()=>{ startMenu.style.display = startMenu.style.display==='flex' ? 'none' : 'flex'; startMenu.style.flexDirection='column'; });
-  document.addEventListener('click',(e)=>{ if(!startMenu.contains(e.target) && e.target!==startBtn) startMenu.style.display='none'; });
-  openStoreBtn.addEventListener('click', ()=>{ openStore(); startMenu.style.display='none'; });
-  returnBasic.addEventListener('click', ()=>{ window.location.href='index.html'; });
-}
-
-function openStore(){ appStore.style.display='flex'; bringToFront(appStore); }
-closeStore.addEventListener('click', ()=>{ appStore.style.display='none'; });
-
-function renderStore(){
-  storeGrid.innerHTML='';
-  const installed = getInstalled();
-  STORE_APPS.forEach(app=>{
-    const card = document.createElement('div'); card.className='store-card';
-    card.innerHTML = `<img src='${app.icon}' alt='${app.name}'/><h3>${app.name}</h3><p>${app.desc}</p><div class='store-actions'><button class='btn ${installed.includes(app.id)?"gray":""}' data-app='${app.id}'>${installed.includes(app.id)?'Uninstall':'Install'}</button></div>`;
-    storeGrid.appendChild(card);
-    const btn = card.querySelector('button'); btn.addEventListener('click', ()=>{ toggleInstall(app.id); renderStore(); renderIcons(); });
-  });
-}
-
-function toggleInstall(id){
-  let installed = getInstalled();
-  if(installed.includes(id)){ installed = installed.filter(x=>x!==id); }
-  else { installed.push(id); }
-  saveInstalled(installed);
-}
-
-/* ---------------------------
-   Context menu
-   ---------------------------*/
-function setupContextMenu(){
-  ctxOpen.addEventListener('click', ()=>{ if(currentCtxTarget) openApp(currentCtxTarget.dataset.app); ctxMenu.style.display='none'; });
-  ctxProperties.addEventListener('click', ()=>{ if(currentCtxTarget) showProperties(currentCtxTarget.dataset.app); ctxMenu.style.display='none'; });
-  ctxDelete.addEventListener('click', ()=>{ if(currentCtxTarget) deleteApp(currentCtxTarget.dataset.app); ctxMenu.style.display='none'; });
-  document.addEventListener('click', ()=>{ ctxMenu.style.display='none'; });
-}
-
-function showContextMenu(e,target){
-  currentCtxTarget = target;
-  ctxMenu.style.left = e.pageX + 'px'; ctxMenu.style.top = e.pageY + 'px';
-  const app = target.dataset.app;
-  ctxDelete.style.display = (app==='factory') ? 'none' : 'block';
-  ctxMenu.style.display='block';
-}
-
-/* ---------------------------
-   App actions
-   ---------------------------*/
-function openApp(id){
-  if(id==='factory'){ openFactory(); return; }
-  const installed = getInstalled();
-  if(!installed.includes(id)) return alert('App is not installed. Install from App Store.');
-  if(id==='minecraft'){ showPasswordDialog(); }
-  else if(id==='request'){ reqWindow.style.display='flex'; centerIfFirst(reqWindow,760,520); bringToFront(reqWindow); attachWindowControls(reqWindow); }
-  else if(id==='fortnite'){ fnWindow.style.display='flex'; fnWindow.style.left='0'; fnWindow.style.top='0'; fnWindow.style.width = window.innerWidth + 'px'; fnWindow.style.height = (window.innerHeight-48)+'px'; bringToFront(fnWindow); attachWindowControls(fnWindow); }
-  else if(id==='wallpaper'){ openWallpaperEngine(); }
-}
-
-/* Password for minecraft */
-function showPasswordDialog(){ pwInput.value=''; pwPopup.style.display='flex'; bringToFront(pwPopup); }
-pwSubmit.addEventListener('click', checkPassword); pwInput.addEventListener('keydown',(e)=>{ if(e.key==='Enter') checkPassword(); });
-function checkPassword(){ if(pwInput.value==='secret123'){ pwPopup.style.display='none'; mcWindow.style.display='flex'; centerIfFirst(mcWindow,820,540); attachWindowControls(mcWindow); bringToFront(mcWindow); } else { pwPopup.style.display='none'; incorrectPopup.style.display='flex'; bringToFront(incorrectPopup); } }
-
-/* Properties */
-function showProperties(app){ let html='';
-  if(app==='minecraft') html = `<p><strong>Made:</strong> 13 Oct 2025</p><p>Minecraft in your web browser!</p>`;
-  else if(app==='request') html = `<p><strong>Made:</strong> 14 Oct 2025</p><p>Suggest a app!</p>`;
-  else if(app==='fortnite') html = `<p><strong>Made:</strong> 14 Oct 2025</p><p>Fortnite, in your web browser!</p>`;
-  else if(app==='factory') html = `<p><strong>Made:</strong> 14 Oct 2025</p><p>Factory Reset (non-deletable)</p>`;
-  else if(app==='wallpaper') html = `<p><strong>Made:</strong> 14 Oct 2025</p><p>Wallpaper Engine</p>`;
-  else html = `<p>No properties</p>`;
-  propsBody.innerHTML = html; propsPopup.style.display='flex'; bringToFront(propsPopup); attachPopupDrag(propsPopup);
-}
-
-/* Delete app */
-function deleteApp(app){ if(app==='factory') return; let installed = getInstalled(); installed = installed.filter(x=>x!==app); saveInstalled(installed); renderIcons(); renderStore(); }
-
-/* Factory */
-let factoryTimer=null;
-function openFactory(){ factoryFull.style.display='flex'; bringToFront(factoryFull); let start = Date.now(); const total=10; clearInterval(factoryTimer); factoryTimer = setInterval(()=>{ const passed=Math.floor((Date.now()-start)/1000); const remain=Math.max(0,total-passed); const pct = Math.min(100, (passed/total)*100); factoryProgress.style.width = pct + '%'; factoryCountdown.textContent = remain; if(remain<=0){ clearInterval(factoryTimer); // reset state: remove all installed apps
-    localStorage.removeItem(INSTALLED_KEY); // keep factory always available
-    // reset wallpaper to default
-    saveWallpaper(DEFAULT_WALLPAPER);
-    applyWallpaper();
-    // after a short pause, hide and refresh UI
-    setTimeout(()=>{ factoryFull.style.display='none'; renderIcons(); renderStore(); },800);
-  } },200);
-}
-
-/* Wallpaper Engine */
-function openWallpaperEngine(){ const id='wallpaper'; if(!getInstalled().includes(id)) return alert('Install Wallpaper Engine first'); // simple small popup
-  const popupId = 'wallpaperPopup'; let popup = document.getElementById(popupId); if(!popup){ popup = document.createElement('div'); popup.className='popup'; popup.id=popupId; popup.innerHTML = `<div class='p-head'>Wallpaper Engine <button onclick="closePopup('${popupId}')" style='background:transparent;border:none;color:#fff'>✕</button></div><div class='p-body' style='text-align:left'><p>Select the default Windows 10 wallpaper or choose a local file.</p><div style='display:flex;gap:8px;margin-top:8px'><button id='useDefault' class='btn'>Use Default</button><input id='pickFile' type='file' accept='image/*' style='margin-left:8px'/></div></div><div class='p-actions'><button class='btn' onclick="closePopup('${popupId}')">Close</button></div>`; document.body.appendChild(popup);
-    document.getElementById('useDefault').addEventListener('click', ()=>{ saveWallpaper(DEFAULT_WALLPAPER); applyWallpaper(); });
-    document.getElementById('pickFile').addEventListener('change', (e)=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ saveWallpaper(r.result); applyWallpaper(); }; r.readAsDataURL(f); });
-  }
-  popup.style.display='flex'; bringToFront(popup); attachPopupDrag(popup);
-}
-
-/* Fortnite open/close */
-launchFortniteBtn.addEventListener('click', ()=>{ window.open('https://luna.amazon.co.uk/game/fortnite?lang=en-US&ref=tmp_ext_epic&autoplay=1','_blank'); });
-closeFortniteBtn.addEventListener('click', ()=>{ fnWindow.style.display='none'; });
-
-/* ---------- Window & popup helpers ---------- */
-function centerIfFirst(el,w,h){ if(!el.dataset.positioned){ el.style.width = w+'px'; el.style.height = h+'px'; el.style.left = ((window.innerWidth - w)/2)+'px'; el.style.top = ((window.innerHeight - h)/2)+'px'; el.dataset.positioned='1'; }}
-function attachWindowControls(winEl){ if(winEl.dataset.controlsAttached) return; winEl.dataset.controlsAttached='1'; const tb = winEl.querySelector('.titlebar'); makeDraggable(winEl,tb); const btns = winEl.querySelectorAll('.tb-btn'); btns.forEach(b=>{ b.addEventListener('click',(e)=>{ const act = b.getAttribute('data-action'); if(act==='minimize') { winEl.style.display='none'; addTaskbarButton(winEl); } else if(act==='maximize'){ toggleMax(winEl,b); } else if(act==='close'){ winEl.style.display='none'; } }); }); winEl.addEventListener('mousedown', ()=>bringToFront(winEl)); }
-
-function addTaskbarButton(winEl){ const id = 'taskBtn-'+winEl.id; if(document.getElementById(id)) return; const b=document.createElement('button'); b.id=id; b.className='task-app'; b.textContent = winEl.querySelector('.title').textContent; b.addEventListener('click', ()=>{ winEl.style.display='flex'; bringToFront(winEl); b.remove(); }); taskbarApps.appendChild(b); }
-
-function toggleMax(winEl,btn){ if(winEl.dataset.max==='1'){ winEl.style.width=winEl.dataset.prevW; winEl.style.height=winEl.dataset.prevH; winEl.style.left=winEl.dataset.prevL; winEl.style.top=winEl.dataset.prevT; winEl.dataset.max='0'; btn.title='Maximize'; } else { winEl.dataset.prevW = winEl.style.width || winEl.offsetWidth+'px'; winEl.dataset.prevH = winEl.style.height || winEl.offsetHeight+'px'; winEl.dataset.prevL = winEl.style.left || winEl.offsetLeft+'px'; winEl.dataset.prevT = winEl.style.top || winEl.offsetTop+'px'; winEl.style.left='8px'; winEl.style.top='8px'; winEl.style.width = (window.innerWidth-16)+'px'; winEl.style.height = (window.innerHeight-56)+'px'; winEl.dataset.max='1'; btn.title='Restore'; } bringToFront(winEl); }
-
-function closePopup(id){ const el=document.getElementById(id); if(el) el.style.display='none'; }
-window.closePopup = closePopup;
-
-function attachPopupDrag(popup){ const head = popup.querySelector('.p-head'); if(!head) return; makeDraggable(popup,head); }
-
-/* Drag util */
-function makeDraggable(winEl, handle){ let dragging=false, ox=0, oy=0; handle.addEventListener('mousedown',(e)=>{ dragging=true; bringToFront(winEl); ox = e.clientX - (winEl.offsetLeft||0); oy = e.clientY - (winEl.offsetTop||0); document.body.style.userSelect='none'; }); document.addEventListener('mousemove',(e)=>{ if(!dragging) return; let nx=e.clientX-ox; let ny=e.clientY-oy; nx = Math.max(6, Math.min(nx, window.innerWidth - winEl.offsetWidth - 6)); ny = Math.max(6, Math.min(ny, window.innerHeight - winEl.offsetHeight - 56)); winEl.style.left = nx+'px'; winEl.style.top = ny+'px'; }); document.addEventListener('mouseup',()=>{ dragging=false; document.body.style.userSelect='auto'; }); }
-
-/* bringToFront */
-let zIndex=1000; function bringToFront(el){ zIndex+=2; el.style.zIndex=zIndex; }
-
-/* ---------- Utility: render store & icons on load ---------- */
-renderStore();
-
-// Make sure factory icon always present and apps hidden by default unless installed
-(function ensureFactoryOnLoad(){ const installed = getInstalled(); if(!installed.includes('factory')){ // factory not part of installed list but always shown via createIcon in renderIcons
-  }
-  // initial render will be done when login finishes
-})();
-
-/* ---------- Expose some functions for manual testing ---------- */
-window.openFactory = openFactory; window.openStore = openStore; window.toggleInstall = toggleInstall;
-
-</script>
-</body>
-</html>
+  documen
