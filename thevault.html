@@ -1,216 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Windows Web OS</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Windows Basic Web Edition - Final</title>
 <style>
-  /* General reset */
-  * { margin:0; padding:0; box-sizing:border-box; font-family:Segoe UI, sans-serif; }
-  body { background:#0078d7; overflow:hidden; height:100vh; }
+  :root{
+    --title-blue:#0078D7;
+    --bg:#0b0b0b;
+    --muted:#9ca3af;
+  }
+  html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(#0b0b0b,#111);color:#e6e6e6;overflow:hidden;}
+  #desktop{position:relative;width:100%;height:100%;}
 
-  /* Taskbar */
-  #taskbar {
-    position:fixed; bottom:0; left:0; width:100%; height:40px;
-    background:#1b1b1b; display:flex; align-items:center; padding:0 5px; z-index:1000;
-  }
-  #startButton {
-    width:80px; height:100%; background:#2b2b2b; color:white;
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-    user-select:none; border-radius:3px;
-  }
-  #startMenu {
-    position:fixed; bottom:40px; left:5px; width:250px;
-    background:#2b2b2b; color:white; border-radius:5px;
-    display:none; flex-direction:column; padding:10px; max-height:400px; overflow-y:auto;
-    z-index:1001;
-  }
-  #startMenu button {
-    background:none; border:none; color:white; padding:5px; text-align:left; cursor:pointer;
-  }
-  #startMenu button:hover { background:rgba(255,255,255,0.1); }
+  /* Taskbar & Start */
+  #taskbar{position:absolute;left:0;right:0;bottom:0;height:42px;background:#111;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:0 8px;box-shadow:0 -6px 20px rgba(0,0,0,0.6);z-index:1200;}
+  #startBtn{height:34px;width:42px;background:transparent;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  #startBtn:hover{background:rgba(255,255,255,0.03);}
+  .win-logo{width:20px;height:20px;fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,0.5));}
+  #startMenu{position:absolute;left:8px;bottom:50px;width:220px;background:#0f0f0f;border:1px solid rgba(255,255,255,0.06);display:none;flex-direction:column;padding:8px;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.7);z-index:1300;}
+  .start-item{background:transparent;color:var(--muted);border:none;padding:10px 8px;text-align:left;border-radius:4px;cursor:pointer;font-size:14px;}
+  .start-item:hover{background:rgba(255,255,255,0.02);color:#fff;}
+  #taskbarApps{display:flex;gap:6px;align-items:center;margin-left:8px;}
+
+  /* Context menu */
+  #ctxMenu{position:absolute;display:none;background:#202020;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px;border-radius:6px;z-index:1600;min-width:170px;box-shadow:0 8px 20px rgba(0,0,0,0.6)}
+  #ctxMenu button{display:block;width:100%;text-align:left;background:transparent;border:none;padding:8px 10px;color:#ddd;cursor:pointer;border-radius:4px}
+  #ctxMenu button:hover{background:rgba(255,255,255,0.03);color:#fff}
 
   /* Desktop icons */
-  #desktop {
-    width:100%; height:100%; position:relative;
-  }
-  .appIcon {
-    width:80px; height:80px; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; position:absolute;
-    cursor:pointer; color:white; font-size:12px; user-select:none;
-  }
-  .appIcon img { width:48px; height:48px; }
+  .icon{width:100px;text-align:center;color:var(--muted);position:absolute;cursor:pointer;user-select:none;}
+  .icon img{width:64px;height:64px;display:block;margin:0 auto;border-radius:6px;}
+  .icon span{display:block;margin-top:6px;font-size:12px;color:var(--muted);}
 
   /* Windows */
-  .window {
-    position:absolute; top:50px; left:50px; width:600px; height:400px;
-    background:white; color:black; border:2px solid #555;
-    border-radius:5px; display:none; flex-direction:column; z-index:999;
-  }
-  .windowHeader {
-    height:30px; background:#0078d7; color:white;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:0 10px; cursor:move;
-  }
-  .windowBody { flex:1; padding:10px; overflow:auto; background:#f0f0f0; }
-  .closeButton { width:20px; height:20px; background:red; text-align:center; line-height:20px; cursor:pointer; border-radius:3px; }
+  .window{position:absolute;width:800px;height:560px;background:#fff;color:#111;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,0.7);overflow:hidden;display:none;flex-direction:column;z-index:1000;}
+  .titlebar{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:move;user-select:none;}
+  .title{font-weight:600;font-size:13px;display:flex;gap:10px;align-items:center}
+  .controls{display:flex;gap:6px;align-items:center}
+  .tb-btn{width:34px;height:26px;border-radius:4px;border:none;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .tb-btn:hover{background:rgba(255,255,255,0.06)}
+  .window-body{flex:1;background:#fff;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+  .min-icon{font-size:15px} .max-icon{font-size:13px} .close-icon{font-size:16px}
 
-  /* App Store */
-  #appStore .appList { display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto; }
-  #appStore .appList button { display:flex; align-items:center; gap:5px; padding:5px; cursor:pointer; }
+  .mc-message{text-align:center;font-family:"Segoe UI",sans-serif;color:#222}
+  .mc-message h1{font-size:22px;margin:16px 0;color:#222}
+  .mc-message p{font-size:16px;color:#444}
 
-  /* Fullscreen modal */
-  .fullscreenWindow {
-    position:fixed; top:0; left:0; width:100%; height:100%; background:white;
-    display:none; flex-direction:column; z-index:2000;
-  }
-  .fullscreenHeader {
-    height:30px; background:#0078d7; color:white; display:flex; align-items:center; justify-content:space-between;
-    padding:0 10px;
-  }
-  .fullscreenBody { flex:1; padding:10px; overflow:auto; background:#f0f0f0; }
+  .request-iframe{width:100%;height:100%;border:0}
 
-  /* Countdown bar */
-  #countdownBarContainer {
-    width:80%; height:30px; background:#ccc; margin:20px auto; border-radius:5px;
-    overflow:hidden;
-  }
-  #countdownBar { height:100%; width:0%; background:red; transition:width 1s linear; }
+  /* Popups */
+  .popup{position:absolute;width:360px;background:#f3f3f3;border-radius:6px;border:1px solid rgba(0,0,0,0.12);box-shadow:0 12px 30px rgba(0,0,0,0.6);display:none;z-index:1400;flex-direction:column;}
+  .p-head{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;border-top-left-radius:6px;border-top-right-radius:6px;cursor:move;}
+  .p-body{padding:18px;color:#111;font-size:14px;text-align:center}
+  .p-body input{width:86%;padding:8px;margin-top:8px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+  .p-actions{display:flex;justify-content:center;padding:12px;background:transparent}
+  .btn{padding:6px 12px;border-radius:4px;border:none;background:var(--title-blue);color:#fff;cursor:pointer}
+  .btn:hover{background:#005a9e}
+
+  /* Factory reset fullscreen window + progress */
+  .factory-full{position:fixed;left:0;top:0;width:100%;height:100%;background:#fff;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center}
+  .factory-full h1{color:#111;margin:0 0 10px 0}
+  .factory-full p{color:#222;margin:0 0 18px 0}
+  .progress-wrap{width:70%;max-width:900px;height:18px;background:#eee;border-radius:9px;overflow:hidden;border:1px solid #ddd}
+  .progress-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--title-blue),#005a9e)}
+
+  /* small non-deletable badge */
+  .no-delete{opacity:0.95}
+
+  @media (max-width:900px){ .window{width:92%;height:80%} .popup{width:86%} .factory-full .progress-wrap{width:86%} }
 </style>
 </head>
 <body>
-<div id="desktop">
-  <!-- App Icons -->
-  <div class="appIcon" id="factoryResetIcon" style="top:20px; left:20px;">
-    <img src="https://cdn.pixabay.com/photo/2013/07/13/13/39/alert-160958_1280.png" alt="Factory Reset">
-    <span>Factory Reset</span>
-  </div>
-  <div class="appIcon" id="appStoreIcon" style="top:20px; left:120px;">
-    <img src="https://cdn.pixabay.com/photo/2017/03/31/11/41/app-store-2191666_1280.png" alt="App Store">
-    <span>App Store</span>
-  </div>
-</div>
+  <div id="desktop" aria-label="Desktop">
 
-<!-- Taskbar -->
-<div id="taskbar">
-  <div id="startButton">Start</div>
-</div>
-
-<!-- Start Menu -->
-<div id="startMenu">
-  <button id="returnWeb">Return to Basic Web</button>
-</div>
-
-<!-- Windows -->
-<div class="window" id="factoryResetWindow">
-  <div class="windowHeader">
-    <span>Windows Factory Reset</span>
-  </div>
-  <div class="windowBody">
-    <p>Windows has been factory reset. All apps will reappear.</p>
-    <div id="countdownBarContainer"><div id="countdownBar"></div></div>
-  </div>
-</div>
-
-<div class="window" id="appStore">
-  <div class="windowHeader">
-    <span>App Store</span>
-    <div class="closeButton" onclick="closeWindow('appStore')">X</div>
-  </div>
-  <div class="windowBody">
-    <div class="appList">
-      <button onclick="installApp('deviceInfo')">Device Info</button>
-      <button onclick="installApp('minecraft')">Minecraft 1.8.8</button>
-      <button onclick="installApp('fortnite')">Fortnite Launcher</button>
+    <!-- Taskbar & Start -->
+    <div id="taskbar" role="toolbar" aria-label="Taskbar">
+      <button id="startBtn" title="Start">
+        <svg class="win-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3.5v8.5l8 0.5V3.5H3zM13 3.3v8.7l8-1V3.3h-8zM3 13.5v7l8-1V12.5H3zM13 13.2v7.3l8-0.9v-6.4l-8 0z"/></svg>
+      </button>
+      <div id="startMenu" role="menu" aria-hidden="true">
+        <button class="start-item" id="returnBasic">Return to Basic Web</button>
+      </div>
+      <div id="taskbarApps" aria-hidden="false"></div>
     </div>
-  </div>
-</div>
 
-<div class="fullscreenWindow" id="minecraftWindow">
-  <div class="fullscreenHeader">
-    <span>Minecraft 1.8.8</span>
-    <div class="closeButton" onclick="closeFullScreen('minecraftWindow')">X</div>
-  </div>
-  <div class="fullscreenBody" id="minecraftContent">
-    <p>This App Is Unavailable</p>
-    <p>Please Wait While I Find Another Unblocked Version!</p>
-  </div>
-</div>
+    <!-- Context menu -->
+    <div id="ctxMenu" role="menu" aria-hidden="true">
+      <button id="ctxOpen">Open</button>
+      <button id="ctxProperties">Properties</button>
+      <button id="ctxDelete">Delete</button>
+    </div>
 
-<div class="fullscreenWindow" id="fortniteWindow">
-  <div class="fullscreenHeader">
-    <span>Fortnite Launcher</span>
-    <div class="closeButton" onclick="closeFullScreen('fortniteWindow')">X</div>
+    <!-- Desktop icons -->
+    <div class="icon" id="iconMinecraft" data-app="minecraft" style="left:20px;top:20px;" title="Minecraft 1.8.8">
+      <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250" alt="Minecraft Block"/>
+      <span>Minecraft 1.8.8</span>
+    </div>
+
+    <div class="icon" id="iconRequest" data-app="request" style="left:20px;top:140px;" title="Request an App">
+      <img alt="Request App" src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="%230078d7"/><path d="M4 7c.01-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm1.5.5L12 12l6.5-4.5" stroke="%23fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' />
+      <span>Request an App</span>
+    </div>
+
+    <div class="icon" id="iconFortnite" data-app="fortnite" style="left:20px;top:260px;" title="Fortnite Launcher">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s" alt="Fortnite Icon" />
+      <span>Fortnite Launcher</span>
+    </div>
+
+    <!-- Minecraft window -->
+    <div class="window" id="mcWindow" role="dialog" aria-hidden="true">
+      <div class="titlebar" data-window="mcWindow">
+        <div class="title"><strong>Make Sure To Pick Javascript Instead</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="mc-message">
+          <h1>This App Is Unavailable</h1>
+          <p>Please Wait While I Find Another Unblocked Version!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request window -->
+    <div class="window" id="reqWindow" role="dialog" aria-hidden="true" style="width:700px;height:500px;">
+      <div class="titlebar" data-window="reqWindow">
+        <div class="title"><strong>Request an App</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body" style="padding:0;">
+        <iframe class="request-iframe" id="reqIframe" src="request.html" title="Request an App"></iframe>
+      </div>
+    </div>
+
+    <!-- Fortnite window (fullscreen when opened) -->
+    <div class="window" id="fnWindow" role="dialog" aria-hidden="true" style="width:100%;height:100%;left:0;top:0;border-radius:0;">
+      <div class="titlebar" data-window="fnWindow" style="cursor:move;">
+        <div class="title"><strong>Fortnite Launcher</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Restore"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body" style="flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:30px;">
+        <div style="max-width:920px;text-align:center;">
+          <h1>Disclaimer!</h1>
+          <p style="font-size:16px;color:#333;line-height:1.4">
+            You need to be signed in to an Amazon account with Prime to use this service!<br>
+            Also, link your Epic Games account to your Amazon account on <strong>luna.amazon.co.uk</strong><br><br>
+            <strong>OTHERWISE THIS WILL NOT WORK!</strong>
+          </p>
+          <div style="margin-top:18px;">
+            <button id="launchFortniteBtn" class="btn">Launch Anyway</button>
+            <button id="closeFortniteBtn" class="btn" style="background:#777;margin-left:10px">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password popup -->
+    <div class="popup" id="passwordPopup" role="dialog" aria-hidden="true" style="left:50%;top:40%;transform:translate(-50%,-50%)">
+      <div class="p-head">Enter Password <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('passwordPopup')">✕</button></div>
+      <div class="p-body">
+        <p style="margin:0 0 8px 0;color:#111">Please enter the password to launch Minecraft:</p>
+        <input id="pwInput" type="password" placeholder="Password" />
+      </div>
+      <div class="p-actions">
+        <button class="btn" id="pwSubmit">OK</button>
+      </div>
+    </div>
+
+    <!-- Incorrect password popup -->
+    <div class="popup" id="incorrectPopup" role="dialog" aria-hidden="true" style="left:50%;top:42%;transform:translate(-50%,-50%);width:320px">
+      <div class="p-head">Error <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('incorrectPopup')">✕</button></div>
+      <div class="p-body">
+        <p style="margin:0;color:#111">Password is incorrect</p>
+      </div>
+      <div class="p-actions">
+        <button class="btn" onclick="closePopup('incorrectPopup')">OK</button>
+      </div>
+    </div>
+
+    <!-- Properties popup -->
+    <div class="popup" id="propertiesPopup" role="dialog" aria-hidden="true" style="width:360px">
+      <div class="p-head">Properties <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('propertiesPopup')">✕</button></div>
+      <div class="p-body" id="propertiesBody"></div>
+      <div class="p-actions">
+        <button class="btn" onclick="closePopup('propertiesPopup')">OK</button>
+      </div>
+    </div>
+
+    <!-- Factory fullscreen window (unclosable) -->
+    <div class="factory-full" id="factoryFull">
+      <h1>Windows has been factory reset</h1>
+      <p>All apps will reappear. Returning in <span id="factoryCountdown">10</span> seconds...</p>
+      <div class="progress-wrap"><div id="factoryProgress" class="progress-inner" style="width:0%"></div></div>
+    </div>
+
   </div>
-  <div class="fullscreenBody">
-    <p>Disclaimer!</p>
-    <p>You need to be signed in to an Amazon account with Prime to use this service!</p>
-    <p>Link your Epic Games account to your Amazon account on <a href="https://luna.amazon.co.uk" target="_blank">luna.amazon.co.uk</a></p>
-    <button onclick="window.open('https://luna.amazon.co.uk/game/fortnite?lang=en-US&ref=tmp_ext_epic&autoplay=1')">Launch Anyway</button>
-  </div>
-</div>
 
 <script>
-  // Start menu toggle
-  const startButton = document.getElementById('startButton');
-  const startMenu = document.getElementById('startMenu');
-  startButton.onclick = () => startMenu.style.display = startMenu.style.display==='flex'?'none':'flex';
-  document.getElementById('returnWeb').onclick = () => window.location.href='index.html';
+/* -------------------------------------------
+   Vault verification
+--------------------------------------------*/
+(function(){
+  const SESSION_KEY='vaultAccess';
+  const data = sessionStorage.getItem(SESSION_KEY);
+  if(!data){ window.location.href='index.html'; return; }
+  try {
+    const {expiry} = JSON.parse(data);
+    if(Date.now() > expiry){ sessionStorage.removeItem(SESSION_KEY); window.location.href='index.html'; return; }
+  } catch(e){ window.location.href='index.html'; return; }
+  sessionStorage.removeItem(SESSION_KEY);
+})();
 
-  // Open and close windows
-  function openWindow(id){ document.getElementById(id).style.display='flex'; }
-  function closeWindow(id){ document.getElementById(id).style.display='none'; }
-  function closeFullScreen(id){ document.getElementById(id).style.display='none'; }
+/* -----------------------------
+   App deletion / Factory reset
+-------------------------------*/
+function getDeletedList(){return JSON.parse(localStorage.getItem('deletedApps')||'[]');}
+function saveDeletedList(list){localStorage.setItem('deletedApps',JSON.stringify(list));}
 
-  // Factory Reset
-  document.getElementById('factoryResetIcon').onclick = () => {
-    const win = document.getElementById('factoryResetWindow');
-    win.style.display='flex';
-    let progress = 0;
-    const bar = document.getElementById('countdownBar');
-    const interval = setInterval(()=>{
-      progress += 10;
-      bar.style.width = progress+'%';
-      if(progress>=100){ clearInterval(interval); window.location.href='index.html'; }
-    },1000);
-  };
+function hideIcon(name){const icon=document.querySelector('#icon'+capitalize(name));if(icon)icon.style.display='none';}
+function showIcon(name){const icon=document.querySelector('#icon'+capitalize(name));if(icon)icon.style.display='block';}
+function capitalize(str){return str.charAt(0).toUpperCase()+str.slice(1);}
 
-  // App Store
-  document.getElementById('appStoreIcon').onclick = () => openWindow('appStore');
+function deleteApp(name){
+  let deleted=getDeletedList();
+  if(!deleted.includes(name)) deleted.push(name);
+  saveDeletedList(deleted);
+  hideIcon(name);
+  if(name==='factory') runFactoryReset();
+}
 
-  // App installation logic
-  const installedApps = JSON.parse(localStorage.getItem('installedApps')||'{}');
-  function installApp(name){
-    if(installedApps[name]) return;
-    const desktop = document.getElementById('desktop');
-    let top = 140 + Object.keys(installedApps).length*100;
-    let icon = document.createElement('div');
-    icon.className='appIcon';
-    icon.style.top=top+'px'; icon.style.left='20px';
-    if(name==='deviceInfo'){
-      icon.innerHTML='<img src="https://cdn.pixabay.com/photo/2016/12/28/13/20/information-1939510_1280.png"><span>Device Info</span>';
-      icon.onclick = () => alert('Device info app!');
-    }
-    if(name==='minecraft'){
-      icon.innerHTML='<img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250"><span>Minecraft 1.8.8</span>';
-      icon.onclick = () => {
-        let pw = prompt('Enter password to launch Minecraft:');
-        if(pw==='secret123') openWindow('minecraftWindow');
-        else alert('Password is incorrect!');
-      };
-    }
-    if(name==='fortnite'){
-      icon.innerHTML='<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s"><span>Fortnite Launcher</span>';
-      icon.onclick = () => openWindow('fortniteWindow');
-    }
-    desktop.appendChild(icon);
-    installedApps[name]=true;
-    localStorage.setItem('installedApps', JSON.stringify(installedApps));
+function ensureFactoryIcon(){
+  let deleted=getDeletedList();
+  if(!deleted.includes('factory')){
+    showIcon('factory');
   }
+}
 
-  // Load installed apps
-  Object.keys(installedApps).forEach(name=>installApp(name));
+function runFactoryReset(){
+  const full=document.getElementById('factoryFull');
+  full.style.display='flex';
+  const progress=document.getElementById('factoryProgress');
+  const countdownEl=document.getElementById('factoryCountdown');
+  let pct=0, countdown=10;
+  const interval=setInterval(()=>{
+    pct+=1; progress.style.width=pct*10+'%';
+    countdownEl.textContent=countdown;
+    if(pct%1===0) countdown--;
+    if(pct>=100){ clearInterval(interval); factoryFinish(); }
+  },100);
+}
 
+function factoryFinish(){
+  // Clear all except factory from deleted list
+  let deleted=getDeletedList();
+  deleted=['factory'];
+  saveDeletedList(deleted);
+  // Hide all apps except factory
+  ['minecraft','request','fortnite'].forEach(hideIcon);
+  document.getElementById('factoryFull').style.display='none';
+  alert('Factory Reset Complete!');
+}
+
+/* ------------------------------------------
+   On load: apply installed/deleted state
+-------------------------------------------*/
+(function applyInstalledState(){
+  const deleted=getDeletedList();
+  const apps=['minecraft','request','fortnite'];
+  apps.forEach(a=>{
+    if(deleted.includes(a)) hideIcon(a); else showIcon(a);
+  });
+  ensureFactoryIcon();
+})();
+
+/* ------------------------------------------
+   Password prompt for Minecraft
+-------------------------------------------*/
+document.querySelector('#iconMinecraft').addEventListener('dblclick',()=>{
+  document.getElementById('passwordPopup').style.display='flex';
+});
+
+document.getElementById('pwSubmit').addEventListener('click',()=>{
+  const val=document.getElementById('pwInput').value;
+  if(val==='secret123'){ openWindow('mcWindow'); closePopup('passwordPopup'); }
+  else{ showPopup('incorrectPopup'); closePopup('passwordPopup'); }
+});
+
+function showPopup(id){document.getElementById(id).style.display='flex';}
+function closePopup(id){document.getElementById(id).style.display='none';}
+
+/* ------------------------------------------
+   Open windows
+-------------------------------------------*/
+function openWindow(id){const win=document.getElementById(id);if(win){win.style.display='flex';win.setAttribute('aria-hidden','false');}}
+
+document.querySelector('#iconRequest').addEventListener('dblclick',()=>{openWindow('reqWindow');});
+document.querySelector('#iconFortnite').addEventListener('dblclick',()=>{openWindow('fnWindow');});
+
+/* ------------------------------------------
+   Taskbar start menu toggle
+-------------------------------------------*/
+document.getElementById('startBtn').addEventListener('click',()=>{
+  const menu=document.getElementById('startMenu');
+  menu.style.display=(menu.style.display==='flex')?'none':'flex';
+});
+
+/* ------------------------------------------
+   Titlebar button actions
+-------------------------------------------*/
+document.querySelectorAll('.tb-btn').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    const win=btn.closest('.window');
+    if(!win) return;
+    const act=btn.dataset.action;
+    if(act==='close'){win.style.display='none'; win.setAttribute('aria-hidden','true');}
+    if(act==='minimize'){win.style.display='none'; win.setAttribute('aria-hidden','true');}
+    if(act==='maximize'){win.style.width=(win.style.width==='100%'?'800px':'100%'); win.style.height=(win.style.height==='100%'?'560px':'100%');}
+  });
+});
+
+/* ------------------------------------------
+   Fortnite Launch Anyway
+-------------------------------------------*/
+document.getElementById('launchFortniteBtn').addEventListener('click',()=>{
+  alert('Launching Fortnite (simulated)...');
+  document.getElementById('fnWindow').style.display='none';
+});
+
+/* ------------------------------------------
+   Close Fortnite
+-------------------------------------------*/
+document.getElementById('closeFortniteBtn').addEventListener('click',()=>{
+  document.getElementById('fnWindow').style.display='none';
+});
 </script>
 </body>
 </html>
