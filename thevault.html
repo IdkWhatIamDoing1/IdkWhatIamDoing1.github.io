@@ -121,7 +121,8 @@
       <span>Fortnite Launcher</span>
     </div>
 
-    <!-- Factory icon is created dynamically if missing -->
+    <!-- Factory icon created dynamically -->
+
     <!-- Windows -->
     <div class="window" id="mcWindow" role="dialog" aria-hidden="true">
       <div class="titlebar" data-window="mcWindow">
@@ -232,12 +233,12 @@
 
 <script>
 /* -------------------------------------------
-   Verified: full UI + app store + install/uninstall
+   App Store + install/uninstall + UI behavior
 --------------------------------------------*/
 
-/* ---------- Keys & defaults ---------- */
-const SHOW_KEY = 'installedApps';   // apps that are installed/shown
-const DELETED_KEY = 'deletedAppsList'; // deleted apps (persist)
+/* ---------- Keys, app list ---------- */
+const SHOW_KEY = 'installedApps';   // installed/shown apps
+const DELETED_KEY = 'deletedAppsList';
 const ALL_APPS = [
   { id:'minecraft', name:'Minecraft 1.8.8', icon:'https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250', properties: 'Minecraft in your web browser!' },
   { id:'request', name:'Request an App', icon:'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width=\"64\" height=\"64\" viewBox=\"0 0 24 24\"><rect width=\"24\" height=\"24\" rx=\"4\" fill=\"%230078d7\"/><path d=\"M4 7c.01-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm1.5.5L12 12l6.5-4.5\" stroke=\"%23fff\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' , properties: 'Suggest a app!' },
@@ -317,12 +318,10 @@ function ensureFactoryIcon(){
 function refreshIcons(){
   const installed = getInstalled();
   const deleted = getDeletedList();
-  // Minecraft
-  if(installed.includes('minecraft') && !deleted.includes('minecraft')) iconMinecraft.style.display='block'; else iconMinecraft.style.display='none';
-  // Request
-  if(installed.includes('request') && !deleted.includes('request')) iconRequest.style.display='block'; else iconRequest.style.display='none';
-  // Fortnite
-  if(installed.includes('fortnite') && !deleted.includes('fortnite')) iconFortnite.style.display='block'; else iconFortnite.style.display='none';
+  // show/hide icons depending on installed & not deleted
+  iconMinecraft.style.display = (installed.includes('minecraft') && !deleted.includes('minecraft')) ? 'block' : 'none';
+  iconRequest.style.display = (installed.includes('request') && !deleted.includes('request')) ? 'block' : 'none';
+  iconFortnite.style.display = (installed.includes('fortnite') && !deleted.includes('fortnite')) ? 'block' : 'none';
   ensureFactoryIcon();
 }
 
@@ -426,7 +425,7 @@ function showProperties(app){
   if(app==='minecraft'){
     propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 13 Oct 2025</p><p style="margin:0;color:#111">Minecraft in your web browser!</p>`;
   } else if(app==='request'){
-    propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Suggest an app to be added!</p>`;
+    propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Suggest a app!</p>`;
   } else if(app==='fortnite'){
     propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Fortnite, in your web browser!</p>`;
   } else if(app===FACTORY_ID){
@@ -664,11 +663,10 @@ function buildAppStore(){
         // uninstall
         let arr = getInstalled().filter(x=>x!==a.id);
         saveInstalled(arr);
-        // mark deleted so it doesn't auto-show
+        // mark deleted
         let d = getDeletedList();
         if(!d.includes(a.id)) d.push(a.id);
         saveDeletedList(d);
-        btn.textContent = 'Install';
       } else {
         // install
         let arr = getInstalled();
@@ -677,10 +675,9 @@ function buildAppStore(){
         // remove from deleted
         let d = getDeletedList().filter(x=>x!==a.id);
         saveDeletedList(d);
-        btn.textContent = 'Uninstall';
       }
       refreshIcons();
-      buildAppStore(); // rebuild to update states
+      buildAppStore(); // refresh UI state
     });
     actions.appendChild(btn);
     appList.appendChild(row);
@@ -690,9 +687,7 @@ function buildAppStore(){
 /* ---------- Auto-arrange icons (grid left-aligned) ---------- */
 function autoArrangeIcons(){
   const icons = Array.from(document.querySelectorAll('.icon'));
-  // filter only visible icons
   const visible = icons.filter(ic=>ic.style.display!=='none');
-  let x = 20, y = 20;
   const gapX = 120, gapY = 120;
   const cols = Math.max(1, Math.floor((window.innerWidth-40)/gapX));
   visible.forEach((ic, idx)=>{
@@ -714,7 +709,7 @@ function centerElement(el,w,h){
   const vw = Math.max(480, window.innerWidth);
   const vh = Math.max(320, window.innerHeight);
   el.style.width = (w > vw ? Math.floor(vw*0.92) : w) + 'px';
-  el.style.height = (h > vh ? Math.floor(vh*0.78) : h) + 'px';
+  el.style.height = (h > vh ? Math.floor(h*0.78) : h) + 'px';
   el.style.left = Math.floor((window.innerWidth - el.offsetWidth)/2) + 'px';
   el.style.top = Math.floor((window.innerHeight - el.offsetHeight)/2) + 'px';
 }
@@ -725,9 +720,7 @@ function bringToFront(el){
 
 /* ---------- On-load: apply saved state ---------- */
 (function init(){
-  // ensure factory
   ensureFactoryIcon();
-  // refresh icons visibility based on installed & deleted
   refreshIcons();
   // attach context handler to dynamic factory icon
   const factory = document.getElementById('iconFactory');
@@ -735,7 +728,6 @@ function bringToFront(el){
     factory.addEventListener('contextmenu',(e)=>{ e.preventDefault(); showContextMenu(e, factory); });
     bindDoubleClick(factory, ()=>{ openFactory(); });
   }
-  // build appstore so it's ready
   buildAppStore();
 })();
 
