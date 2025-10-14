@@ -106,9 +106,9 @@
     </div>
 
     <!-- Desktop icons (created/hidden via JS) -->
-    <div class="icon" id="iconMinecraft" data-app="game launcher" title="game launcher 1.8.8">
-      <img id="iconMinecraftImg" src="https://static.wikia.nocookie.net/Minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250" alt="game launcher Block"/>
-      <span>game launcher 1.8.8</span>
+    <div class="icon" id="iconMinecraft" data-app="minecraft" title="Minecraft 1.8.8">
+      <img id="iconMinecraftImg" src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250" alt="Minecraft Block"/>
+      <span>Minecraft 1.8.8</span>
     </div>
 
     <div class="icon" id="iconRequest" data-app="request" title="Request an App">
@@ -129,35 +129,30 @@
     <!-- Factory icon created dynamically but ensure placeholder present -->
     <div id="factoryPlaceholder" style="display:none"></div>
 
-    <!-- Game Launcher fullscreen iframe -->
-<div id="game-launcher-modal" class="fullscreen-modal" style="display:none;position:fixed;inset:0;margin:0;padding:0;z-index:9999;background:#000;">
-  <iframe id="game-launcher-iframe" src="launcher.html" frameborder="0" allowfullscreen style="width:100%;height:100vh;border:0;"></iframe>
+  <!-- Game Launcher fullscreen iframe -->
+<div class="window fullscreen-modal" id="game-launcher-modal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;margin:0;padding:0;z-index:9999;background:#000;">
+  <div class="titlebar">
+    <div class="title"><strong>Minecraft Launcher</strong></div>
+    <div class="controls">
+      <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+      <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+      <button class="tb-btn" data-action="close" title="Close" onclick="document.getElementById('game-launcher-modal').style.display='none'"><span class="close-icon">✕</span></button>
+    </div>
+  </div>
+  <div class="window-body">
+    <iframe id="game-launcher-iframe" src="launcher.html" frameborder="0" allowfullscreen style="width:100%;height:100%;border:0;"></iframe>
+  </div>
 </div>
 
 <script>
-/* Ensure the iframe reloads each time the launcher is opened.
-   If there's already code that "opens" that app, call openGameLauncher() from it. */
 function openGameLauncher() {
   const modal = document.getElementById('game-launcher-modal');
   const iframe = document.getElementById('game-launcher-iframe');
-  if (modal) modal.style.display = 'block';
-  if (!iframe) return;
-  // Force a real reload: clear src then set it again
-  iframe.src = '';
-  // short timeout to ensure browser treats it as new navigation
-  setTimeout(function(){ iframe.src = 'launcher.html'; }, 20);
+  if (!modal || !iframe) return;
+  modal.style.display = 'block';
+  iframe.src = ''; 
+  setTimeout(() => { iframe.src = 'launcher.html'; }, 20);
 }
-
-/* Optional: if the UI uses a click on an element that contains the app name,
-   the snippet below will automatically reload the iframe when the user clicks
-   anything that has a data-app-name attribute set to "game launcher". */
-document.addEventListener('click', function(e){
-  const el = e.target.closest('[data-app-name]');
-  if (!el) return;
-  if ((el.dataset.appName || '').toLowerCase() === 'game launcher') {
-    openGameLauncher();
-  }
-});
 </script>
 
 
@@ -237,7 +232,7 @@ document.addEventListener('click', function(e){
     <div class="popup" id="passwordPopup" role="dialog" aria-hidden="true" style="left:50%;top:40%;transform:translate(-50%,-50%);">
       <div class="p-head">Enter Password <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('passwordPopup')">✕</button></div>
       <div class="p-body">
-        <p style="margin:0 0 8px 0;color:#111">Please enter the password to launch game launcher:</p>
+        <p style="margin:0 0 8px 0;color:#111">Please enter the password to launch Minecraft:</p>
         <input id="pwInput" type="password" placeholder="Password" />
       </div>
       <div class="p-actions">
@@ -308,7 +303,7 @@ document.addEventListener('click', function(e){
 
 /* ---------- Constants & app metadata ---------- */
 const AVAILABLE_APPS = [
-  { id:'game launcher', name:'game launcher 1.8.8', icon: document.getElementById('iconMinecraftImg').src, propertiesText: '<strong>Made:</strong> 13 Oct 2025<br/>game launcher in your web browser!' },
+  { id:'minecraft', name:'Minecraft 1.8.8', icon: document.getElementById('iconMinecraftImg').src, propertiesText: '<strong>Made:</strong> 13 Oct 2025<br/>Minecraft in your web browser!' },
   { id:'fortnite', name:'Fortnite Launcher', icon: document.getElementById('iconFortniteImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Fortnite, in your web browser!' },
   { id:'request', name:'Request an App', icon: document.getElementById('iconRequestImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Suggest a app!' },
   { id:'wallpaper', name:'Wallpaper Engine', icon: document.getElementById('iconWallpaperImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Change desktop wallpaper' }
@@ -389,7 +384,7 @@ function setWallpaper(dataUrl){
 
 /* ---------- App icon management ---------- */
 const ICON_MAP = {
-  game launcher: iconMinecraft,
+  minecraft: iconMinecraft,
   request: iconRequest,
   fortnite: iconFortnite,
   wallpaper: iconWallpaper
@@ -460,7 +455,7 @@ Object.values(ICON_MAP).forEach(ic=>{
   bindDoubleClick(ic, ()=>{
     const app = ic.dataset.app;
     if(!isAppInstalled(app)) return; // do nothing if not installed
-    if(app==='game launcher') openPasswordPopup();
+    if(app==='minecraft') openPasswordPopup();
     else if(app==='request') openRequestWindow();
     else if(app==='fortnite') openFortniteWindow();
     else if(app==='wallpaper') openWallpaperWindow();
@@ -472,7 +467,7 @@ Object.values(ICON_MAP).forEach(ic=>{
 ctxOpen.addEventListener('click', ()=>{
   if(!currentCtxTarget) return;
   const app = currentCtxTarget.dataset.app;
-  if(app==='game launcher') openPasswordPopup();
+  if(app==='minecraft') openPasswordPopup();
   else if(app==='request') openRequestWindow();
   else if(app==='fortnite') openFortniteWindow();
   else if(app==='wallpaper') openWallpaperWindow();
@@ -519,7 +514,7 @@ function uninstallApp(id){
   saveInstalled(installed);
   updateIconVisibility();
   // close any windows and remove taskbar buttons
-  if(id==='game launcher') { mcWindow.style.display='none'; removeTaskbarButton('mcWindow'); }
+  if(id==='minecraft') { mcWindow.style.display='none'; removeTaskbarButton('mcWindow'); }
   if(id==='request') { reqWindow.style.display='none'; removeTaskbarButton('reqWindow'); }
   if(id==='fortnite') { fnWindow.style.display='none'; removeTaskbarButton('fnWindow'); }
   if(id==='wallpaper') { wpWindow.style.display='none'; removeTaskbarButton('wpWindow'); }
@@ -527,8 +522,8 @@ function uninstallApp(id){
 
 /* ---------- Show properties popup (smaller) ---------- */
 function showProperties(app){
-  if(app==='game launcher'){
-    propertiesBody.innerHTML = `<p style="margin:0;color:#111"><strong>Made:</strong> 13 Oct 2025</p><p style="margin:8px 0 0 0;color:#111">game launcher in your web browser!</p>`;
+  if(app==='minecraft'){
+    propertiesBody.innerHTML = `<p style="margin:0;color:#111"><strong>Made:</strong> 13 Oct 2025</p><p style="margin:8px 0 0 0;color:#111">Minecraft in your web browser!</p>`;
   } else if(app==='request'){
     propertiesBody.innerHTML = `<p style="margin:0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:8px 0 0 0;color:#111">Suggest a app!</p>`;
   } else if(app==='fortnite'){
@@ -543,9 +538,9 @@ function showProperties(app){
   showPopup(propertiesPopup);
 }
 
-/* ---------- Password flow (for game launcher) ---------- */
+/* ---------- Password flow (for Minecraft) ---------- */
 function openPasswordPopup(){
-  if(!isAppInstalled('game launcher')) return;
+  if(!isAppInstalled('minecraft')) return;
   showPopup(passwordPopup);
   pwInput.value='';
   setTimeout(()=>pwInput.focus(),50);
@@ -574,7 +569,7 @@ window.closePopup = closePopup;
 
 /* ---------- Open windows ---------- */
 function openMinecraftWindow(){
-  if(!isAppInstalled('game launcher')) return;
+  if(!isAppInstalled('minecraft')) return;
   mcWindow.style.display = 'flex';
   centerIfFirst(mcWindow,880,560);
   attachWindowControls(mcWindow, 'mcWindow');
