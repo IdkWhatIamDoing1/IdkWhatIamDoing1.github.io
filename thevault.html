@@ -549,7 +549,7 @@ pwSubmit.addEventListener('click', checkPassword);
 pwInput.addEventListener('keydown',(e)=>{ if(e.key==='Enter') checkPassword(); });
 function checkPassword(){
   const val = pwInput.value || '';
-  if(val === 'secret123'){ closePopup('passwordPopup'); openMinecraftWindow(); }
+  if(val === 'secret123'){ closePopup('passwordPopup'); openGameLauncher(); }
   else{ closePopup('passwordPopup'); showPopup(incorrectPopup); }
 }
 
