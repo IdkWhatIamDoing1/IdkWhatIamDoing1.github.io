@@ -121,6 +121,11 @@
       <span>Fortnite Launcher</span>
     </div>
 
+    <div class="icon" id="iconWallpaper" data-app="wallpaper" style="left:140px;top:20px;display:none" title="Wallpaper Engine">
+      <img id="iconWallpaperImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24'><rect rx='4' width='24' height='24' fill='%230078d7'/><path d='M3 16c2-3 4-5 7-5s5 2 8 5H3z' fill='%23fff'/></svg>" alt="Wallpaper" />
+      <span>Wallpaper Engine</span>
+    </div>
+
     <!-- Factory icon created dynamically -->
 
     <!-- Windows -->
@@ -180,6 +185,35 @@
       </div>
     </div>
 
+    <!-- Wallpaper window -->
+    <div class="window" id="wallpaperWindow" role="dialog" aria-hidden="true" style="width:640px;height:420px;">
+      <div class="titlebar" data-window="wallpaperWindow">
+        <div class="title"><strong>Wallpaper Engine</strong></div>
+        <div class="controls">
+          <button class="tb-btn" data-action="minimize" title="Minimize"><span class="min-icon">▁</span></button>
+          <button class="tb-btn" data-action="maximize" title="Maximize"><span class="max-icon">▢</span></button>
+          <button class="tb-btn" data-action="close" title="Close"><span class="close-icon">✕</span></button>
+        </div>
+      </div>
+      <div class="window-body" style="flex-direction:column;gap:12px;align-items:stretch;justify-content:flex-start;padding:14px;">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="flex:1">
+            <div style="font-weight:700;margin-bottom:8px">Defaults</div>
+            <div id="defaultThumbs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+          </div>
+          <div style="width:220px">
+            <div style="font-weight:700;margin-bottom:8px">Custom</div>
+            <input id="wallFile" type="file" accept="image/*" />
+            <div style="margin-top:10px">
+              <button id="setFileBtn" class="btn">Use Selected File</button>
+              <button id="setBlackBtn" class="btn" style="background:#777;margin-left:6px">Set Black</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:8px;text-align:center;color:#444;font-size:13px">Your selected wallpaper will be saved and persist until factory reset.</div>
+      </div>
+    </div>
+
     <!-- App Store -->
     <div id="appStore" role="dialog" aria-hidden="true">
       <h3>App Store</h3>
@@ -233,17 +267,18 @@
 
 <script>
 /* -------------------------------------------
-   App Store + install/uninstall + UI behavior
-   Start menu fixed: toggles, opens store & returns to index
+   App Store + Wallpaper Engine integration
 --------------------------------------------*/
 
 /* ---------- Keys, app list ---------- */
 const SHOW_KEY = 'installedApps';   // installed/shown apps
 const DELETED_KEY = 'deletedAppsList';
+const WALL_KEY = 'currentWallpaper';
 const ALL_APPS = [
   { id:'minecraft', name:'Minecraft 1.8.8', icon:'https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250', properties: 'Minecraft in your web browser!' },
   { id:'request', name:'Request an App', icon:'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width=\"64\" height=\"64\" viewBox=\"0 0 24 24\"><rect width=\"24\" height=\"24\" rx=\"4\" fill=\"%230078d7\"/><path d=\"M4 7c.01-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm1.5.5L12 12l6.5-4.5\" stroke=\"%23fff\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' , properties: 'Suggest a app!' },
-  { id:'fortnite', name:'Fortnite Launcher', icon:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s', properties: 'Fortnite, in your web browser!' }
+  { id:'fortnite', name:'Fortnite Launcher', icon:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvb1r9fOqmmLDhvcAbmV6HRkRuliJAjD-uCQ&s', properties: 'Fortnite, in your web browser!' },
+  { id:'wallpaper', name:'Wallpaper Engine', icon:'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"64\" height=\"64\" viewBox=\"0 0 24 24\"><rect rx=\"4\" width=\"24\" height=\"24\" fill=\"%230078d7\"/><path d=\"M3 16c2-3 4-5 7-5s5 2 8 5H3z\" fill=\"%23fff\"/></svg>', properties: 'Change wallpaper: choose default or a file.' }
 ];
 const FACTORY_ID = 'factory';
 
@@ -263,10 +298,12 @@ const ctxDelete = document.getElementById('ctxDelete');
 const iconMinecraft = document.getElementById('iconMinecraft');
 const iconRequest = document.getElementById('iconRequest');
 const iconFortnite = document.getElementById('iconFortnite');
+const iconWallpaper = document.getElementById('iconWallpaper');
 
 const mcWindow = document.getElementById('mcWindow');
 const reqWindow = document.getElementById('reqWindow');
 const fnWindow = document.getElementById('fnWindow');
+const wallpaperWindow = document.getElementById('wallpaperWindow');
 
 const appStore = document.getElementById('appStore');
 const appList = document.getElementById('appList');
@@ -288,6 +325,11 @@ const pwSubmit = document.getElementById('pwSubmit');
 const launchFortniteBtn = document.getElementById('launchFortniteBtn');
 const closeFortniteBtn = document.getElementById('closeFortniteBtn');
 
+const wallFile = document.getElementById('wallFile');
+const setFileBtn = document.getElementById('setFileBtn');
+const setBlackBtn = document.getElementById('setBlackBtn');
+const defaultThumbs = document.getElementById('defaultThumbs');
+
 let zIndexCounter = 1000;
 let currentCtxTarget = null;
 
@@ -298,6 +340,13 @@ function isInstalled(id){ return getInstalled().includes(id); }
 
 function getDeletedList(){ try { return JSON.parse(localStorage.getItem(DELETED_KEY)||'[]'); } catch { return []; } }
 function saveDeletedList(list){ localStorage.setItem(DELETED_KEY, JSON.stringify(list)); }
+
+function setWallpaperValue(val){ // val = 'black' or URL/dataurl
+  if(val === null) localStorage.removeItem(WALL_KEY);
+  else localStorage.setItem(WALL_KEY, val);
+  applyWallpaper();
+}
+function getWallpaperValue(){ return localStorage.getItem(WALL_KEY); }
 
 /* ---------- Ensure factory icon always present ---------- */
 function ensureFactoryIcon(){
@@ -319,23 +368,33 @@ function ensureFactoryIcon(){
 function refreshIcons(){
   const installed = getInstalled();
   const deleted = getDeletedList();
-  // show/hide icons depending on installed & not deleted
   iconMinecraft.style.display = (installed.includes('minecraft') && !deleted.includes('minecraft')) ? 'block' : 'none';
   iconRequest.style.display = (installed.includes('request') && !deleted.includes('request')) ? 'block' : 'none';
   iconFortnite.style.display = (installed.includes('fortnite') && !deleted.includes('fortnite')) ? 'block' : 'none';
+  iconWallpaper.style.display = (installed.includes('wallpaper') && !deleted.includes('wallpaper')) ? 'block' : 'none';
   ensureFactoryIcon();
 }
 
+/* ---------- Apply wallpaper on load or change ---------- */
+function applyWallpaper(){
+  const value = getWallpaperValue();
+  if(!value || value === 'black'){
+    // black default
+    document.body.style.background = '#000';
+    document.body.style.backgroundSize = '';
+    document.body.style.backgroundRepeat = '';
+    document.body.style.backgroundPosition = '';
+  } else {
+    // treat value as URL / data URL string
+    document.body.style.background = `url("${value}") center / cover no-repeat fixed`;
+  }
+}
+
 /* ---------- Start menu (FIXED) ---------- */
-/* Toggle open/close and aria attributes; stop propagation so document click doesn't immediately close it. */
 startBtn.addEventListener('click',(e)=>{
   e.stopPropagation();
   const isOpen = startMenu.style.display === 'flex';
-  if(isOpen){
-    closeStartMenu();
-  } else {
-    openStartMenu();
-  }
+  if(isOpen) closeStartMenu(); else openStartMenu();
 });
 function openStartMenu(){
   startMenu.style.display = 'flex';
@@ -348,22 +407,11 @@ function closeStartMenu(){
   startMenu.setAttribute('aria-hidden','true');
   startBtn.setAttribute('aria-expanded','false');
 }
-
-/* Menu item actions */
 returnBasic.addEventListener('click',(e)=>{ e.stopPropagation(); window.location.href='index.html'; });
 openStoreBtn.addEventListener('click',(e)=>{ e.stopPropagation(); openAppStore(); closeStartMenu(); });
 autoArrangeBtn.addEventListener('click',(e)=>{ e.stopPropagation(); autoArrangeIcons(); closeStartMenu(); });
-
-/* If click anywhere outside start menu, close it */
-document.addEventListener('click', (e)=>{
-  if(!startMenu.contains(e.target) && e.target !== startBtn){
-    closeStartMenu();
-  }
-});
-/* keyboard escape also closes start menu */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Escape') closeStartMenu();
-});
+document.addEventListener('click', (e)=>{ if(!startMenu.contains(e.target) && e.target !== startBtn) closeStartMenu(); });
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeStartMenu(); });
 
 /* ---------- Context menu handling ---------- */
 function showContextMenu(e, targetIcon){
@@ -378,7 +426,7 @@ function showContextMenu(e, targetIcon){
 }
 function hideCtxMenuOnce(){ ctxMenu.style.display='none'; document.removeEventListener('click', hideCtxMenuOnce); }
 
-/* attach context to icons */
+/* attach context handlers to all icons present */
 function attachIconHandlers(iconEl){
   iconEl.addEventListener('contextmenu',(ev)=>{ ev.preventDefault(); showContextMenu(ev, iconEl); });
   bindDoubleClick(iconEl, ()=>{
@@ -386,10 +434,11 @@ function attachIconHandlers(iconEl){
     if(app==='minecraft') openPasswordPopup();
     else if(app==='request') openRequestWindow();
     else if(app==='fortnite') openFortniteWindow();
+    else if(app==='wallpaper') openWallpaperWindow();
     else if(app===FACTORY_ID) openFactory();
   });
 }
-[iconMinecraft, iconRequest, iconFortnite].forEach(attachIconHandlers);
+document.querySelectorAll('.icon').forEach(attachIconHandlers);
 
 /* context menu actions */
 ctxOpen.addEventListener('click', ()=>{
@@ -398,6 +447,7 @@ ctxOpen.addEventListener('click', ()=>{
   if(app==='minecraft') openPasswordPopup();
   else if(app==='request') openRequestWindow();
   else if(app==='fortnite') openFortniteWindow();
+  else if(app==='wallpaper') openWallpaperWindow();
   else if(app===FACTORY_ID) openFactory();
   ctxMenu.style.display='none';
 });
@@ -458,6 +508,8 @@ function showProperties(app){
     propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Suggest a app!</p>`;
   } else if(app==='fortnite'){
     propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Fortnite, in your web browser!</p>`;
+  } else if(app==='wallpaper'){
+    propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 15 Oct 2025</p><p style="margin:0;color:#111">Change wallpaper: choose defaults or upload a file.</p>`;
   } else if(app===FACTORY_ID){
     propertiesBody.innerHTML = `<p style="margin:0 0 6px 0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:0;color:#111">Factory Reset (non-deletable)</p>`;
   } else {
@@ -473,8 +525,9 @@ function deleteApp(app){
   if(app==='minecraft'){ mcWindow.style.display='none'; removeTaskbarButton('mcWindow'); }
   if(app==='request'){ reqWindow.style.display='none'; removeTaskbarButton('reqWindow'); }
   if(app==='fortnite'){ fnWindow.style.display='none'; removeTaskbarButton('fnWindow'); }
+  if(app==='wallpaper'){ wallpaperWindow.style.display='none'; removeTaskbarButton('wallpaperWindow'); }
 
-  // hide icon by removing from installed list and adding to deleted list
+  // hide icon: remove from installed and mark deleted
   let installed = getInstalled().filter(x=>x!==app);
   saveInstalled(installed);
   let deleted = getDeletedList();
@@ -508,6 +561,8 @@ function openFactory(){
       // clear installed & deleted so apps are hidden by default after reset
       saveInstalled([]);
       saveDeletedList([]);
+      // reset wallpaper to black
+      setWallpaperValue('black');
       // reload the page to apply
       window.location.reload();
     }
@@ -528,7 +583,6 @@ function openRequestWindow(){
   bringToFront(reqWindow);
 }
 function openFortniteWindow(){
-  // make it full screen
   fnWindow.style.display = 'flex';
   fnWindow.style.left = '0';
   fnWindow.style.top = '0';
@@ -537,240 +591,17 @@ function openFortniteWindow(){
   attachWindowControls(fnWindow, 'fnWindow');
   bringToFront(fnWindow);
 }
+function openWallpaperWindow(){
+  wallpaperWindow.style.display = 'flex';
+  centerIfFirst(wallpaperWindow,640,420);
+  attachWindowControls(wallpaperWindow, 'wallpaperWindow');
+  bringToFront(wallpaperWindow);
+}
 
 /* Fortnite button handlers */
 launchFortniteBtn.addEventListener('click', ()=>{
-  // Targeting Amazon Luna Fortnite autoplay link (UK)
   window.open('https://luna.amazon.co.uk/game/fortnite?lang=en-US&ref=tmp_ext_epic&autoplay=1','_blank');
 });
-closeFortniteBtn.addEventListener('click', ()=>{
-  fnWindow.style.display = 'none';
-});
+closeFortniteBtn.addEventListener('click', ()=>{ fnWindow.style.display = 'none'; });
 
-/* ---------- Taskbar/minimize/maximize/close helpers ---------- */
-function attachWindowControls(winEl, id){
-  if(winEl.dataset.controlsAttached) return;
-  winEl.dataset.controlsAttached = '1';
-  const tb = winEl.querySelector('.titlebar');
-  const btns = winEl.querySelectorAll('.tb-btn');
-
-  // dragging
-  makeDraggable(winEl, tb);
-
-  btns.forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
-      const act = btn.getAttribute('data-action');
-      if(act==='minimize') minimizeWindow(winEl, id);
-      else if(act==='maximize') toggleMaximize(winEl, btn);
-      else if(act==='close') closeWindow(winEl, id);
-    });
-  });
-
-  winEl.addEventListener('mousedown', ()=>bringToFront(winEl));
-}
-
-function minimizeWindow(winEl, id){
-  winEl.style.display = 'none';
-  const btnId = 'taskBtn-' + (id || winEl.id);
-  if(document.getElementById(btnId)) return;
-  const btn = document.createElement('button');
-  btn.className = 'start-item';
-  btn.id = btnId;
-  btn.textContent = winEl.querySelector('.title').textContent;
-  btn.style.fontSize='13px';
-  btn.style.padding='6px 10px';
-  btn.onclick = ()=>{
-    winEl.style.display='flex';
-    bringToFront(winEl);
-    btn.remove();
-  };
-  taskbarApps.appendChild(btn);
-}
-function closeWindow(winEl, id){
-  const btnId = 'taskBtn-' + (id || winEl.id);
-  const tbtn = document.getElementById(btnId);
-  if(tbtn) tbtn.remove();
-  winEl.style.display = 'none';
-  if(winEl.id === 'reqWindow'){
-    const ifr = document.getElementById('reqIframe');
-    if(ifr) ifr.src = 'request.html';
-  }
-}
-function removeTaskbarButton(winId){
-  const btn = document.getElementById('taskBtn-'+winId);
-  if(btn) btn.remove();
-}
-function toggleMaximize(winEl, btn){
-  if(winEl.dataset.maximized === '1'){
-    winEl.style.width = winEl.dataset.prevW;
-    winEl.style.height = winEl.dataset.prevH;
-    winEl.style.left = winEl.dataset.prevL;
-    winEl.style.top = winEl.dataset.prevT;
-    winEl.dataset.maximized = '0';
-    btn.title = 'Maximize';
-  } else {
-    winEl.dataset.prevW = winEl.style.width || winEl.offsetWidth + 'px';
-    winEl.dataset.prevH = winEl.style.height || winEl.offsetHeight + 'px';
-    winEl.dataset.prevL = winEl.style.left || winEl.offsetLeft + 'px';
-    winEl.dataset.prevT = winEl.style.top || winEl.offsetTop + 'px';
-    winEl.style.left = '8px';
-    winEl.style.top = '8px';
-    winEl.style.width = (window.innerWidth - 16) + 'px';
-    winEl.style.height = (window.innerHeight - 56) + 'px';
-    winEl.dataset.maximized = '1';
-    btn.title = 'Restore';
-  }
-  bringToFront(winEl);
-}
-
-/* ---------- Draggable helpers ---------- */
-function makeDraggable(winEl, handle){
-  let dragging=false, offsetX=0, offsetY=0;
-  handle.addEventListener('mousedown', (e)=>{
-    dragging=true;
-    bringToFront(winEl);
-    offsetX = e.clientX - winEl.offsetLeft;
-    offsetY = e.clientY - winEl.offsetTop;
-    document.body.style.userSelect='none';
-  });
-  document.addEventListener('mousemove', (e)=>{
-    if(!dragging) return;
-    let nx = e.clientX - offsetX;
-    let ny = e.clientY - offsetY;
-    nx = Math.max(6, Math.min(nx, window.innerWidth - winEl.offsetWidth - 6));
-    ny = Math.max(6, Math.min(ny, window.innerHeight - winEl.offsetHeight - 48));
-    winEl.style.left = nx + 'px';
-    winEl.style.top = ny + 'px';
-  });
-  document.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect='auto'; });
-}
-
-/* ---------- Desktop icons drag (also safe) ---------- */
-(function makeIconsDraggable(){
-  const icons = document.querySelectorAll('.icon');
-  icons.forEach(ic=>{
-    let dragging=false, ox=0, oy=0;
-    ic.addEventListener('mousedown', (e)=>{
-      if(e.button !== 0) return;
-      dragging=true;
-      ox = e.clientX - ic.offsetLeft;
-      oy = e.clientY - ic.offsetTop;
-      bringToFront(ic);
-      document.body.style.userSelect='none';
-    });
-    document.addEventListener('mousemove', (e)=>{
-      if(!dragging) return;
-      ic.style.left = Math.max(6, Math.min(e.clientX-ox, window.innerWidth-110)) + 'px';
-      ic.style.top = Math.max(6, Math.min(e.clientY-oy, window.innerHeight-160)) + 'px';
-    });
-    document.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect='auto'; });
-  });
-})();
-
-/* ---------- App Store UI & install/uninstall ---------- */
-function openAppStore(){
-  buildAppStore();
-  appStore.style.display = 'flex';
-}
-function closeStoreHandler(){ appStore.style.display='none'; }
-closeStore.addEventListener('click', closeStoreHandler);
-arrangeBtn.addEventListener('click', ()=>{ autoArrangeIcons(); });
-
-function buildAppStore(){
-  appList.innerHTML = '';
-  const installed = getInstalled();
-  const deleted = getDeletedList();
-  ALL_APPS.forEach(a=>{
-    const row = document.createElement('div');
-    row.className = 'appRow';
-    // encode icon for data url usage if needed, otherwise direct URL
-    const iconSrc = a.icon;
-    row.innerHTML = `<img src="${iconSrc}" alt="${a.name}"/><div class="appMeta"><b>${a.name}</b><div class="small">${a.properties}</div></div><div class="appActions"></div>`;
-    const actions = row.querySelector('.appActions');
-    const installedNow = installed.includes(a.id) && !deleted.includes(a.id);
-    const btn = document.createElement('button');
-    btn.textContent = installedNow ? 'Uninstall' : 'Install';
-    btn.addEventListener('click', ()=>{
-      if(installedNow){
-        // uninstall
-        let arr = getInstalled().filter(x=>x!==a.id);
-        saveInstalled(arr);
-        // mark deleted
-        let d = getDeletedList();
-        if(!d.includes(a.id)) d.push(a.id);
-        saveDeletedList(d);
-      } else {
-        // install
-        let arr = getInstalled();
-        if(!arr.includes(a.id)) arr.push(a.id);
-        saveInstalled(arr);
-        // remove from deleted
-        let d = getDeletedList().filter(x=>x!==a.id);
-        saveDeletedList(d);
-      }
-      refreshIcons();
-      buildAppStore(); // refresh UI state
-    });
-    actions.appendChild(btn);
-    appList.appendChild(row);
-  });
-}
-
-/* ---------- Auto-arrange icons (grid left-aligned) ---------- */
-function autoArrangeIcons(){
-  const icons = Array.from(document.querySelectorAll('.icon'));
-  const visible = icons.filter(ic=>ic.style.display!=='none');
-  const gapX = 120, gapY = 120;
-  const cols = Math.max(1, Math.floor((window.innerWidth-40)/gapX));
-  visible.forEach((ic, idx)=>{
-    const col = idx % cols;
-    const row = Math.floor(idx / cols);
-    ic.style.left = (20 + col*gapX) + 'px';
-    ic.style.top = (20 + row*gapY) + 'px';
-  });
-}
-
-/* ---------- Helpers: center & bringToFront ---------- */
-function centerIfFirst(el,w,h){
-  if(!el.dataset.positioned){
-    centerElement(el,w,h);
-    el.dataset.positioned = '1';
-  }
-}
-function centerElement(el,w,h){
-  const vw = Math.max(480, window.innerWidth);
-  const vh = Math.max(320, window.innerHeight);
-  el.style.width = (w > vw ? Math.floor(vw*0.92) : w) + 'px';
-  el.style.height = (h > vh ? Math.floor(h*0.78) : h) + 'px';
-  el.style.left = Math.floor((window.innerWidth - el.offsetWidth)/2) + 'px';
-  el.style.top = Math.floor((window.innerHeight - el.offsetHeight)/2) + 'px';
-}
-function bringToFront(el){
-  zIndexCounter += 2;
-  el.style.zIndex = zIndexCounter;
-}
-
-/* ---------- On-load: apply saved state ---------- */
-(function init(){
-  ensureFactoryIcon();
-  refreshIcons();
-  // attach context handler to dynamic factory icon
-  const factory = document.getElementById('iconFactory');
-  if(factory){
-    factory.addEventListener('contextmenu',(e)=>{ e.preventDefault(); showContextMenu(e, factory); });
-    bindDoubleClick(factory, ()=>{ openFactory(); });
-  }
-  buildAppStore();
-})();
-
-/* ---------- Accessibility & misc ---------- */
-document.addEventListener('keydown',(e)=>{ if(e.key === 'Escape'){ closePopup('passwordPopup'); closePopup('incorrectPopup'); closePopup('propertiesPopup'); ctxMenu.style.display='none'; appStore.style.display='none'; closeStartMenu(); }});
-document.addEventListener('mousedown',(e)=>{ if(e.detail>1) e.preventDefault(); }); // avoid text select on double click
-
-/* expose helper for inline handlers */
-window.openFactory = openFactory;
-window.openFortniteWindow = openFortniteWindow;
-window.openRequestWindow = openRequestWindow;
-</script>
-</body>
-</html>
+/* ---------- Taskbar/minimize/maximize/close helpers
