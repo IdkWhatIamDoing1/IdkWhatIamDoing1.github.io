@@ -106,9 +106,9 @@
     </div>
 
     <!-- Desktop icons (created/hidden via JS) -->
-    <div class="icon" id="iconGameLauncher" data-app="Game Launcher" title="Game Launcher">
-      <img id="iconGameLauncherImg" src="https://static.wikia.nocookie.net/GameLauncher_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250" alt="GameLauncher Block"/>
-      <span>Game Launcher</span>
+    <div class="icon" id="iconMinecraft" data-app="game launcher" title="game launcher 1.8.8">
+      <img id="iconMinecraftImg" src="https://static.wikia.nocookie.net/Minecraft_gamepedia/images/c/c7/Grass_Block.png/revision/latest/scale-to-width-down/268?cb=20230226144250" alt="game launcher Block"/>
+      <span>game launcher 1.8.8</span>
     </div>
 
     <div class="icon" id="iconRequest" data-app="request" title="Request an App">
@@ -129,16 +129,37 @@
     <!-- Factory icon created dynamically but ensure placeholder present -->
     <div id="factoryPlaceholder" style="display:none"></div>
 
-    <!-- GameLauncher window -->
-    <div id="mcWindow" class="window" style="display:none;">
-  <div class="window-header">
-    <span class="window-title">Game Launcher</span>
-    <button class="close-btn">X</button>
-  </div>
-  <div class="window-body" style="padding:0;">
-    <iframe id="gameLauncherFrame" src="" style="width:100%;height:100%;border:none;"></iframe>
-  </div>
+    <!-- Game Launcher fullscreen iframe -->
+<div id="game-launcher-modal" class="fullscreen-modal" style="display:block;position:fixed;inset:0;margin:0;padding:0;z-index:9999;background:#000;">
+  <iframe id="game-launcher-iframe" src="launcher.html" frameborder="0" allowfullscreen style="width:100%;height:100vh;border:0;"></iframe>
 </div>
+
+<script>
+/* Ensure the iframe reloads each time the launcher is opened.
+   If there's already code that "opens" that app, call openGameLauncher() from it. */
+function openGameLauncher() {
+  const modal = document.getElementById('game-launcher-modal');
+  const iframe = document.getElementById('game-launcher-iframe');
+  if (modal) modal.style.display = 'block';
+  if (!iframe) return;
+  // Force a real reload: clear src then set it again
+  iframe.src = '';
+  // short timeout to ensure browser treats it as new navigation
+  setTimeout(function(){ iframe.src = 'launcher.html'; }, 20);
+}
+
+/* Optional: if the UI uses a click on an element that contains the app name,
+   the snippet below will automatically reload the iframe when the user clicks
+   anything that has a data-app-name attribute set to "game launcher". */
+document.addEventListener('click', function(e){
+  const el = e.target.closest('[data-app-name]');
+  if (!el) return;
+  if ((el.dataset.appName || '').toLowerCase() === 'game launcher') {
+    openGameLauncher();
+  }
+});
+</script>
+
 
     <!-- Request window -->
     <div class="window" id="reqWindow" role="dialog" aria-hidden="true" style="width:700px;height:500px;">
@@ -216,7 +237,7 @@
     <div class="popup" id="passwordPopup" role="dialog" aria-hidden="true" style="left:50%;top:40%;transform:translate(-50%,-50%);">
       <div class="p-head">Enter Password <button style="background:transparent;border:none;color:#fff;font-weight:700;cursor:pointer" onclick="closePopup('passwordPopup')">✕</button></div>
       <div class="p-body">
-        <p style="margin:0 0 8px 0;color:#111">Please enter the password to launch GameLauncher:</p>
+        <p style="margin:0 0 8px 0;color:#111">Please enter the password to launch game launcher:</p>
         <input id="pwInput" type="password" placeholder="Password" />
       </div>
       <div class="p-actions">
@@ -287,7 +308,7 @@
 
 /* ---------- Constants & app metadata ---------- */
 const AVAILABLE_APPS = [
-   { id:'GameLauncher', name:'GameLauncher 1.8.8', icon: document.getElementById('iconGameLauncherImg').src, propertiesText: '<strong>Made:</strong> 14 Oct 2025<br/>basic game launcher' },
+  { id:'game launcher', name:'game launcher 1.8.8', icon: document.getElementById('iconMinecraftImg').src, propertiesText: '<strong>Made:</strong> 13 Oct 2025<br/>game launcher in your web browser!' },
   { id:'fortnite', name:'Fortnite Launcher', icon: document.getElementById('iconFortniteImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Fortnite, in your web browser!' },
   { id:'request', name:'Request an App', icon: document.getElementById('iconRequestImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Suggest a app!' },
   { id:'wallpaper', name:'Wallpaper Engine', icon: document.getElementById('iconWallpaperImg').src, propertiesText:'<strong>Made:</strong> 14 Oct 2025<br/>Change desktop wallpaper' }
@@ -311,7 +332,7 @@ const ctxOpen = document.getElementById('ctxOpen');
 const ctxProperties = document.getElementById('ctxProperties');
 const ctxDelete = document.getElementById('ctxDelete');
 
-const iconGameLauncher = document.getElementById('iconGameLauncher');
+const iconMinecraft = document.getElementById('iconMinecraft');
 const iconRequest = document.getElementById('iconRequest');
 const iconFortnite = document.getElementById('iconFortnite');
 const iconWallpaper = document.getElementById('iconWallpaper');
@@ -368,7 +389,7 @@ function setWallpaper(dataUrl){
 
 /* ---------- App icon management ---------- */
 const ICON_MAP = {
-  GameLauncher: iconGameLauncher,
+  game launcher: iconMinecraft,
   request: iconRequest,
   fortnite: iconFortnite,
   wallpaper: iconWallpaper
@@ -439,7 +460,7 @@ Object.values(ICON_MAP).forEach(ic=>{
   bindDoubleClick(ic, ()=>{
     const app = ic.dataset.app;
     if(!isAppInstalled(app)) return; // do nothing if not installed
-    if(app==='GameLauncher') openPasswordPopup();
+    if(app==='game launcher') openPasswordPopup();
     else if(app==='request') openRequestWindow();
     else if(app==='fortnite') openFortniteWindow();
     else if(app==='wallpaper') openWallpaperWindow();
@@ -451,7 +472,7 @@ Object.values(ICON_MAP).forEach(ic=>{
 ctxOpen.addEventListener('click', ()=>{
   if(!currentCtxTarget) return;
   const app = currentCtxTarget.dataset.app;
-  if(app==='GameLauncher') openPasswordPopup();
+  if(app==='game launcher') openPasswordPopup();
   else if(app==='request') openRequestWindow();
   else if(app==='fortnite') openFortniteWindow();
   else if(app==='wallpaper') openWallpaperWindow();
@@ -498,7 +519,7 @@ function uninstallApp(id){
   saveInstalled(installed);
   updateIconVisibility();
   // close any windows and remove taskbar buttons
-  if(id==='GameLauncher') { mcWindow.style.display='none'; removeTaskbarButton('mcWindow'); }
+  if(id==='game launcher') { mcWindow.style.display='none'; removeTaskbarButton('mcWindow'); }
   if(id==='request') { reqWindow.style.display='none'; removeTaskbarButton('reqWindow'); }
   if(id==='fortnite') { fnWindow.style.display='none'; removeTaskbarButton('fnWindow'); }
   if(id==='wallpaper') { wpWindow.style.display='none'; removeTaskbarButton('wpWindow'); }
@@ -506,8 +527,8 @@ function uninstallApp(id){
 
 /* ---------- Show properties popup (smaller) ---------- */
 function showProperties(app){
-  if(app==='GameLauncher'){
-    propertiesBody.innerHTML = `<p style="margin:0;color:#111"><strong>Made:</strong> 13 Oct 2025</p><p style="margin:8px 0 0 0;color:#111">GameLauncher in your web browser!</p>`;
+  if(app==='game launcher'){
+    propertiesBody.innerHTML = `<p style="margin:0;color:#111"><strong>Made:</strong> 13 Oct 2025</p><p style="margin:8px 0 0 0;color:#111">game launcher in your web browser!</p>`;
   } else if(app==='request'){
     propertiesBody.innerHTML = `<p style="margin:0;color:#111"><strong>Made:</strong> 14 Oct 2025</p><p style="margin:8px 0 0 0;color:#111">Suggest a app!</p>`;
   } else if(app==='fortnite'){
@@ -522,9 +543,9 @@ function showProperties(app){
   showPopup(propertiesPopup);
 }
 
-/* ---------- Password flow (for GameLauncher) ---------- */
+/* ---------- Password flow (for game launcher) ---------- */
 function openPasswordPopup(){
-  if(!isAppInstalled('GameLauncher')) return;
+  if(!isAppInstalled('game launcher')) return;
   showPopup(passwordPopup);
   pwInput.value='';
   setTimeout(()=>pwInput.focus(),50);
@@ -533,7 +554,7 @@ pwSubmit.addEventListener('click', checkPassword);
 pwInput.addEventListener('keydown',(e)=>{ if(e.key==='Enter') checkPassword(); });
 function checkPassword(){
   const val = pwInput.value || '';
-  if(val === 'secret123'){ closePopup('passwordPopup'); openGameLauncherWindow(); }
+  if(val === 'secret123'){ closePopup('passwordPopup'); openMinecraftWindow(); }
   else{ closePopup('passwordPopup'); showPopup(incorrectPopup); }
 }
 
@@ -552,29 +573,10 @@ function closePopup(id){ const el = document.getElementById(id); if(el) el.style
 window.closePopup = closePopup;
 
 /* ---------- Open windows ---------- */
-function openGameLauncherWindow(){
-  if(!isAppInstalled('GameLauncher')) return;
-  
-  // Get window and iframe elements
-  const mcWindow = document.getElementById('mcWindow');
-  const iframe = document.getElementById('gameLauncherFrame');
-
-  // Reload iframe before showing
-  iframe.src = 'launcher.html';
-
-  // Make window fullscreen
+function openMinecraftWindow(){
+  if(!isAppInstalled('game launcher')) return;
   mcWindow.style.display = 'flex';
-  mcWindow.style.position = 'fixed';
-  mcWindow.style.top = '0';
-  mcWindow.style.left = '0';
-  mcWindow.style.width = '100vw';
-  mcWindow.style.height = '100vh';
-  mcWindow.style.zIndex = '9999';
-
-  // Optional: disable dragging or resizing
-  mcWindow.classList.add('fullscreen');
-  
-  // Attach window controls if needed
+  centerIfFirst(mcWindow,880,560);
   attachWindowControls(mcWindow, 'mcWindow');
   bringToFront(mcWindow);
 }
@@ -922,7 +924,7 @@ window.uninstallApp = uninstallApp;
 window.openStoreWindow = openStoreWindow;
 window.openFactory = openFactory;
 window.openFortniteWindow = openFortniteWindow;
-window.openGameLauncherWindow = openGameLauncherWindow;
+window.openMinecraftWindow = openMinecraftWindow;
 
 /* ---------- End of script ---------- */
 </script>
