@@ -303,7 +303,7 @@ function openAppWindow(title, options){
   appWindowBody.innerHTML = ''; // clear
   if(options.type === 'iframe'){
     const ifr = document.createElement('iframe');
-    ifr.src = options.src || 'about:blank';
+    ifr.src = options.src || 'https://minecraft-eaglercraft.github.io/go/minecraft-1.8.8/';
     ifr.style.width = '100%'; ifr.style.height = '100%';
     // show loading until it loads (reload before showing, per request)
     appWindowBody.appendChild(ifr);
@@ -400,7 +400,7 @@ document.querySelectorAll('.open-game').forEach(btn=>{
       openAppWindow('Suggest an App', { type:'iframe', src:'request.html', fullscreen:true });
     } else if(id === 'minceraft'){
       // open about:blank (placeholder)
-      openAppWindow('Minceraft', { type:'iframe', src:'about:blank', fullscreen:true });
+      openAppWindow('Minceraft', { type:'iframe', src:'https://minecraft-eaglercraft.github.io/go/minecraft-1.8.8/', fullscreen:true });
     } else if(id === 'playhop'){
       // open external site (may be blocked in iframe by headers)
       openAppWindow('PlayHop', { type:'iframe', src:'https://www.playhop.com', fullscreen:true });
