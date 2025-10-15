@@ -1,325 +1,421 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Game Launcher</title>
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: "Segoe UI", sans-serif;
-    background: #1b2838;
-    color: #c7d5e0;
+  :root{
+    --title-blue:#0078D7;
+    --muted:#9ca3af;
+    --bg:#0b0b0b;
+    --win-bg:#0f0f0f;
+    --accent:#1b2838; /* steam-like */
   }
-
-  .login-screen, .main-screen {
-    display: none;
-    height: 100vh;
-    width: 100vw;
+  html,body{height:100%;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(#0b0b0b,#111);color:#e6e6e6;overflow:hidden;}
+  /* --- Login screen (Windows 10 style) --- */
+  #loginWrap{
+    position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#081018,#0b1220);z-index:1000;
   }
-
-  .login-screen.active {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  .login-card{
+    width:360px;background:rgba(255,255,255,0.04);border-radius:8px;padding:28px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.7);
   }
-
-  .login-box {
-    background: #171a21;
-    padding: 30px 40px;
-    border-radius: 6px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    width: 320px;
-    text-align: center;
+  .user-avatar{
+    width:88px;height:88px;border-radius:50%;background:linear-gradient(180deg,#2b6fa0,#0a3f6b);margin:0 auto 12px auto;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:#fff;
   }
+  .login-name{font-size:18px;margin-bottom:12px;color:#fff}
+  .login-input{width:86%;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff;margin:8px 0}
+  .login-btn{padding:8px 16px;border-radius:6px;border:none;background:var(--title-blue);color:#fff;cursor:pointer;margin-top:8px}
+  .login-btn:active{transform:translateY(1px)}
+  .small-muted{color:#9aa6b2;font-size:13px;margin-top:10px}
 
-  .login-box h2 {
-    color: #66c0f4;
-    margin-bottom: 20px;
-  }
+  /* --- Launcher main UI --- */
+  #launcherRoot{position:fixed;left:0;top:0;right:0;bottom:0;display:none;flex-direction:column;background:#0b1220;}
+  .launcher-header{height:84px;display:flex;align-items:center;gap:18px;padding:18px 22px;background:linear-gradient(90deg,#07111a,#0b1a26);border-bottom:1px solid rgba(255,255,255,0.03)}
+  .logo{width:56px;height:56px;border-radius:8px;background:linear-gradient(180deg,#1b2838,#142029);display:flex;align-items:center;justify-content:center;font-weight:700;color:#9fb8d8;font-size:20px}
+  .launcher-title{font-size:20px;color:#e6f2ff;font-weight:700}
+  .launcher-sub{color:#9fb8d8;font-size:12px}
+  .header-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .tabbar{display:flex;gap:8px;margin-left:22px}
+  .tab{padding:8px 12px;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer}
+  .tab.active{background:rgba(255,255,255,0.03);color:#fff}
 
-  input {
-    width: 100%;
-    padding: 10px;
-    background: #2a475e;
-    border: none;
-    color: #fff;
-    border-radius: 3px;
-    margin-bottom: 15px;
-  }
+  .launcher-body{display:flex;flex:1;overflow:hidden}
+  .left-col{width:260px;border-right:1px solid rgba(255,255,255,0.03);padding:12px;box-sizing:border-box;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+  .section-title{color:#9fb8d8;font-size:13px;margin-bottom:8px}
+  .nav-item{padding:10px;border-radius:6px;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--muted)}
+  .nav-item:hover{background:rgba(255,255,255,0.02);color:#fff}
+  .nav-item .badge{margin-left:auto;font-size:12px;color:#9ca3af}
 
-  input::placeholder { color: #ccc; }
+  .main-col{flex:1;padding:16px;overflow:auto;position:relative}
+  .panel{background:linear-gradient(180deg,#0f1b27,#0b1620);border-radius:8px;padding:14px;color:#dfe9f2;min-height:200px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+  .server-error{font-size:18px;color:#f0b0b0;text-align:center;padding:60px}
 
-  button {
-    width: 100%;
-    padding: 10px;
-    background: #66c0f4;
-    border: none;
-    border-radius: 3px;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-  }
+  /* Library grid */
+  .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .game-card{background:linear-gradient(180deg,#0e1620,#071018);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px}
+  .game-thumb{height:100px;border-radius:6px;background:linear-gradient(180deg,#143a6b,#0b2338);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+  .game-title{font-weight:700;color:#fff}
+  .game-desc{color:#9fb8d8;font-size:13px}
+  .game-actions{margin-top:auto;display:flex;gap:8px}
+  .game-actions .btn{background:var(--title-blue);border-radius:6px;padding:8px 10px;border:none;cursor:pointer}
+  .game-actions .btn.secondary{background:#334252}
 
-  button:hover {
-    background: #1999d6;
-  }
+  /* --- Window UI inside launcher.html --- */
+  .app-window{position:absolute;background:#fff;color:#111;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,0.7);overflow:hidden;display:none;flex-direction:column;z-index:2000;border:1px solid rgba(0,0,0,0.12)}
+  .app-titlebar{height:36px;background:linear-gradient(180deg,var(--title-blue),#0062b0);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:move;user-select:none}
+  .app-title{font-weight:600;font-size:13px}
+  .app-controls{display:flex;gap:6px}
+  .app-controls button{width:34px;height:26px;border-radius:4px;border:none;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .app-body{flex:1;background:#fff;display:flex;align-items:center;justify-content:center;padding:8px;overflow:hidden}
+  .app-body iframe{width:100%;height:100%;border:0}
 
-  .signup {
-    margin-top: 10px;
-    color: #66c0f4;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
+  /* popup */
+  .dialog{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;color:#111;padding:14px;border-radius:8px;box-shadow:0 12px 30px rgba(0,0,0,0.6);display:none;z-index:3000}
+  .dialog .btn{margin-top:10px}
 
-  .signup:hover { text-decoration: underline; }
+  /* small helpers */
+  .muted{color:#9ca3af}
+  .hidden{display:none}
 
-  /* Main launcher UI */
-  .main-screen.active {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-  }
-
-  .navbar {
-    background: #171a21;
-    color: #c7d5e0;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .navbar h1 {
-    margin: 0;
-    font-size: 1.4rem;
-    color: #66c0f4;
-  }
-
-  .nav-tabs {
-    display: flex;
-    background: #2a475e;
-    padding: 10px 20px;
-    gap: 20px;
-    border-bottom: 1px solid #000;
-  }
-
-  .nav-tabs div {
-    cursor: pointer;
-    color: #c7d5e0;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-
-  .nav-tabs div.active {
-    color: #66c0f4;
-  }
-
-  .nav-tabs div:hover {
-    color: #66c0f4;
-  }
-
-  .content {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 30px;
-    overflow-y: auto;
-    flex: 1;
-    background: #1b2838;
-  }
-
-  .game {
-    background: #2a475e;
-    width: 220px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: transform 0.2s;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
-  }
-
-  .game:hover { transform: scale(1.03); }
-
-  .game img {
-    width: 100%;
-    border-radius: 6px 6px 0 0;
-    height: 120px;
-    object-fit: cover;
-  }
-
-  .game h3 {
-    margin: 10px;
-    font-size: 1rem;
-    color: #66c0f4;
-  }
-
-  .game p {
-    margin: 0 10px 10px;
-    font-size: 0.9rem;
-    color: #c7d5e0;
-  }
-
-  iframe {
-    width: 100%;
-    height: calc(100vh - 120px);
-    border: none;
-  }
-
-  .popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #171a21;
-    padding: 25px 40px;
-    border-radius: 6px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.7);
-    text-align: center;
-    z-index: 1000;
-    display: none;
-  }
-
-  .popup.active { display: block; }
-
-  .server-error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: calc(100vh - 120px);
-    color: #c7d5e0;
-    font-size: 1.3rem;
+  /* responsive */
+  @media (max-width:800px){
+    .left-col{display:none}
   }
 </style>
 </head>
 <body>
 
-<!-- Login Screen -->
-<div class="login-screen active" id="loginScreen">
-  <div class="login-box">
-    <h2>Sign In to Game Launcher</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Sign In</button>
-    <div class="signup" onclick="showSignupPopup()">Create an Account</div>
+<!-- Login screen -->
+<div id="loginWrap">
+  <div class="login-card" role="dialog" aria-label="Sign in">
+    <div class="user-avatar">S</div>
+    <div class="login-name">Shared</div>
+    <input id="loginUser" class="login-input" value="Shared" />
+    <input id="loginPass" type="password" class="login-input" placeholder="Password" />
+    <div>
+      <button id="loginBtn" class="login-btn">Sign in</button>
+      <button id="signupBtn" class="login-btn" style="background:#777;margin-left:8px">Sign up</button>
+    </div>
+    <div class="small-muted">Enter password to continue</div>
+    <div id="loginError" class="small-muted" style="color:#f0a0a0;display:none;margin-top:8px">Invalid credentials</div>
   </div>
 </div>
 
-<!-- Main Launcher -->
-<div class="main-screen" id="mainScreen">
-  <div class="navbar">
-    <h1>Game Launcher</h1>
-    <button onclick="logout()" style="width:auto; background:#2a475e;">Logout</button>
-  </div>
-
-  <div class="nav-tabs">
-    <div id="tab-store" onclick="switchTab('store')">Store</div>
-    <div id="tab-library" class="active" onclick="switchTab('library')">Library</div>
-    <div id="tab-community" onclick="switchTab('community')">Community</div>
-  </div>
-
-  <div id="storeContent" class="server-error" style="display:none;">
-    Could Not Connect To Server.
-  </div>
-
-  <div id="libraryContent" class="content">
-    <div class="game" onclick="openGame('unavailable')">
-      <img src="https://cdn-icons-png.flaticon.com/512/565/565547.png" alt="Unavailable">
-      <h3>Unavailable</h3>
-      <p>Game was privated by creator.</p>
+<!-- Launcher root (hidden until logged in) -->
+<div id="launcherRoot" aria-hidden="true">
+  <div class="launcher-header">
+    <div class="logo">GL</div>
+    <div>
+      <div class="launcher-title">Game Launcher</div>
+      <div class="launcher-sub">Play your games</div>
     </div>
 
-    <div class="game" onclick="openGame('suggest')">
-      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="Suggest an App">
-      <h3>Suggest an App</h3>
-      <p>Suggest games here!</p>
+    <div class="tabbar" role="tablist" aria-label="Launcher Tabs">
+      <div class="tab active" data-tab="store">Store</div>
+      <div class="tab" data-tab="library">Library</div>
+      <div class="tab" data-tab="community">Community</div>
     </div>
 
-    <div class="game" onclick="openGame('minceraft')">
-      <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png" alt="Minceraft">
-      <h3>Minceraft</h3>
-      <p>Play Minceraft Online.</p>
-    </div>
-
-    <div class="game" onclick="openGame('playhop')">
-      <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="PlayHop">
-      <h3>PlayHop</h3>
-      <p>A good game website.</p>
+    <div class="header-right">
+      <div id="userBadge" style="color:var(--muted)">Shared</div>
     </div>
   </div>
 
-  <div id="communityContent" class="server-error" style="display:none;">
-    Could Not Connect To Server.
-  </div>
+  <div class="launcher-body">
+    <div class="left-col">
+      <div class="section-title">Shortcuts</div>
+      <div class="nav-item" data-tab="store">Store <span class="badge">offline</span></div>
+      <div class="nav-item" data-tab="library">Library</div>
+      <div class="nav-item" data-tab="community">Community <span class="badge">offline</span></div>
+    </div>
 
-  <div id="gameFrame" style="display:none;">
-    <iframe id="iframeGame" src=""></iframe>
+    <div class="main-col">
+      <!-- panels -->
+      <div id="panel-store" class="panel" role="tabpanel">
+        <div class="server-error">Could Not Connect To Server</div>
+      </div>
+
+      <div id="panel-library" class="panel hidden" role="tabpanel">
+        <div style="margin-bottom:12px;color:#9fb8d8;font-weight:600">Library</div>
+        <div class="game-grid">
+          <div class="game-card" data-game="unavailable">
+            <div class="game-thumb">UN</div>
+            <div class="game-title">Unavailable</div>
+            <div class="game-desc">Game was privated by creator</div>
+            <div class="game-actions">
+              <button class="btn open-game" data-game="unavailable">Open</button>
+            </div>
+          </div>
+
+          <div class="game-card" data-game="suggest">
+            <div class="game-thumb">SG</div>
+            <div class="game-title">Suggest an app</div>
+            <div class="game-desc">Suggest games here</div>
+            <div class="game-actions">
+              <button class="btn open-game" data-game="suggest">Open</button>
+            </div>
+          </div>
+
+          <div class="game-card" data-game="minceraft">
+            <div class="game-thumb">MC</div>
+            <div class="game-title">Minceraft</div>
+            <div class="game-desc">Play Minceraft online</div>
+            <div class="game-actions">
+              <button class="btn open-game" data-game="minceraft">Open</button>
+            </div>
+          </div>
+
+          <div class="game-card" data-game="playhop">
+            <div class="game-thumb">PH</div>
+            <div class="game-title">PlayHop</div>
+            <div class="game-desc">A good game website</div>
+            <div class="game-actions">
+              <button class="btn open-game" data-game="playhop">Open</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-community" class="panel hidden" role="tabpanel">
+        <div class="server-error">Could Not Connect To Server</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Sign-up Popup -->
-<div class="popup" id="signupPopup">
-  <h3>Sign-up is currently unavailable.</h3>
-  <button onclick="closeSignupPopup()">Go Back</button>
+<!-- App windows inside launcher.html -->
+<!-- Generic app window template (reused) -->
+<div class="app-window" id="appWindow" aria-hidden="true" style="width:900px;height:600px;left:50px;top:50px;">
+  <div class="app-titlebar" data-drag="title">
+    <div class="app-title" id="appWindowTitle">App</div>
+    <div class="app-controls">
+      <button id="appMin">▁</button>
+      <button id="appMax">▢</button>
+      <button id="appClose">✕</button>
+    </div>
+  </div>
+  <div class="app-body" id="appWindowBody">
+    <!-- dynamic content (iframe or message) -->
+  </div>
+</div>
+
+<!-- Dialogs -->
+<div class="dialog" id="signupDialog">
+  <div style="font-weight:700">Sign up</div>
+  <div style="margin-top:8px">Sign up is currently unavailable.</div>
+  <button class="btn" id="signupBack">Go back</button>
+</div>
+
+<div class="dialog" id="loginFailedDialog">
+  <div style="font-weight:700">Sign in failed</div>
+  <div style="margin-top:8px">Username or password incorrect.</div>
+  <button class="btn" id="loginFailedOk">OK</button>
 </div>
 
 <script>
-  function login() {
-    const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value.trim();
-    if(user === "Shared" && pass === "securepassword") {
-      document.getElementById('loginScreen').classList.remove('active');
-      document.getElementById('mainScreen').classList.add('active');
+/* ---------- Minimal window system (drag, controls, z-index) ---------- */
+let zIndexCounter = 5000;
+function bringToFront(el){ zIndexCounter += 2; el.style.zIndex = zIndexCounter; }
+
+/* draggable titlebar */
+function makeDraggable(winEl, handle){
+  let dragging=false, ox=0, oy=0;
+  handle.addEventListener('mousedown', (e)=>{
+    if(e.button !== 0) return;
+    dragging = true;
+    const rect = winEl.getBoundingClientRect();
+    ox = e.clientX - rect.left;
+    oy = e.clientY - rect.top;
+    bringToFront(winEl);
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', (e)=>{
+    if(!dragging) return;
+    let nx = e.clientX - ox;
+    let ny = e.clientY - oy;
+    // clamp
+    nx = Math.max(8, Math.min(nx, window.innerWidth - winEl.offsetWidth - 8));
+    ny = Math.max(8, Math.min(ny, window.innerHeight - winEl.offsetHeight - 8));
+    winEl.style.left = nx + 'px';
+    winEl.style.top = ny + 'px';
+  });
+  document.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect = 'auto'; });
+}
+
+/* controls: minimize, maximize, close */
+function attachWindowControls(winEl){
+  if(winEl.dataset.controlsAttached) return;
+  winEl.dataset.controlsAttached = '1';
+  const title = winEl.querySelector('[data-drag="title"]') || winEl.querySelector('.app-titlebar');
+  makeDraggable(winEl, title);
+
+  const btnMin = winEl.querySelector('#appMin');
+  const btnMax = winEl.querySelector('#appMax');
+  const btnClose = winEl.querySelector('#appClose');
+
+  btnMin.addEventListener('click', ()=>{ winEl.dataset.prevDisplay = winEl.style.display; winEl.style.display='none'; /* no taskbar here */ });
+  btnClose.addEventListener('click', ()=>{ winEl.style.display='none'; winEl.querySelector('.app-body').innerHTML=''; });
+  btnMax.addEventListener('click', ()=>{
+    if(winEl.dataset.max === '1'){
+      // restore
+      winEl.style.left = winEl.dataset.prevL;
+      winEl.style.top = winEl.dataset.prevT;
+      winEl.style.width = winEl.dataset.prevW;
+      winEl.style.height = winEl.dataset.prevH;
+      winEl.dataset.max = '0';
     } else {
-      alert("Invalid username or password.");
+      // save and maximize
+      winEl.dataset.prevL = winEl.style.left || winEl.offsetLeft + 'px';
+      winEl.dataset.prevT = winEl.style.top || winEl.offsetTop + 'px';
+      winEl.dataset.prevW = winEl.style.width || winEl.offsetWidth + 'px';
+      winEl.dataset.prevH = winEl.style.height || winEl.offsetHeight + 'px';
+      winEl.style.left = '8px';
+      winEl.style.top = '8px';
+      winEl.style.width = (window.innerWidth - 16) + 'px';
+      winEl.style.height = (window.innerHeight - 16) + 'px';
+      winEl.dataset.max = '1';
     }
+    bringToFront(winEl);
+  });
+}
+
+/* helper to open an app window with either message or iframe */
+const appWindow = document.getElementById('appWindow');
+const appWindowTitle = document.getElementById('appWindowTitle');
+const appWindowBody = document.getElementById('appWindowBody');
+
+function openAppWindow(title, options){
+  // options: { type: 'iframe'|'message', src: '', message:'', fullscreen: true/false }
+  appWindowTitle.textContent = title;
+  appWindowBody.innerHTML = ''; // clear
+  if(options.type === 'iframe'){
+    const ifr = document.createElement('iframe');
+    ifr.src = options.src || 'about:blank';
+    ifr.style.width = '100%'; ifr.style.height = '100%';
+    // show loading until it loads (reload before showing, per request)
+    appWindowBody.appendChild(ifr);
+  } else {
+    const wrap = document.createElement('div');
+    wrap.style.padding = '18px';
+    wrap.style.textAlign = 'center';
+    wrap.innerHTML = `<div style="font-weight:700;margin-bottom:8px">${options.message || ''}</div>`;
+    appWindowBody.appendChild(wrap);
   }
 
-  function logout() {
-    document.getElementById('mainScreen').classList.remove('active');
-    document.getElementById('loginScreen').classList.add('active');
+  // size / position
+  if(options.fullscreen){
+    appWindow.style.left = '8px';
+    appWindow.style.top = '8px';
+    appWindow.style.width = (window.innerWidth - 16) + 'px';
+    appWindow.style.height = (window.innerHeight - 16) + 'px';
+    appWindow.dataset.max = '1';
+  } else {
+    appWindow.style.width = options.width || '900px';
+    appWindow.style.height = options.height || '600px';
+    appWindow.style.left = options.left || '60px';
+    appWindow.style.top = options.top || '60px';
+    appWindow.dataset.max = '0';
   }
 
-  function showSignupPopup() {
-    document.getElementById('signupPopup').classList.add('active');
+  appWindow.style.display = 'flex';
+  bringToFront(appWindow);
+  attachWindowControls(appWindow);
+}
+
+/* ---------- Login handling ---------- */
+const loginWrap = document.getElementById('loginWrap');
+const launcherRoot = document.getElementById('launcherRoot');
+const loginBtn = document.getElementById('loginBtn');
+const loginUser = document.getElementById('loginUser');
+const loginPass = document.getElementById('loginPass');
+const signupBtn = document.getElementById('signupBtn');
+const signupDialog = document.getElementById('signupDialog');
+const signupBack = document.getElementById('signupBack');
+const loginFailedDialog = document.getElementById('loginFailedDialog');
+const loginFailedOk = document.getElementById('loginFailedOk');
+
+function showLauncher(){
+  loginWrap.style.display = 'none';
+  launcherRoot.style.display = 'flex';
+  launcherRoot.setAttribute('aria-hidden','false');
+}
+
+loginBtn.addEventListener('click', ()=>{
+  const user = (loginUser.value||'').trim();
+  const pass = (loginPass.value||'').trim();
+  if(user === 'Shared' && pass === 'securepassword'){
+    showLauncher();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    loginFailedDialog.style.display = 'block';
+    bringToFront(loginFailedDialog);
   }
+});
+loginPass.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') loginBtn.click(); });
 
-  function closeSignupPopup() {
-    document.getElementById('signupPopup').classList.remove('active');
-  }
+signupBtn.addEventListener('click', ()=>{
+  signupDialog.style.display = 'block';
+  bringToFront(signupDialog);
+});
+signupBack.addEventListener('click', ()=>{ signupDialog.style.display = 'none'; });
 
-  function switchTab(tab) {
-    const tabs = ['store', 'library', 'community'];
-    tabs.forEach(t => {
-      document.getElementById(`${t}Content`).style.display = (t === tab) ? (t === 'library' ? 'flex' : 'flex') : 'none';
-      document.getElementById(`tab-${t}`).classList.remove('active');
-    });
-    document.getElementById(`tab-${tab}`).classList.add('active');
-    document.getElementById('gameFrame').style.display = 'none';
-  }
+loginFailedOk.addEventListener('click', ()=>{ loginFailedDialog.style.display = 'none'; });
 
-  function openGame(id) {
-    const frame = document.getElementById('iframeGame');
-    const gameFrame = document.getElementById('gameFrame');
-    const library = document.getElementById('libraryContent');
-    library.style.display = 'none';
-    gameFrame.style.display = 'block';
-
-    if(id === 'unavailable') {
-      frame.srcdoc = '<body style="background:#1b2838;color:#c7d5e0;display:flex;align-items:center;justify-content:center;height:100vh;font-size:1.4rem;">Game was privated by creator.</body>';
+/* ---------- Tabs behavior ---------- */
+function setActiveTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('[data-tab]').forEach(el=>{
+    if(el.dataset.tab === name && el.classList.contains('tab')){
+      // header tab
     }
-    else if(id === 'suggest') {
-      frame.src = 'request.html';
+  });
+  document.getElementById('panel-store').classList.toggle('hidden', name !== 'store');
+  document.getElementById('panel-library').classList.toggle('hidden', name !== 'library');
+  document.getElementById('panel-community').classList.toggle('hidden', name !== 'community');
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click', ()=> setActiveTab(t.dataset.tab)));
+document.querySelectorAll('.nav-item').forEach(n=> n.addEventListener('click', ()=> setActiveTab(n.dataset.tab || n.getAttribute('data-tab'))));
+
+/* ---------- Game open behavior (open windows inside launcher.html) ---------- */
+document.querySelectorAll('.open-game').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    const id = btn.dataset.game;
+    if(id === 'unavailable'){
+      openAppWindow('Unavailable', { type:'message', message:'Game was privated by creator', fullscreen:false, width:'640px', height:'320px', left:'80px', top:'80px' });
+    } else if(id === 'suggest'){
+      // open request.html in iframe
+      openAppWindow('Suggest an App', { type:'iframe', src:'request.html', fullscreen:true });
+    } else if(id === 'minceraft'){
+      // open about:blank (placeholder)
+      openAppWindow('Minceraft', { type:'iframe', src:'about:blank', fullscreen:true });
+    } else if(id === 'playhop'){
+      // open external site (may be blocked in iframe by headers)
+      openAppWindow('PlayHop', { type:'iframe', src:'https://www.playhop.com', fullscreen:true });
     }
-    else if(id === 'minceraft') {
-      frame.src = 'about:blank';
-    }
-    else if(id === 'playhop') {
-      frame.src = 'https://www.playhop.com';
-    }
+  });
+});
+
+/* make escape close appWindow when visible */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){
+    if(appWindow.style.display === 'flex'){
+      appWindow.style.display = 'none';
+      appWindowBody.innerHTML = '';
+    } else if(signupDialog.style.display === 'block'){ signupDialog.style.display = 'none'; }
   }
+});
+
+/* prevent iframe navigation from breaking top — keep contained */
+/* (no special code needed; iframe is embedded) */
+
+/* On resize: if app window is maximized, resize it */
+window.addEventListener('resize', ()=>{
+  if(appWindow.dataset.max === '1'){
+    appWindow.style.width = (window.innerWidth - 16) + 'px';
+    appWindow.style.height = (window.innerHeight - 16) + 'px';
+  }
+});
 </script>
-
 </body>
 </html>
