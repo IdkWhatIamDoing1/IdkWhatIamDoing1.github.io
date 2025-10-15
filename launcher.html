@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Launcher</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: #1b2838;
+    color: #c7d5e0;
+  }
+
+  .login-screen, .main-screen {
+    display: none;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .login-screen.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .login-box {
+    background: #171a21;
+    padding: 30px 40px;
+    border-radius: 6px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    width: 320px;
+    text-align: center;
+  }
+
+  .login-box h2 {
+    color: #66c0f4;
+    margin-bottom: 20px;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    background: #2a475e;
+    border: none;
+    color: #fff;
+    border-radius: 3px;
+    margin-bottom: 15px;
+  }
+
+  input::placeholder { color: #ccc; }
+
+  button {
+    width: 100%;
+    padding: 10px;
+    background: #66c0f4;
+    border: none;
+    border-radius: 3px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #1999d6;
+  }
+
+  .signup {
+    margin-top: 10px;
+    color: #66c0f4;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .signup:hover { text-decoration: underline; }
+
+  /* Main launcher UI */
+  .main-screen.active {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .navbar {
+    background: #171a21;
+    color: #c7d5e0;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .navbar h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #66c0f4;
+  }
+
+  .nav-tabs {
+    display: flex;
+    background: #2a475e;
+    padding: 10px 20px;
+    gap: 20px;
+    border-bottom: 1px solid #000;
+  }
+
+  .nav-tabs div {
+    cursor: pointer;
+    color: #c7d5e0;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-tabs div.active {
+    color: #66c0f4;
+  }
+
+  .nav-tabs div:hover {
+    color: #66c0f4;
+  }
+
+  .content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 30px;
+    overflow-y: auto;
+    flex: 1;
+    background: #1b2838;
+  }
+
+  .game {
+    background: #2a475e;
+    width: 220px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  }
+
+  .game:hover { transform: scale(1.03); }
+
+  .game img {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    height: 120px;
+    object-fit: cover;
+  }
+
+  .game h3 {
+    margin: 10px;
+    font-size: 1rem;
+    color: #66c0f4;
+  }
+
+  .game p {
+    margin: 0 10px 10px;
+    font-size: 0.9rem;
+    color: #c7d5e0;
+  }
+
+  iframe {
+    width: 100%;
+    height: calc(100vh - 120px);
+    border: none;
+  }
+
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #171a21;
+    padding: 25px 40px;
+    border-radius: 6px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.7);
+    text-align: center;
+    z-index: 1000;
+    display: none;
+  }
+
+  .popup.active { display: block; }
+
+  .server-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 120px);
+    color: #c7d5e0;
+    font-size: 1.3rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-screen active" id="loginScreen">
+  <div class="login-box">
+    <h2>Sign In to Game Launcher</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Sign In</button>
+    <div class="signup" onclick="showSignupPopup()">Create an Account</div>
+  </div>
+</div>
+
+<!-- Main Launcher -->
+<div class="main-screen" id="mainScreen">
+  <div class="navbar">
+    <h1>Game Launcher</h1>
+    <button onclick="logout()" style="width:auto; background:#2a475e;">Logout</button>
+  </div>
+
+  <div class="nav-tabs">
+    <div id="tab-store" onclick="switchTab('store')">Store</div>
+    <div id="tab-library" class="active" onclick="switchTab('library')">Library</div>
+    <div id="tab-community" onclick="switchTab('community')">Community</div>
+  </div>
+
+  <div id="storeContent" class="server-error" style="display:none;">
+    Could Not Connect To Server.
+  </div>
+
+  <div id="libraryContent" class="content">
+    <div class="game" onclick="openGame('unavailable')">
+      <img src="https://cdn-icons-png.flaticon.com/512/565/565547.png" alt="Unavailable">
+      <h3>Unavailable</h3>
+      <p>Game was privated by creator.</p>
+    </div>
+
+    <div class="game" onclick="openGame('suggest')">
+      <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="Suggest an App">
+      <h3>Suggest an App</h3>
+      <p>Suggest games here!</p>
+    </div>
+
+    <div class="game" onclick="openGame('minceraft')">
+      <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c7/Grass_Block.png" alt="Minceraft">
+      <h3>Minceraft</h3>
+      <p>Play Minceraft Online.</p>
+    </div>
+
+    <div class="game" onclick="openGame('playhop')">
+      <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="PlayHop">
+      <h3>PlayHop</h3>
+      <p>A good game website.</p>
+    </div>
+  </div>
+
+  <div id="communityContent" class="server-error" style="display:none;">
+    Could Not Connect To Server.
+  </div>
+
+  <div id="gameFrame" style="display:none;">
+    <iframe id="iframeGame" src=""></iframe>
+  </div>
+</div>
+
+<!-- Sign-up Popup -->
+<div class="popup" id="signupPopup">
+  <h3>Sign-up is currently unavailable.</h3>
+  <button onclick="closeSignupPopup()">Go Back</button>
+</div>
+
+<script>
+  function login() {
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    if(user === "Shared" && pass === "securepassword") {
+      document.getElementById('loginScreen').classList.remove('active');
+      document.getElementById('mainScreen').classList.add('active');
+    } else {
+      alert("Invalid username or password.");
+    }
+  }
+
+  function logout() {
+    document.getElementById('mainScreen').classList.remove('active');
+    document.getElementById('loginScreen').classList.add('active');
+  }
+
+  function showSignupPopup() {
+    document.getElementById('signupPopup').classList.add('active');
+  }
+
+  function closeSignupPopup() {
+    document.getElementById('signupPopup').classList.remove('active');
+  }
+
+  function switchTab(tab) {
+    const tabs = ['store', 'library', 'community'];
+    tabs.forEach(t => {
+      document.getElementById(`${t}Content`).style.display = (t === tab) ? (t === 'library' ? 'flex' : 'flex') : 'none';
+      document.getElementById(`tab-${t}`).classList.remove('active');
+    });
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    document.getElementById('gameFrame').style.display = 'none';
+  }
+
+  function openGame(id) {
+    const frame = document.getElementById('iframeGame');
+    const gameFrame = document.getElementById('gameFrame');
+    const library = document.getElementById('libraryContent');
+    library.style.display = 'none';
+    gameFrame.style.display = 'block';
+
+    if(id === 'unavailable') {
+      frame.srcdoc = '<body style="background:#1b2838;color:#c7d5e0;display:flex;align-items:center;justify-content:center;height:100vh;font-size:1.4rem;">Game was privated by creator.</body>';
+    }
+    else if(id === 'suggest') {
+      frame.src = 'request.html';
+    }
+    else if(id === 'minceraft') {
+      frame.src = 'about:blank';
+    }
+    else if(id === 'playhop') {
+      frame.src = 'https://www.playhop.com';
+    }
+  }
+</script>
+
+</body>
+</html>
